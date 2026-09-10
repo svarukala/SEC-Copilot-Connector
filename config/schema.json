@@ -1,0 +1,157 @@
+{
+  "baseType": "microsoft.graph.externalItem",
+  "properties": [
+    {
+      "name": "Title",
+      "type": "String",
+      "isSearchable": true,
+      "isQueryable": true,
+      "isRetrievable": true,
+      "labels": ["title"]
+    },
+    {
+      "name": "Company",
+      "type": "String",
+      "isSearchable": true,
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "Ticker",
+      "type": "String",
+      "isSearchable": false,
+      "isQueryable": true,
+      "isRetrievable": true,
+      "isRefinable": true
+    },
+    {
+      "name": "Form",
+      "type": "String",
+      "isSearchable": false,
+      "isQueryable": true,
+      "isRetrievable": true,
+      "isRefinable": true
+    },
+    {
+      "name": "FilingDate",
+      "type": "DateTime",
+      "isSearchable": false,
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "Description",
+      "type": "String",
+      "isSearchable": true,
+      "isQueryable": false,
+      "isRetrievable": true
+    },
+    {
+      "name": "Url",
+      "type": "String",
+      "isSearchable": false,
+      "isQueryable": false,
+      "isRetrievable": true,
+      "labels": ["url"]
+    },
+    {
+      "name": "CIK",
+      "type": "String",
+      "isSearchable": false,
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "AccessionNumber",
+      "type": "String",
+      "isSearchable": false,
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "Sequence",
+      "type": "Int64",
+      "isSearchable": false,
+      "isQueryable": false,
+      "isRetrievable": true
+    },
+    {
+      "name": "Page",
+      "type": "Int64",
+      "isSearchable": false,
+      "isQueryable": false,
+      "isRetrievable": true
+    },
+    {
+      "name": "IconUrl",
+      "type": "String",
+      "isRetrievable": true,
+      "labels": ["iconUrl"]
+    },
+    {
+      "name": "FilingUrl",
+      "type": "String",
+      "isRetrievable": true
+    },
+    {
+      "name": "DocumentName",
+      "type": "String",
+      "isSearchable": true,
+      "isQueryable": true,
+      "isRetrievable": true,
+      "labels": ["fileName"]
+    },
+    {
+      "name": "FileExtension",
+      "type": "String",
+      "isQueryable": true,
+      "isRetrievable": true,
+      "labels": ["fileExtension"]
+    },
+    {
+      "name": "DocumentType",
+      "type": "String",
+      "isQueryable": true,
+      "isRetrievable": true,
+      "isRefinable": true
+    },
+    {
+      "name": "DocumentId",
+      "type": "String",
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "ChunkOrdinal",
+      "type": "Int64",
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "SectionTitle",
+      "type": "String",
+      "isSearchable": true,
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "ReportPeriodEnd",
+      "type": "DateTime",
+      "isQueryable": true,
+      "isRetrievable": true
+    },
+    {
+      "name": "AcceptanceDateTime",
+      "type": "DateTime",
+      "isQueryable": true,
+      "isRetrievable": true,
+      "labels": ["createdDateTime"]
+    },
+    {
+      "name": "IsAmendment",
+      "type": "Boolean",
+      "isQueryable": true,
+      "isRetrievable": true
+    }
+  ]
+}
