@@ -5,6 +5,10 @@ root in PowerShell, using the same `config\config.yaml`, environment credentials
 and virtual environment. On macOS/Linux, use the corresponding executable in
 `.venv/bin` and shell-specific environment-variable syntax.
 
+The example tickers `AAPL`, `MSFT`, and `GOOG` are illustrative. Replace them
+with your selected companies and review the configured filing-date window
+before running any ingestion command.
+
 ## Monitor a run
 
 Use the ingestion terminal or follow the latest log in a second PowerShell
@@ -49,10 +53,10 @@ is used by a separate download helper, not to parallelize the main ingestion
 pipeline. Separate runs must coordinate their combined SEC traffic.
 
 Plan for hours for a multi-year backfill, not a fixed minutes-per-ticker estimate.
-One five-year WFC/JPM/BAC/USB run processed 475 filings and 106,799 acknowledged
-items in approximately 7 hours 38 minutes, including WFC reprocessing. This is
-an observed example, not a performance guarantee. Disk and index usage depend
-on source size, selected exhibits, and chunk counts.
+Runtime varies with filing volume, document complexity, network conditions,
+service retries, and whether content is being reprocessed. Disk and index usage
+depend on source size, selected exhibits, and chunk counts. Use a representative
+sample to assess your workload rather than assuming a fixed throughput.
 
 ## Resume, refresh, or rebuild
 
@@ -66,17 +70,18 @@ on source size, selected exhibits, and chunk counts.
 # Recover queued work within the configured filing-date window
 .\.venv\Scripts\sec-connector.exe -c .\config\config.yaml resume
 
-# Discover and synchronize all five tickers
-.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t PNC,WFC,JPM,BAC,USB --no-prune
+# Discover and synchronize your selected tickers (examples below)
+.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t AAPL,MSFT,GOOG --no-prune
 ```
 
 Do not run these simultaneously against the same destination. Stop the writer
 before changing settings. Keep the destination database and download cache:
 deleting state does not remove remote content and can lose reconciliation history.
 
-Discovery is ticker-by-ticker. If a run stops during PNC, `resume` does not
-discover WFC/JPM/BAC/USB unless they were previously queued. Use `ingest` to
-discover them. An unlimited ingest also expands previously sampled filings.
+Discovery is ticker-by-ticker. If a run stops during the first company, `resume`
+does not discover the remaining companies unless they were previously queued.
+Use `ingest` with the complete ticker list to discover them. An unlimited ingest
+also expands previously sampled filings.
 
 Full reruns refresh source bytes by default. Fingerprints cache parsed documents;
 canonical item hashes skip unchanged PUTs. Setting
@@ -105,7 +110,7 @@ filings:
 Then run `ingest` for the intended ticker(s), without sampling or pruning:
 
 ```powershell
-.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t PNC --no-prune
+.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t AAPL --no-prune
 ```
 
 Alternatively, widen the start date and keep `end_date: null`; newer filings will
@@ -131,7 +136,7 @@ update the code, and reinstall with `.\.venv\Scripts\python.exe -m pip install .
 Then explicitly rebuild the selected scope:
 
 ```powershell
-.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t PNC,WFC,JPM,BAC,USB --reprocess --no-prune
+.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t AAPL,MSFT,GOOG --reprocess --no-prune
 ```
 
 Ordinary resume retains captured processing options; `resume --ocr` does not
@@ -199,7 +204,7 @@ OCR is opt-in for local image assets, not an automatic PDF/image ingestion servi
 ```powershell
 .\.venv\Scripts\python.exe -m pip install ".[ocr]"
 # Install Tesseract separately, put it on PATH, and supply the referenced local assets.
-.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t PNC --ocr --no-prune
+.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t AAPL --ocr --no-prune
 ```
 
 The parser downloads neither OCR models nor images. Missing OCR prerequisites or

@@ -1,6 +1,6 @@
 # Python vs PowerShell SEC Connector: Parsing & Semantic Indexing Comparison
 
-This Python-based SEC connector replaces an earlier PowerShell-based connector (`Lumen-SEC`) that relied heavily on regex for HTML processing. Below is an honest comparison focused on parsing quality, content format, and suitability for M365 Search semantic indexing.
+This document compares this Python-based SEC connector with an earlier PowerShell implementation that relied heavily on regex for HTML processing. The comparison concerns those specific implementations, not the capabilities of either language in general, and focuses on parsing quality, content format, and suitability for M365 Search semantic indexing.
 
 ---
 

@@ -4,6 +4,11 @@ Import public SEC EDGAR filings into Microsoft 365 for search and Copilot
 grounding. This connector supports 10-K, 10-Q, 8-K, DEF 14A, amendments, and
 selected HTML/text exhibits.
 
+Choose the SEC-reporting companies and filing-date window relevant to your use
+case. The connector is not tied to a particular company or industry. Commands
+below use `AAPL`, `MSFT`, and `GOOG` as examples; replace them with your desired
+tickers.
+
 ## What this release improves
 
 - **Richer schema:** 22 properties provide issuer, ticker, form, reporting period,
@@ -79,7 +84,7 @@ ID and date window. For example:
 
 ```yaml
 azure:
-  connection_id: "customersecfilingsv2"
+  connection_id: "mysecfilings"
   connection_name: "SEC EDGAR Filings"
 
 filings:
@@ -111,10 +116,10 @@ reset an existing connection just to try this release. Setup creates the
 connection and follows schema provisioning, waiting up to 15 minutes; resolve
 any reported error before proceeding. The same configuration is used below.
 
-## 5. Start with a small PNC sample
+## 5. Start with a small single-company sample
 
 ```powershell
-.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t PNC --test --no-prune
+.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t AAPL --test --no-prune
 ```
 
 **This uploads real content to Microsoft 365; it is not a dry run.** By default
@@ -123,12 +128,12 @@ These are sampled filings, not complete coverage. `--save-payloads` also still
 uploads; see [local inspection](docs/operations.md#inspect-content-without-uploading)
 if you need a no-upload option.
 
-## 6. Import all five companies
+## 6. Import your selected companies
 
 After the sample succeeds, run without sampling limits:
 
 ```powershell
-.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t PNC,WFC,JPM,BAC,USB --no-prune
+.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t AAPL,MSFT,GOOG --no-prune
 ```
 
 The full run expands the sample. Tickers are processed sequentially; Graph PUTs
@@ -144,7 +149,7 @@ interruption, use the same working directory, credentials, and configuration:
 ```
 
 `resume` handles already queued work, not discovery of tickers the interrupted
-run had not reached. Rerun the five-ticker `ingest` command to include those
+run had not reached. Rerun `ingest` with your complete ticker list to include those
 tickers; already completed filings refresh and unchanged item hashes skip PUTs.
 
 After ingestion, allow time for Microsoft 365 indexing. Use the Microsoft 365
@@ -152,9 +157,12 @@ admin experience to manage the connection, and Microsoft Search or an appropriat
 licensed Copilot experience to retrieve content. Select **your new connection**
 as the declarative agent's knowledge source; restrict unrelated sources initially.
 
-Try: "Compare PNC and its four peers for the same reporting period. Cite the
-filing and table for each metric, preserve units and precision, and flag
-incompatible definitions or missing evidence."
+Try: "For [company], summarize revenue, operating income, and the key disclosed
+business risks for [reporting period]. Cite the filing and table or section for
+each claim, preserve units and precision, and flag missing evidence."
+
+For peer analysis, name the comparison companies explicitly and ask for aligned
+reporting periods, compatible metric definitions, and clearly identified gaps.
 
 ## Next reference
 

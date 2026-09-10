@@ -5,7 +5,7 @@ Python-based Microsoft Copilot Connector to import SEC EDGAR filings (10-K, 10-Q
 
 ## Project Structure
 ```
-C:\vibe\SEC-Connector\
+SEC-Copilot-Connector\
 ├── pyproject.toml              # Dependencies and project config
 ├── config/
 │   ├── config.yaml             # Main configuration
@@ -177,7 +177,7 @@ failed deletions and partially retired filings.
 ## Design Decisions
 - **Async processing**: 5 concurrent downloads for faster ingestion
 - **Tables**: Convert to Markdown format for LLM reasoning
-- **Azure**: User has app registration ready (env vars expected)
+- **Azure**: Operators must configure an app registration and admin-consented permissions (credentials supplied through environment variables)
 
 ## Test Mode (Quick Validation)
 - `--test` flag limits: 1 ticker, 2 filings, 5 pages each
@@ -226,7 +226,7 @@ test_mode:
 
 ## Python vs PowerShell: Parsing & Semantic Indexing Comparison
 
-This project replaces an earlier PowerShell-based SEC connector (`Lumen-SEC`) that relied heavily on regex for HTML processing. Below is an honest comparison focused on parsing quality, content format, and suitability for M365 Search semantic indexing.
+This project is compared with an earlier PowerShell-based SEC connector that relied heavily on regex for HTML processing. The comparison concerns those specific implementations, not either language in general, and focuses on parsing quality, content format, and suitability for M365 Search semantic indexing.
 
 ### Where Python is genuinely better
 
