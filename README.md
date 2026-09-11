@@ -157,6 +157,10 @@ admin experience to manage the connection, and Microsoft Search or an appropriat
 licensed Copilot experience to retrieve content. Select **your new connection**
 as the declarative agent's knowledge source; restrict unrelated sources initially.
 
+See [SEC Filings Analyst: agent setup and prompts](docs/agent-setup.md) for a
+copy-ready agent description, instructions, starter prompts, and single-company
+and peer-analysis examples.
+
 Try: "For [company], summarize revenue, operating income, and the key disclosed
 business risks for [reporting period]. Cite the filing and table or section for
 each claim, preserve units and precision, and flag missing evidence."
