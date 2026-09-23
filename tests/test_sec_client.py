@@ -13,6 +13,74 @@ from sec_connector.models import DocumentInfo, FilingMetadata
 from sec_connector.sec_client import SECClient
 
 
+DELIVERY_SCRIPT = (
+    b'<script type="text/javascript"  '
+    b'src="/NgtUJUOBPgRUqhLOgA3Ns4KT/r7utQGDrzSpLbrm9/STdCAQ/T210DlBr/Byk"></script>'
+)
+HTML = b"<html><body><p>Assets: 123</p></body></html>\n"
+
+
+@pytest.mark.parametrize("suffix", [b"", b"</TEXT>\n</DOCUMENT>\n"])
+async def test_delivery_script_is_removed_with_warning_and_cache_reused(tmp_path, filing, caplog, suffix):
+    client = SECClient(AppConfig())
+    original = HTML + suffix
+    received = original.replace(b"</body>", DELIVERY_SCRIPT + b"</body>")
+    doc = DocumentInfo(sequence=1, filename="filing.htm", document_type="10-K", size=len(original))
+    client._get = AsyncMock(return_value=received)
+    path = await client.download_document(filing, doc, tmp_path)
+    assert path.read_bytes() == original
+    assert "removed 110 bytes" in caplog.text
+    assert not list(path.parent.glob("*.part"))
+    client._get.reset_mock()
+    await client.download_document(filing, doc, tmp_path)
+    client._get.assert_not_awaited()
+    await client.download_document(filing, doc, tmp_path, refresh=True)
+    client._get.assert_awaited_once()
+    assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize("received", [
+    HTML[:-8],
+    HTML + b"extra",
+    HTML.replace(b"</body>", DELIVERY_SCRIPT + b"extra</body>"),
+    HTML.replace(b"</body>", DELIVERY_SCRIPT.replace(b"></script>", b">run()</script>") + b"</body>"),
+    HTML.replace(b"</body>", DELIVERY_SCRIPT.replace(b'src="/', b'src="https://example.org/') + b"</body>"),
+    HTML.replace(b"</body>", DELIVERY_SCRIPT.replace(b'src="/', b'src="//') + b"</body>"),
+    HTML.replace(b"</body>", DELIVERY_SCRIPT + DELIVERY_SCRIPT + b"</body>"),
+    HTML.replace(b"<p>", DELIVERY_SCRIPT + b"<p>"),
+    HTML.replace(b"</body>", DELIVERY_SCRIPT + b"</body>") + b"unexpected tail",
+    b"<html><body>Access denied</body></html>",
+])
+async def test_unexplained_mismatch_still_preserves_cache(tmp_path, filing, received):
+    client = SECClient(AppConfig())
+    doc = DocumentInfo(sequence=1, filename="filing.htm", document_type="10-K", size=len(HTML))
+    client._get = AsyncMock(return_value=HTML)
+    path = await client.download_document(filing, doc, tmp_path)
+    client._get.return_value = received
+    with pytest.raises(ValueError, match="received .*expected"):
+        await client.download_document(filing, doc, tmp_path, refresh=True)
+    assert path.read_bytes() == HTML
+    assert not list(path.parent.glob("*.part"))
+
+
+async def test_script_exception_does_not_apply_to_text_documents(tmp_path, filing):
+    client = SECClient(AppConfig())
+    doc = DocumentInfo(sequence=1, filename="filing.txt", document_type="10-K", size=len(HTML))
+    client._get = AsyncMock(return_value=HTML.replace(b"</body>", DELIVERY_SCRIPT + b"</body>"))
+    with pytest.raises(ValueError, match="size"):
+        await client.download_document(filing, doc, tmp_path)
+
+
+@pytest.mark.parametrize("size", [None, len(HTML) + len(DELIVERY_SCRIPT)])
+async def test_matching_or_unknown_size_keeps_original_bytes(tmp_path, filing, size):
+    client = SECClient(AppConfig())
+    received = HTML.replace(b"</body>", DELIVERY_SCRIPT + b"</body>")
+    doc = DocumentInfo(sequence=1, filename="filing.htm", document_type="10-K", size=size)
+    client._get = AsyncMock(return_value=received)
+    path = await client.download_document(filing, doc, tmp_path)
+    assert path.read_bytes() == received
+
+
 @pytest.fixture
 def filing():
     return FilingMetadata(cik="123", accession_number="123-24-1", ticker="TEST",

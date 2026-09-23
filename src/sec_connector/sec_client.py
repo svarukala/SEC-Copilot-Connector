@@ -19,6 +19,41 @@ from .utils import RateLimiter, get_logger
 
 logger = get_logger("sec_client")
 
+# Delivery infrastructure can append an empty script reference to archived HTML.
+# Match only a root-relative reference at the document tail, not arbitrary scripts.
+_TRAILING_DELIVERY_SCRIPT = re.compile(
+    rb'<script[ \t]+type="text/javascript"[ \t]+src="/[A-Za-z0-9_-][A-Za-z0-9_/-]*">'
+    rb'</script>(?=</body>\s*</html>\s*(?:</text>\s*</document>\s*)?\Z)',
+    re.IGNORECASE,
+)
+
+
+def _validate_download(content: bytes, document: DocumentInfo) -> bytes:
+    if not content:
+        raise ValueError(f"Downloaded document is empty: {document.filename}")
+    if document.size is None or len(content) == document.size:
+        return content
+
+    if (
+        len(content) > document.size
+        and document.filename.lower().endswith((".htm", ".html"))
+        and re.search(rb"<html(?:\s|>)", content, re.IGNORECASE)
+        and re.search(rb"<body(?:\s|>)", content, re.IGNORECASE)
+    ):
+        normalized, count = _TRAILING_DELIVERY_SCRIPT.subn(b"", content)
+        if count == 1 and normalized and len(normalized) == document.size:
+            logger.warning(
+                "Removed trailing empty script reference from %s: received %d bytes, "
+                "removed %d bytes, inventory %d bytes. Size match is not a checksum.",
+                document.filename, len(content), len(content) - len(normalized), document.size,
+            )
+            return normalized
+
+    raise ValueError(
+        f"Downloaded size does not match the inventory: {document.filename} "
+        f"(received {len(content)} bytes, expected {document.size} bytes)"
+    )
+
 
 class SECClient:
     """Client for interacting with SEC EDGAR API."""
@@ -397,10 +432,7 @@ class SECClient:
         logger.debug(f"Downloading {url}")
         content = await self._get(url)
 
-        if not content:
-            raise ValueError(f"Downloaded document is empty: {document.filename}")
-        if document.size is not None and len(content) != document.size:
-            raise ValueError(f"Downloaded size does not match the inventory: {document.filename}")
+        content = _validate_download(content, document)
         temporary_path = None
         try:
             with tempfile.NamedTemporaryFile(dir=filing_dir, suffix=".part", delete=False) as temporary:

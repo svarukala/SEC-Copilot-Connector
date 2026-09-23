@@ -58,6 +58,29 @@ service retries, and whether content is being reprocessed. Disk and index usage
 depend on source size, selected exhibits, and chunk counts. Use a representative
 sample to assess your workload rather than assuming a fixed throughput.
 
+## Download size mismatches
+
+Downloads must match the SEC filing inventory size when that size is available.
+One narrow exception handles an observed delivery-time addition: a single empty
+`<script type="text/javascript" src="/..."></script>` reference immediately
+before the closing HTML body. For HTML documents only, the connector removes
+that reference if doing so restores the exact inventory byte count. Its path
+must be root-relative and contain only letters, digits, underscores, hyphens,
+and slashes. The connector does not fetch or execute the script.
+
+An accepted adjustment logs a warning with the received, removed, and expected
+byte counts. The normalized bytes are saved atomically and reused by the cache.
+Inline scripts, external URLs, additions elsewhere, truncated downloads, and
+other unexplained size differences still fail without overwriting a prior cache.
+This is a size-based consistency check, not a checksum or proof of authenticity.
+
+Do not replace size-validation exceptions with INFO logs. If a mismatch remains,
+retain the files and log details for investigation. After installing this fix,
+use `resume` for failed downloads. If an earlier workaround already prepared
+payloads, resume replays them; use `ingest --reprocess` with the intended ticker
+and date scope only when those payloads need to be rebuilt. No database reset is
+required.
+
 ## Resume, refresh, or rebuild
 
 | Intent | Command/behavior |
