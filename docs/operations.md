@@ -68,6 +68,12 @@ that reference if doing so restores the exact inventory byte count. Its path
 must be root-relative and contain only letters, digits, underscores, hyphens,
 and slashes. The connector does not fetch or execute the script.
 
+Publisher HTML comments after `</html>` (including comments before optional
+`</TEXT></DOCUMENT>` wrappers) are allowed and preserved byte-for-byte. Only the
+script reference is removed, never the comments or whitespace. The removed
+length is not fixed at 110 bytes: the script path can vary. Unterminated comments
+and non-comment trailing content do not qualify for this exception.
+
 An accepted adjustment logs a warning with the received, removed, and expected
 byte counts. The normalized bytes are saved atomically and reused by the cache.
 Inline scripts, external URLs, additions elsewhere, truncated downloads, and
@@ -80,6 +86,24 @@ use `resume` for failed downloads. If an earlier workaround already prepared
 payloads, resume replays them; use `ingest --reprocess` with the intended ticker
 and date scope only when those payloads need to be rebuilt. No database reset is
 required.
+
+To install an update, stop the running connector, obtain the updated source
+without retaining an INFO-only validation workaround, and reinstall from the
+project root. Keep the same configuration, connection ID, credentials, working
+directory, and `data` folder. Use your existing virtual environment and approved
+package repository (replace `.venv` below if yours has a different name):
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install --only-binary=:all: .
+.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml resume
+```
+
+Resume retries failed preparation, including selected exhibits whose failure
+previously blocked delivery of a filing. It also retries failed inventory
+requests such as HTTP 503 responses, though persistent service/network errors
+still need investigation. An accepted-script warning means processing can
+continue; an unexplained size error still marks the filing failed. Check the
+final summary rather than treating all warning/error lines as failed filings.
 
 ## Resume, refresh, or rebuild
 

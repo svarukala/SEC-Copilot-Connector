@@ -20,11 +20,12 @@ from .utils import RateLimiter, get_logger
 logger = get_logger("sec_client")
 
 # Delivery infrastructure can append an empty script reference to archived HTML.
-# Match only a root-relative reference at the document tail, not arbitrary scripts.
+# Preserve publisher comments after </html>; only the script itself is removed.
 _TRAILING_DELIVERY_SCRIPT = re.compile(
     rb'<script[ \t]+type="text/javascript"[ \t]+src="/[A-Za-z0-9_-][A-Za-z0-9_/-]*">'
-    rb'</script>(?=</body>\s*</html>\s*(?:</text>\s*</document>\s*)?\Z)',
-    re.IGNORECASE,
+    rb'</script>(?=</body>\s*</html>\s*'
+    rb'(?:<!--(?:(?!-->).)*-->\s*)*(?:</text>\s*</document>\s*)?\Z)',
+    re.IGNORECASE | re.DOTALL,
 )
 
 
