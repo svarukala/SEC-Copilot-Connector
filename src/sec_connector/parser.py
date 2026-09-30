@@ -58,6 +58,25 @@ def _bullet_layout_rows(direct_cells) -> bool:
     return found
 
 
+def _is_styled_heading(tag, label: str) -> bool:
+    """Do not promote styled sentence fragments, list introductions, or dates."""
+    if re.search(r"[.,:!?;]$", label) or not _is_bold_block(tag):
+        return False
+    date_label = re.sub(
+        r"^(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+",
+        "", label, flags=re.IGNORECASE,
+    )
+    if _is_period_heading(date_label):
+        return False
+    following = tag.find_next(["p", "div", "table", "h1", "h2", "h3"])
+    if following is not None and following.name in {"p", "div"}:
+        continuation = following.get_text(" ", strip=True)
+        if (not following.find(["p", "div", "table"]) and continuation
+                and continuation[0].islower() and _is_bold_block(following)):
+            return False
+    return True
+
+
 def _is_period_heading(value: str) -> bool:
     """Recognize short date labels, not narrative sentences that mention years."""
     if len(value) > 100 or not re.search(r"\b(?:19|20)\d{2}\b", value):
@@ -456,7 +475,7 @@ def html_to_markdown(
                 bold = tag.find(["b", "strong"])
                 if ((bold and bold.get_text(" ", strip=True) == label)
                     or re.search(r"font-weight\s*:\s*(?:bold|[6-9]00)", style, re.IGNORECASE)
-                    or (not re.search(r"[.!?;]$", label) and _is_bold_block(tag))):
+                    or _is_styled_heading(tag, label)):
                     tag.name = "h3"
     # Keep descendant styles intact until heading recognition has seen them.
     for tag in soup.find_all(True):

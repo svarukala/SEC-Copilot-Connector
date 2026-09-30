@@ -277,6 +277,39 @@ def test_nested_emphasis_does_not_invent_section_headings(html):
     assert "###" not in html_to_markdown(html)
 
 
+@pytest.mark.parametrize("label", [
+    "Dear Shareholders,", "The company and its vendors face incidents,",
+    "We request approval of the following resolution:",
+    "Wednesday, April 22, 2026", "December 31, 2025",
+])
+def test_styled_prose_introductions_and_dates_are_not_headings(label):
+    assert "###" not in html_to_markdown(
+        f'<p><span style="font-weight:700">{label}</span></p><p>Continued prose.</p>'
+    )
+
+
+def test_styled_wrapped_cross_reference_is_not_a_section():
+    md = html_to_markdown(
+        '<p><span style="color:orange"><span style="font-weight:bold">'
+        'For more details, see "Election</span></span></p>'
+        '<p><span style="font-weight:bold">of directors" on page 13.</span></p>'
+    )
+    assert "###" not in md
+    assert 'For more details, see "Election' in md and 'of directors" on page 13.' in md
+
+
+def test_real_styled_heading_and_explicit_heading_remain_recognized():
+    md = html_to_markdown(
+        '<h2>Resolution:</h2><p><span style="font-weight:bold">Executive pay ratio</span></p>'
+        '<p>The compensation year is stated in source text.</p>'
+        '<p><span style="font-weight:bold">Table 12: Comparative revenue</span></p>'
+        '<table><tr><th>Year</th><th>Revenue</th></tr><tr><td>2025</td><td>125</td></tr></table>'
+    )
+    assert "## Resolution:" in md
+    assert "### Executive pay ratio" in md
+    assert "### Table 12: Comparative revenue" in md
+
+
 def test_hidden_css_and_ix_headers_removed_visible_facts_retained():
     md = html_to_markdown("""
     <html xmlns:ix="http://www.xbrl.org/2013/inlineXBRL"><head><style>

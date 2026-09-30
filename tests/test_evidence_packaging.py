@@ -67,6 +67,57 @@ def test_pay_disclosure_keeps_source_year_values_ratio_and_section_together():
         assert len(serialize_item(payload)) <= config.max_item_bytes
 
 
+def test_styled_narrative_does_not_replace_active_section():
+    source = (
+        "<h2>Governance</h2>"
+        '<p><span style="font-weight:700">For more details, see "Election</span></p>'
+        '<p><span style="font-weight:700">of directors" on page 13.</span></p>'
+        '<p><span style="font-weight:700">We request approval of the following resolution:</span></p>'
+        "<p>The resolution follows.</p><PAGE><p>Continued governance.</p>"
+        '<p><span style="font-weight:700">Executive pay ratio</span></p><p>Reported facts.</p>'
+    )
+    parsed = ParsedDocument(
+        filing=_filing(), document=DocumentInfo(sequence=1, filename="proxy.htm", document_type="DEF 14A"),
+        content=html_to_markdown(source),
+    )
+    chunks = chunk_document(parsed, ChunkingConfig())
+    assert [chunk.section_title for chunk in chunks] == ["Governance", "Governance", "Executive pay ratio"]
+    assert "We request approval" in chunks[0].content
+    assert "Section: We request" not in chunks[0].content
+
+
+def test_continued_financial_tables_preserve_units_headers_spans_and_notes():
+    source = (
+        '<p><span style="font-weight:700">Comparative balances</span></p>'
+        "<p>Amounts in millions</p>"
+        "<table><tr><th rowspan='2'>Metric</th><th colspan='2'>2025</th><th colspan='2'>2024</th></tr>"
+        "<tr><th>Domestic</th><th>Foreign</th><th>Domestic</th><th>Foreign</th></tr>"
+        "<tr><td>Cash (1)</td><td>120</td><td>35</td><td>120</td><td>35</td></tr>"
+        "</table><p>(1) Restricted balances included.</p><PAGE>"
+        '<p><span style="font-weight:700">Comparative balances (continued)</span></p>'
+        "<p>Amounts in millions</p>"
+        "<table><tr><th>Metric</th><th>2025</th><th>2024</th></tr>"
+        "<tr><td>Policy</td><td colspan='2'>Same measurement basis.</td></tr>"
+        "<tr><td>Loans (2)</td><td>240</td><td>210</td></tr></table>"
+        "<p>(2) Net of allowances.</p>"
+    )
+    parsed = ParsedDocument(
+        filing=_filing("10-K"),
+        document=DocumentInfo(sequence=1, filename="annual.htm", document_type="10-K"),
+        content=html_to_markdown(source),
+    )
+    chunks = chunk_document(parsed, ChunkingConfig())
+    assert len(chunks) == 2
+    assert "| Cash (1) | 120 | 35 | 120 | 35 |" in chunks[0].content
+    assert "| Metric | 2025 / Domestic | 2025 / Foreign | 2024 / Domestic | 2024 / Foreign |" in chunks[0].content
+    assert "(1) Restricted balances included." in chunks[0].content
+    assert "| Policy | Same measurement basis. | [merged with column 2] |" in chunks[1].content
+    assert "| Loans (2) | 240 | 210 |" in chunks[1].content
+    assert "(2) Net of allowances." in chunks[1].content
+    assert all("Amounts in millions" in chunk.content for chunk in chunks)
+    assert "Loans (2)" not in chunks[0].content and "Cash (1)" not in chunks[1].content
+
+
 @pytest.mark.parametrize("form, fiscal", [
     ("DEF 14A", False), ("DEF 14A/A", False), ("PRE 14A", False),
     ("8-K", False), ("8-K/A", False), ("10-K", True), ("10-Q", True),
