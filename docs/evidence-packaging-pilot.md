@@ -1,9 +1,10 @@
 # Experimental evidence-packaging pilot
 
-This branch is an **offline experiment**, not a production rollout or proof of
-Copilot answer quality. No connection was created, uploaded to, reset, or pruned.
-Do not install this branch into an active ingestion environment or run a broad
-`--reprocess` to try it.
+This branch is an **experimental pilot**, not a production rollout or proof of
+Copilot answer quality. Its original offline stage made no live changes.
+The later isolated two-connection load requires explicit approval and the frozen
+manifest loader described below. Do not install this branch into an active
+ingestion environment or run a broad `--reprocess` to try it.
 
 ## Exact source and treatment
 
@@ -101,8 +102,8 @@ issuers, or date-only selection qualify. Initial isolated loads contain the full
 primary document (1,089 baseline / 566 candidate items) so neighboring evidence
 and negative controls remain available. Initial loads require no deletion.
 Use independent state stores; do not copy or adopt the historical database.
-Current ticker/date-scoped ingestion is **not** an exact-document uploader;
-a reviewed scoped loader is still required before any live trial.
+Current ticker/date-scoped ingestion is **not** an exact-document uploader.
+Use only the scope-checked frozen-manifest loader below after approval.
 
 If a later request explicitly authorizes replacement rather than isolated loads,
 first stop/coordinate writers and record the exact destination and old IDs.
@@ -115,6 +116,15 @@ can overlap across versions with changed content; this is not an atomic swap.
 Freeze evaluation during replacement and wait for indexing/readback afterward.
 
 ## Controlled A/B evaluation (not executed)
+
+The user subsequently reported that updated instructions alone returned the
+correct CEO pay ratio. This is a user-reported successful observation, not a
+controlled repeated evaluation: exact instruction/skill versions and chat
+freshness were not captured. The packaging hypothesis is therefore improved
+consistency and less dependence on follow-up retrieval, **not** correction of a
+universally failing baseline. The updated instructions can be the shared A/B
+configuration once their exact version is confirmed, without changing them
+between arms.
 
 Hold the **base agent instructions and installed skills identical** across A/B.
 Record the exact instruction hash and each skill's presence, version, and content
@@ -152,3 +162,57 @@ and period/neighbor-control outcomes, retaining failures and run counts.
 Advance only if the candidate improves coherent source-grounded answers without
 regressing period or neighbor controls; a tie or inconsistent results remain
 inconclusive. **Offline co-location is not actual Copilot success.**
+
+## Frozen-manifest loader
+
+`python -m sec_connector.pilot_upload --plan <private-plan.json>` performs local
+validation only. It does not authenticate, create state, or contact Graph.
+The private plan binds the approved tenant, forbidden historical connection,
+two new destination IDs, source hash, schema hash, each manifest path/hash/count,
+and exact CIK/accession/filename/sequence/DocumentId/form/filing-date scope.
+The plan contains no credentials. Credentials come only from the existing
+`AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` environment variables.
+
+Only after explicit approval, add `--execute --state-dir <new-private-pilot-dir>`.
+Both complete manifests are validated before authentication. The loader checks
+the MSAL-issued token's tenant, application, Graph audience, and application
+permission claims, then checks both destinations for collisions before creating
+either. It refuses to adopt an existing connection or to use the forbidden
+historical connection. It retains the frozen payload ACL (`everyone` grant)
+and checks each request against the existing 8,000-character/30 MiB limits.
+
+The loader uses one independent journal per arm and an exclusive pilot lock.
+Each journal binds the tenant, app, destination, hashes, scope, and count.
+Connection POST and schema PATCH are dispatched at most once per journal:
+an uncertain acknowledgment stops execution rather than repeating the mutation.
+Schema polling follows the recorded native operation, verifies completion,
+and compares the persisted schema to the frozen definition before any item PUT.
+A collision race (409) is an error, not permission to adopt a connection.
+
+Uploads are sequential bounded individual PUTs. Every acknowledged item records
+its payload hash atomically on disk. Reusing the **same plan and journals** resumes
+only missing uploads; uncertain item PUTs can be replayed with the same ID and
+same frozen bytes. Every item is then read by its exact Graph ID and compared
+with all submitted properties, content, and ACL. Readback hashes and final counts
+are persisted separately from upload acknowledgments. No DELETE is supported.
+
+Do not change the plan, remove a journal, invent a replacement destination, or
+delete a surviving lock to recover an uncertain creation. First confirm no writer
+is running and reconcile the saved native identity. A lock left after process
+termination needs operator review. Schema timeout resumes the recorded operation,
+never resubmits the PATCH. Remote readback failure does not erase acknowledged
+uploads or authorize deleting them.
+
+The final journal reports two distinct counts: PUT acknowledgments and successful
+exact-item GET comparisons. Neither proves Microsoft Search indexing, agent
+retrieval readiness, or Copilot efficacy. An application can read its external
+items before they are available to a user's search or agent.
+
+For agent binding, select only `SEC evidence pilot baseline`
+(`secevidencepilot20260930a`) for arm A or only `SEC evidence pilot candidate`
+(`secevidencepilot20260930b`) for arm B in the approved tenant. The uploader does
+not create or edit agents, install skills, enable web sources, or grant new
+permissions. Keep identical instructions, skills, schema and ACL configuration;
+the only intended difference is the frozen packaging treatment. Perform those
+bindings separately with authorization, verify source visibility in each arm,
+then use the fresh-chat evaluation protocol above.

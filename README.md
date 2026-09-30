@@ -128,9 +128,10 @@ These are sampled filings, not complete coverage. `--save-payloads` also still
 uploads; see [local inspection](docs/operations.md#inspect-content-without-uploading)
 if you need a no-upload option.
 
-The [evidence-packaging pilot](docs/evidence-packaging-pilot.md) is an offline,
-exact-document experiment on this branch, not an approved live reprocessing
-procedure. It documents parser/chunking changes and a controlled A/B proposal.
+The [evidence-packaging pilot](docs/evidence-packaging-pilot.md) is an experimental
+exact-document workflow on this branch, not a broad live reprocessing procedure.
+It documents offline results, a separately approved frozen-manifest loader, and
+a controlled A/B evaluation protocol.
 
 ## 6. Import your selected companies
 
