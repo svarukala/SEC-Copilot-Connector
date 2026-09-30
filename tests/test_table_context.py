@@ -51,6 +51,9 @@ def test_period_body_rows_repeat_without_flattening_or_reordering_cells():
      "| By remaining maturity at December 31, (in millions) | Under 1 year | 1-5 years |"],
     ["| | Outstandings | Accruing Past Due 90 Days or More |",
      "| Dollars in millions | 2025 | 2024 |"],
+    ["| Three Months Ended September 30 (Dollars in Millions) | 2025 | 2024 |"],
+    ["| | Commercial Utilized (1) | Commercial Unfunded (2, 3, 4) |",
+     "| Dollars in millions | 2025 | 2024 |"],
 ])
 def test_source_backed_multilevel_header_bands(band):
     rows = ["| Summary | | |", "| --- | --- | --- |", *band, "| Revenue | 1,200 | 1,100 |"]
@@ -110,6 +113,15 @@ def test_negative_values_and_bold_prose_do_not_link_notes():
     table = "| Net loss | 2025 |\n| --- | --- |\n| Income | (1) |"
     assert _table_notes("(1) Unrelated number.", table) == []
     assert _table_notes("**Other information**", table + "\n| **Bold** | 2 |") == []
+    assert _table_notes("(1) A definition.", "| Gain (1,234) | 1,000 |") == []
+
+
+def test_grouped_source_note_markers_keep_each_definition():
+    head = "| Metric | 2025 |\n| --- | --- |"
+    rows = "\n".join(f"| Marked {i} (1, 2, 3) | 1,234 |" for i in range(40))
+    notes = "(1) First qualification.\n\n(2) Second qualification.\n\n(3) Third qualification."
+    chunks = split(head + "\n" + rows + "\n\n" + notes)
+    assert all(notes in c for c in chunks if "| Marked" in c)
 
 
 @pytest.mark.parametrize("marker", ["(1)", "[1]"])

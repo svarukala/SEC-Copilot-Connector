@@ -166,15 +166,22 @@ def _table_header_count(rows: list[str]) -> int:
 
         # Unit stubs introduce schema rows (including equity account labels);
         # a monetary amount, narrative stub or data label never qualifies.
+        unit_prefix = re.split(r"\bin\b", stub, flags=re.I)[0].strip()
+        unit_prefix = re.sub(
+            r"[\s($]*(?:(?:dollars|shares|amounts|and)\s*)*$", "", unit_prefix, flags=re.I
+        )
         units = _unit_label(stub) and (
             not re.search(r"\d", stub)
-            or period(re.split(r"\bin\b", stub, flags=re.I)[0].strip().rstrip("( "))
+            or period(unit_prefix)
         )
         safe_stub = not stub or units or (
             period(stub) and re.search(r"\b(?:ended|ending|as|at)\b", stub, re.I)
             and not re.search(r"\b(?:19|20)\d{2}\b", stub)
         )
-        labels = [re.sub(r"\([a-z0-9]+\)|\[[a-z0-9]+\]", "", v, flags=re.I).strip() for v in values]
+        labels = [re.sub(
+            r"\([a-z0-9]{1,2}(?:,\s*[a-z0-9]{1,2})*\)|\[[a-z0-9]+\]",
+            "", v, flags=re.I,
+        ).strip() for v in values]
         def schema_label(label: str) -> bool:
             if len(label) > 120:
                 return False
@@ -208,7 +215,11 @@ _NOTE_START = re.compile(r"^(\([a-z0-9]+\)|\[[a-z0-9]+\])\s*\S", re.I)
 def _linked_marker(marker: str, rows: str) -> bool:
     for row in rows.splitlines():
         for cell in _table_cells(row):
-            if marker not in cell:
+            grouped = marker.startswith("(") and any(
+                marker[1:-1] in re.split(r",\s*", group)
+                for group in re.findall(r"\(([a-z0-9]{1,2}(?:,\s*[a-z0-9]{1,2})+)\)", cell, re.I)
+            )
+            if marker not in cell and not grouped:
                 continue
             # A standalone (1) in a value column may be negative one, not a note.
             if (re.fullmatch(r"\(\d+\)", marker) and not re.search(r"[A-Za-z]", cell)

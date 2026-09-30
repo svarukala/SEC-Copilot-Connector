@@ -86,7 +86,11 @@ def linked_notes(text, payloads):
             for row_index, row in enumerate(rows[2:]):
                 # Parenthesized integers alone are ambiguous signed values.
                 cells = re.split(r"(?<!\\)\|", rows[0] + "|" + row)
-                relevant = any(marker in cell and (
+                relevant = any((marker in cell or any(
+                    marker == "(" + item + ")"
+                    for group in re.findall(r"\(([a-z0-9]{1,2}(?:,\s*[a-z0-9]{1,2})+)\)", cell, re.I)
+                    for item in re.split(r",\s*", group)
+                )) and (
                     marker.startswith("[") or re.search(r"[A-Za-z]", cell)
                     or re.search(r"\b(?:19|20)\d{2}\b", cell.replace(marker, ""))
                 ) for cell in cells)
