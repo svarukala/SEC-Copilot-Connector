@@ -60,6 +60,7 @@ def test_period_body_rows_repeat_without_flattening_or_reordering_cells():
      "| Dollars in millions | 2025 | 2024 |"],
     ["| Dollars in millions | Third Quarter 2025 | Third Quarter 2024 |"],
     ["| | 2025 | 2025 vs 2024 |"],
+    ["| | 2025 | 2025 v 2024 |"],
 ])
 def test_source_backed_multilevel_header_bands(band):
     rows = ["| Summary | | |", "| --- | --- | --- |", *band, "| Revenue | 1,200 | 1,100 |"]
@@ -237,9 +238,9 @@ def test_linked_audit_distinguishes_unmarked_rows_and_missing_notes():
 )
 def test_v7_frozen_corpus_context_receipts():
     root = Path(os.environ["SEC_TABLE_CONTEXT_EVIDENCE"])
-    manifest = json.loads((root / "manifest-v7-reviewed.json").read_bytes())
-    comparison = json.loads((root / "comparison-v7-reviewed.json").read_bytes())
-    audit = json.loads((root / "linked-audit-v7-reviewed.json").read_bytes())
+    manifest = json.loads((root / "manifest-v7-review2.json").read_bytes())
+    comparison = json.loads((root / "comparison-v7-review2.json").read_bytes())
+    audit = json.loads((root / "linked-audit-v7-review2.json").read_bytes())
     assert len(manifest["documents"]) == len(comparison) == len(audit) == 20
     for entry in manifest["documents"]:
         assert hashlib.sha256(Path(entry["path"]).read_bytes()).hexdigest() == entry["sha256"]

@@ -158,6 +158,7 @@ def _table_header_count(rows: list[str]) -> int:
             if re.fullmatch(r"[1-4]Q\d{2}", value, re.I):
                 return True
             label = re.sub(r"\s*%?\s*change(?:\s+from)?$", "", value, flags=re.I).strip()
+            label = re.sub(r"(?<=\d)\s+v\s+(?=\d)", " ", label, flags=re.I)
             label = re.sub(
                 r"\b(?:or|for|from|to|remainder|by|remaining|maturity|first|second|third|fourth|vs)\b",
                 "", label, flags=re.I,
