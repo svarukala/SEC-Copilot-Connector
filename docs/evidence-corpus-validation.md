@@ -1,5 +1,8 @@
 # Broader offline evidence-packaging validation
 
+This is the frozen v6 assessment. Subsequent authorized offline remediation and
+its remaining limits are recorded in the [v7 context report](evidence-table-context-remediation.md).
+
 ## Recommendation
 
 **Not ready for unrestricted promotion or broad reprocessing.** The refined
