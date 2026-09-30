@@ -221,6 +221,62 @@ def test_nested_layout_preserves_inner_table_once():
     assert "\\|" not in md
 
 
+@pytest.mark.parametrize("marker", ["&#8226;", "&#8718;", "&#9632;", "&#9679;"])
+def test_bullet_layout_becomes_prose_not_a_financial_table(marker):
+    md = html_to_markdown(
+        f"<table><tr><td>{marker}</td><td>&nbsp;</td>"
+        "<td><p>Compensation was <b>$12,000</b>.</p></td></tr>"
+        "<tr><td></td><td></td><td></td></tr>"
+        f"<tr><td>{marker}</td><td></td><td>Second disclosure.</td></tr></table>"
+    )
+    assert md == "- Compensation was **$12,000**.\n- Second disclosure."
+
+
+@pytest.mark.parametrize("row", [
+    "<td>&#8718;</td><td>Revenue</td><td>125</td>",
+    "<td>Revenue</td><td>125</td>",
+    "<td>&#8718;</td><td>125</td>",
+    "<td>&#8718;</td><td colspan='2'>Combined policy.</td>",
+    "<td>&#8718;</td><td rowspan='2'>Shared policy.</td>",
+    "<th>&#8718;</th><th>Category</th>",
+])
+def test_ambiguous_or_structured_rows_remain_tables(row):
+    assert "| ---" in html_to_markdown(f"<table><tr>{row}</tr></table>")
+
+
+def test_bullet_shaped_table_keeps_caption_and_image_content():
+    md = html_to_markdown(
+        "<table><caption>Disclosed amounts</caption>"
+        "<tr><td>&#8718;</td><td>First value</td>"
+        '<td><img alt="Additional disclosure"></td></tr></table>'
+    )
+    assert "Disclosed amounts" in md
+    assert "Additional disclosure" in md
+    assert "| ---" in md
+
+
+def test_nested_css_bold_heading_and_split_text_runs():
+    md = html_to_markdown(
+        '<p><span style="color:orange"><span style="font-weight:bold">'
+        "Executive <span>pay ratio</span></span></span></p>"
+        '<div><span style="font-weight:700">Compensation </span><strong>method</strong></div>'
+    )
+    assert md == "### Executive pay ratio\n\n### Compensation **method**"
+
+
+@pytest.mark.parametrize("html", [
+    '<p><span style="font-weight:bold">Important:</span> ordinary prose follows.</p>',
+    '<p><span style="font-weight:bold">An emphasized narrative sentence.</span></p>',
+    '<p><span style="font-weight:bold">Label <span style="font-weight:normal">detail</span></span></p>',
+    '<p><a href="#section"><span style="font-weight:bold">Contents entry</span></a></p>',
+    '<table><tr><td><span style="font-weight:bold">Row label</span></td><td>125</td></tr></table>',
+    '<p><span style="font-weight:bold">2025</span></p>',
+    '<p><span style="font-weight:bold">' + "Long title " * 30 + "</span></p>",
+])
+def test_nested_emphasis_does_not_invent_section_headings(html):
+    assert "###" not in html_to_markdown(html)
+
+
 def test_hidden_css_and_ix_headers_removed_visible_facts_retained():
     md = html_to_markdown("""
     <html xmlns:ix="http://www.xbrl.org/2013/inlineXBRL"><head><style>

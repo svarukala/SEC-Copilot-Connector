@@ -18,7 +18,7 @@ from .state_manager import StateManager, scoped_database_path
 from .utils import console, get_logger
 
 logger = get_logger("pipeline")
-PROCESSING_VERSION = 4
+PROCESSING_VERSION = 5
 
 
 class IngestionPipeline:

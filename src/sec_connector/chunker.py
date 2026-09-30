@@ -189,6 +189,10 @@ def _split_content(
     content: str, target_size: int, max_size: int, overlap: int, max_bytes: int
 ) -> list[str]:
     """Keep table rows atomic; apply overlap exclusively to prose blocks."""
+    # A complete section is better evidence than isolated layout/table blocks.
+    # target_size guides necessary splits; max_size is the actual upper bound.
+    if _fits(content, max_size, max_bytes):
+        return [content]
     blocks = re.split(r"(^[ \t]*\|[^\n]*(?:\n[ \t]*\|[^\n]*)*)", content, flags=re.MULTILINE)
     if len(blocks) == 1:
         return [
@@ -258,7 +262,7 @@ def chunk_document(
             heading = re.match(r"^#{1,3}\s+(.+)", section)
             if heading:
                 section_title = re.sub(r"[*_]", "", heading.group(1)).strip()
-            report_period = filing.report_period_end
+            report_period = filing.fiscal_report_period_end
             context_parts = [filing.company_name, filing.form]
             if report_period:
                 context_parts.append(f"Report period: {report_period:%Y-%m-%d}")

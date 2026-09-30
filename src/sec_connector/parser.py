@@ -14,6 +14,50 @@ from .utils import get_logger
 logger = get_logger("parser")
 
 
+def _is_bold_block(tag) -> bool:
+    """Require bold styling for every visible text run, not just a leading label."""
+    for text in tag.find_all(string=True):
+        if not text.strip():
+            continue
+        parent = text.parent
+        bold = False
+        while parent is not None:
+            weight = re.search(
+                r"(?:^|;)\s*font-weight\s*:\s*(bold|normal|[1-9]00)\b",
+                parent.get("style", ""), re.IGNORECASE,
+            )
+            if weight:
+                bold = weight.group(1).lower() in {"bold", "600", "700", "800", "900"}
+                break
+            if parent.name in {"b", "strong"}:
+                bold = True
+                break
+            if parent is tag:
+                break
+            parent = parent.parent
+        if not bold:
+            return False
+    return True
+
+
+def _bullet_layout_rows(direct_cells) -> bool:
+    """Only marker + optional empty spacers + one prose cell is a list layout."""
+    found = False
+    for cells in direct_cells:
+        if any(cell.name == "th" or cell.has_attr("colspan") or cell.has_attr("rowspan")
+               or cell.find("table") for cell in cells):
+            return False
+        values = [cell.get_text(" ", strip=True) for cell in cells]
+        populated = [value for value in values if value]
+        if not populated:
+            continue
+        if (len(populated) != 2 or populated[0] not in {"\u2022", "\u220e", "\u25a0", "\u25cf"}
+                or not re.search(r"[A-Za-z]", populated[1])):
+            return False
+        found = True
+    return found
+
+
 def _is_period_heading(value: str) -> bool:
     """Recognize short date labels, not narrative sentences that mention years."""
     if len(value) > 100 or not re.search(r"\b(?:19|20)\d{2}\b", value):
@@ -89,6 +133,14 @@ class SECMarkdownConverter(MarkdownConverter):
              if cell.find_parent("tr") is row and cell.find_parent("table") is el]
             for row in rows
         ]
+        if not el.find(["caption", "img"]) and _bullet_layout_rows(direct_cells):
+            items = []
+            for cells in direct_cells:
+                populated = [cell for cell in cells if cell.get_text(" ", strip=True)]
+                if populated:
+                    body = self.convert(populated[1].decode_contents()).strip()
+                    items.append("- " + body.replace("\n", "\n  "))
+            return "\n\n" + "\n".join(items) + "\n\n"
         if el.find("table") or el.get("role") == "presentation" or all(
             len(cells) <= 1 and not any(cell.get("colspan") for cell in cells)
             for cells in direct_cells
@@ -397,11 +449,17 @@ def html_to_markdown(
                 r"^(?:ITEM\s+\d+[A-Z]?[.:]\s+\S|PART\s+[IVX]+\b)", label, re.IGNORECASE
             ):
                 tag.name = "h2"
-            elif not tag.find_parent("table") and len(label) <= 180 and re.search(r"[A-Za-z]", label):
+            elif (not tag.find_parent("table") and not tag.find("a")
+                  and 0 < len(label) <= 180 and re.search(r"[A-Za-z]", label)):
+                # Preserve established bold headings; require title-like text
+                # before additionally promoting nested CSS-styled text runs.
                 bold = tag.find(["b", "strong"])
                 if ((bold and bold.get_text(" ", strip=True) == label)
-                    or re.search(r"font-weight\s*:\s*(?:bold|[6-9]00)", style, re.IGNORECASE)):
+                    or re.search(r"font-weight\s*:\s*(?:bold|[6-9]00)", style, re.IGNORECASE)
+                    or (not re.search(r"[.!?;]$", label) and _is_bold_block(tag))):
                     tag.name = "h3"
+    # Keep descendant styles intact until heading recognition has seen them.
+    for tag in soup.find_all(True):
         if tag.get("style") and tag.name != "img":
             del tag["style"]
         if tag.get("class"):

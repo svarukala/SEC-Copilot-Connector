@@ -41,6 +41,13 @@ class FilingMetadata(BaseModel):
     acceptance_datetime: Optional[datetime] = None
 
     @property
+    def fiscal_report_period_end(self) -> Optional[datetime]:
+        """SEC reportDate is not necessarily a fiscal period (e.g. proxy meetings)."""
+        if self.form.strip().upper().removesuffix("/A") in {"10-K", "10-Q"}:
+            return self.report_period_end
+        return None
+
+    @property
     def is_amendment(self) -> bool:
         return self.form.endswith("/A")
 

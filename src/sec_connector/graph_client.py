@@ -333,8 +333,8 @@ class GraphClient:
         }
         if chunk.section_title:
             properties["SectionTitle"] = chunk.section_title
-        if filing.report_period_end:
-            properties["ReportPeriodEnd"] = filing.report_period_end.strftime("%Y-%m-%dT00:00:00Z")
+        if filing.fiscal_report_period_end:
+            properties["ReportPeriodEnd"] = filing.fiscal_report_period_end.strftime("%Y-%m-%dT00:00:00Z")
         if filing.acceptance_datetime:
             if filing.acceptance_datetime.tzinfo is None:
                 raise ValueError("SEC acceptance_datetime must include its source timezone")
