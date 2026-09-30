@@ -211,8 +211,21 @@ async def ensure_absent(client: PilotGraphClient) -> None:
     raise RuntimeError("Connection collision: refusing to adopt existing destination")
 
 
-async def load_arm(client: PilotGraphClient, entries: list[dict], journal: Journal, schema_path: Path):
+async def load_arm(
+    client: PilotGraphClient, entries: list[dict], journal: Journal, schema_path: Path,
+    *, concurrency: int = 1,
+):
+    if not 1 <= concurrency <= 5:
+        raise ValueError("Pilot concurrency must be between one and five")
     data = journal.data
+    expected_hashes = {entry["id"]: payload_hash(entry["payload"]) for entry in entries}
+    if len(expected_hashes) != len(entries):
+        raise ValueError("Duplicate pilot item IDs")
+    for stage in ("acknowledged", "read_back"):
+        if any(expected_hashes.get(key) != value for key, value in data[stage].items()):
+            raise ValueError("Journal contains out-of-scope or changed payload hashes")
+    if not set(data["read_back"]) <= set(data["acknowledged"]):
+        raise ValueError("Journal readback without acknowledgment")
     if not data["created"]:
         if data["create_dispatched"]:
             raise RuntimeError("Unknown create acknowledgment; manual reconciliation required")
@@ -248,26 +261,29 @@ async def load_arm(client: PilotGraphClient, entries: list[dict], journal: Journ
         journal.save()
     if not client.schemas_compatible(await client.get_schema_status(), client.load_desired_schema(schema_path)):
         raise RuntimeError("Schema changed since provisioning")
-    for entry in entries:
+    async def deliver(entry):
         item_id, payload = entry["id"], entry["payload"]
         expected_hash = payload_hash(payload)
         if item_id in data["acknowledged"]:
             if data["acknowledged"][item_id] != expected_hash:
                 raise ValueError("Acknowledged payload hash mismatch")
-            continue
+            return
         await client.upload_payload(item_id, payload)
         data["acknowledged"][item_id] = expected_hash
         journal.save()
         if len(data["acknowledged"]) % 100 == 0:
             print(f"{client.config.azure.connection_id}: {len(data['acknowledged'])}/{len(entries)} PUTs acknowledged", flush=True)
-    for entry in entries:
+    async def read_back(entry):
         item_id, payload = entry["id"], entry["payload"]
         if data["read_back"].get(item_id) == payload_hash(payload):
-            continue
+            return
         actual = await client._request("GET", f"/external/connections/{client.config.azure.connection_id}/items/{item_id}")
-        # Graph may add OData annotations; compare only every submitted field.
+        if actual.get("id") != item_id:
+            raise RuntimeError(f"Persisted item identity differs for {item_id}")
+        # Only protocol annotations are excluded; all submitted values must agree.
         for field in ("properties", "content"):
-            if any(actual.get(field, {}).get(key) != value for key, value in payload[field].items()):
+            observed = {key: value for key, value in actual.get(field, {}).items() if "@odata." not in key}
+            if observed != payload[field]:
                 raise RuntimeError(f"Persisted {field} differs for {item_id}")
         acl_keys = ("type", "value", "accessType")
         if [tuple(acl.get(key) for key in acl_keys) for acl in actual.get("acl", [])] != [
@@ -276,6 +292,19 @@ async def load_arm(client: PilotGraphClient, entries: list[dict], journal: Journ
             raise RuntimeError(f"Persisted ACL differs for {item_id}")
         data["read_back"][item_id] = payload_hash(payload)
         journal.save()
+        if len(data["read_back"]) % 100 == 0:
+            print(f"{client.config.azure.connection_id}: {len(data['read_back'])}/{len(entries)} GETs verified", flush=True)
+
+    for action in (deliver, read_back):
+        for start in range(0, len(entries), concurrency):
+            results = await asyncio.gather(
+                *(action(entry) for entry in entries[start:start + concurrency]),
+                return_exceptions=True,
+            )
+            # Finish/checkpoint every in-flight request before stopping the batch.
+            for result in results:
+                if isinstance(result, BaseException):
+                    raise result
     if set(data["acknowledged"]) != {e["id"] for e in entries} or set(data["read_back"]) != set(data["acknowledged"]):
         raise RuntimeError("Pilot acknowledgment/readback count mismatch")
     data["result"] = {"acknowledged": len(entries), "read_back": len(entries),
