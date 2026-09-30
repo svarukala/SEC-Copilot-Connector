@@ -5,6 +5,7 @@ from typing import Optional
 
 from .config import GRAPH_MAX_ITEM_BYTES, ChunkingConfig
 from .models import ContentChunk, ParsedDocument
+from .parser import _is_period_heading
 from .utils import get_logger
 
 logger = get_logger("chunker")
@@ -134,11 +135,111 @@ def _bounded_fragments(text: str, max_size: int, max_bytes: int) -> list[str]:
     ]
 
 
+def _table_cells(row: str) -> list[str]:
+    return [cell.strip() for cell in re.split(r"(?<!\\)\|", row.strip().strip("|"))]
+
+
+def _unit_label(text: str) -> bool:
+    return bool(re.search(r"\bin (?:millions|billions|thousands)\b", text, re.I))
+
+
+def _table_header_count(rows: list[str]) -> int:
+    """Repeat source body headers without flattening spans or consuming data."""
+    if len(rows) < 2 or not re.fullmatch(r"\|(?:\s*:?-+:?\s*\|)+\s*", rows[1]):
+        return 0
+    count = 2
+    for index, row in enumerate(rows[2:], start=3):
+        cells = [re.sub(r"[*_]", "", cell) for cell in _table_cells(row)]
+        cells = ["" if re.fullmatch(r"\[merged with column \d+\]", c) else c for c in cells]
+        stub, *values = cells
+        values = [value for value in values if value]
+
+        def period(value: str) -> bool:
+            if re.fullmatch(r"[1-4]Q\d{2}", value, re.I):
+                return True
+            label = re.sub(r"\s*%?\s*change(?:\s+from)?$", "", value, flags=re.I).strip()
+            label = re.sub(r"\b(?:or|for|from|to|remainder|by|remaining|maturity)\b", "", label, flags=re.I)
+            return _is_period_heading(label) or (
+                bool(re.search(r"[A-Za-z]", label))
+                and _is_period_heading(label + " 2000")
+            )
+
+        # Unit stubs introduce schema rows (including equity account labels);
+        # a monetary amount, narrative stub or data label never qualifies.
+        units = _unit_label(stub) and (
+            not re.search(r"\d", stub)
+            or period(re.split(r"\bin\b", stub, flags=re.I)[0].strip().rstrip("( "))
+        )
+        safe_stub = not stub or units or (
+            period(stub) and re.search(r"\b(?:ended|ending|as|at)\b", stub, re.I)
+            and not re.search(r"\b(?:19|20)\d{2}\b", stub)
+        )
+        labels = [re.sub(r"\([a-z0-9]+\)|\[[a-z0-9]+\]", "", v, flags=re.I).strip() for v in values]
+        def schema_label(label: str) -> bool:
+            if len(label) > 120:
+                return False
+            if not re.search(r"\d", label) or period(label):
+                return True
+            dated = re.fullmatch(r"([A-Za-z ]+)\b(?:at|as of)\s+(.+)", label, re.I)
+            if dated and period(dated[2]):
+                return True
+            return bool(re.fullmatch(
+                r"(?:(?:under|over|after|accruing past due)\s+)?"
+                r"\d{1,3}(?:-\d{1,3})?\s+(?:days?|years?)(?:\s+or more)?",
+                label, re.I,
+            ))
+        if not safe_stub or not all(
+            schema_label(label) for label in labels
+        ):
+            break
+        # Empty-stub grouping/date rows are provisional until a subsequent
+        # explicit year/quarter or unit schema anchors the whole leading band.
+        if values and (units or any(
+            period(label) and re.search(r"\b(?:19|20)\d{2}\b|[1-4]Q\d{2}", label, re.I)
+            for label in labels
+        )):
+            count = index
+    return count
+
+
+_NOTE_START = re.compile(r"^(\([a-z0-9]+\)|\[[a-z0-9]+\])\s*\S", re.I)
+
+
+def _linked_marker(marker: str, rows: str) -> bool:
+    for row in rows.splitlines():
+        for cell in _table_cells(row):
+            if marker not in cell:
+                continue
+            # A standalone (1) in a value column may be negative one, not a note.
+            if (re.fullmatch(r"\(\d+\)", marker) and not re.search(r"[A-Za-z]", cell)
+                    and not _is_period_heading(cell.replace(marker, "").strip())):
+                continue
+            return True
+    return False
+
+
+def _table_notes(following: str, table: str) -> list[tuple[str, str]]:
+    notes = []
+    for paragraph in re.split(r"\n\s*\n|\n(?=\([a-z0-9]+\)|\[[a-z0-9]+\])", following.strip()):
+        match = _NOTE_START.match(paragraph)
+        if not match:
+            break
+        marker = match[1]
+        if _linked_marker(marker, table):
+            notes.append((marker, paragraph))
+    ambiguous = {marker for marker, _ in notes if sum(m == marker for m, _ in notes) > 1}
+    if ambiguous:
+        logger.warning("Duplicate table note markers %s; not repeating ambiguous definitions",
+                       ", ".join(sorted(ambiguous)))
+    return [(marker, note) for marker, note in notes if marker not in ambiguous]
+
+
 def _split_table(
-    table: str, context: str, target_size: int, max_size: int, max_bytes: int
+    table: str, context: str, target_size: int, max_size: int, max_bytes: int,
+    notes: Optional[list[tuple[str, str]]] = None,
 ) -> list[str]:
     rows = table.splitlines()
-    header_count = 2 if len(rows) > 1 and re.fullmatch(r"\|(?:\s*:?-+:?\s*\|)+\s*", rows[1]) else 0
+    header_count = _table_header_count(rows)
     header = "\n".join(rows[:header_count])
     data = rows[header_count:]
     prefix = "\n\n".join(part for part in (context, header) if part)
@@ -152,20 +253,45 @@ def _split_table(
     if not data:
         return [prefix.rstrip("\n")] if prefix else []
 
+    def with_notes(body: str, selected: list[tuple[str, str]]) -> str:
+        return body.rstrip("\n") + "".join(
+            "\n\n" + note for marker, note in selected if _linked_marker(marker, body)
+        )
+
     chunks = []
     current = prefix
+    selected_notes = notes or []
     has_rows = False
     for row in data:
         addition = row + "\n"
+        # If even one intact row cannot carry its qualifiers, keep the original
+        # note in the following source block and explicitly flag the limitation.
+        row_notes = []
+        omitted = []
+        for marker, note in notes or []:
+            if _linked_marker(marker, prefix + addition):
+                trial = row_notes + [(marker, note)]
+                if _fits(with_notes(prefix + addition, trial), max_size, max_bytes):
+                    row_notes = trial
+                else:
+                    omitted.append(marker)
+        if omitted:
+            logger.warning("Linked table notes %s exceed row context budget; original notes remain in source order",
+                           ", ".join(omitted))
+        available = [(marker, note) for marker, note in notes or [] if marker not in omitted]
+        if has_rows and available != selected_notes:
+            chunks.append(with_notes(current, selected_notes))
+            current, has_rows = prefix, False
+        selected_notes = available
         if has_rows and (
-            not _fits(current + addition, max_size, max_bytes)
-            or len(current + addition) > target_size
+            not _fits(with_notes(current + addition, selected_notes), max_size, max_bytes)
+            or len(with_notes(current + addition, selected_notes)) > target_size
         ):
-            chunks.append(current.rstrip("\n"))
+            chunks.append(with_notes(current, selected_notes))
             current, has_rows = prefix, False
         if not _fits(prefix + addition, max_size, max_bytes):
             if has_rows:
-                chunks.append(current.rstrip("\n"))
+                chunks.append(with_notes(current, selected_notes))
                 current, has_rows = prefix, False
             logger.warning("Indivisible table row exceeds chunk budget; preserving ordered row fragments")
             warning = "[Table row fragment; concatenate in chunk order]\n"
@@ -181,7 +307,7 @@ def _split_table(
             current += addition
             has_rows = True
     if has_rows:
-        chunks.append(current.rstrip("\n"))
+        chunks.append(with_notes(current, selected_notes))
     return chunks
 
 
@@ -209,24 +335,20 @@ def _split_content(
             paragraphs = re.split(r"\n\s*\n", blocks[index - 1].strip())
             nearby = []
             for paragraph in reversed(paragraphs):
-                if not paragraph or len(paragraph) > 240:
+                if not paragraph or len(paragraph) > 240 or _NOTE_START.match(paragraph):
                     break
                 nearby.insert(0, paragraph)
                 if len(nearby) == 3:
                     break
             following = blocks[index + 1].strip() if index + 1 < len(blocks) else ""
-            notes = []
-            for paragraph in re.split(r"\n\s*\n", following):
-                if len(paragraph) <= 240 and re.match(r"^(?:\(\d+\)|\[\d+\]|\*|Notes?\b)", paragraph):
-                    notes.append(paragraph)
-                else:
-                    break
-            context = "\n\n".join(nearby + notes)
+            notes = _table_notes(following, block)
+            context = "\n\n".join(nearby)
             # Do not let optional neighboring prose make otherwise valid rows
             # indivisible. It remains present in its own prose block.
             if not _fits(context, max_size // 3, max(4, max_bytes // 3)):
+                logger.warning("Table caption context exceeds reserved budget; retained in preceding source block")
                 context = ""
-            chunks.extend(_split_table(block.strip(), context, target_size, max_size, max_bytes))
+            chunks.extend(_split_table(block.strip(), context, target_size, max_size, max_bytes, notes))
         else:
             chunks.extend(
                 part for piece in _split_prose(block, target_size, max_size, overlap)
