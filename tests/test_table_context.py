@@ -1,6 +1,10 @@
 """Source-preserving table qualifier repetition, without new parser inference."""
 
 import re
+import hashlib
+import json
+import os
+from pathlib import Path
 
 import pytest
 
@@ -54,6 +58,8 @@ def test_period_body_rows_repeat_without_flattening_or_reordering_cells():
     ["| Three Months Ended September 30 (Dollars in Millions) | 2025 | 2024 |"],
     ["| | Commercial Utilized (1) | Commercial Unfunded (2, 3, 4) |",
      "| Dollars in millions | 2025 | 2024 |"],
+    ["| Dollars in millions | Third Quarter 2025 | Third Quarter 2024 |"],
+    ["| | 2025 | 2025 vs 2024 |"],
 ])
 def test_source_backed_multilevel_header_bands(band):
     rows = ["| Summary | | |", "| --- | --- | --- |", *band, "| Revenue | 1,200 | 1,100 |"]
@@ -223,3 +229,29 @@ def test_linked_audit_distinguishes_unmarked_rows_and_missing_notes():
     source = head + "\n| Marked (a) | 1,000 |\n| Unmarked | 2,000 |\n\n(a) Relevant."
     result = linked_notes(source, [{"content": {"value": head + "\n| Marked (a) | 1,000 |"}}])
     assert len(result) == 1 and set(result.values()) == {False}
+
+
+@pytest.mark.skipif(
+    not os.environ.get("SEC_TABLE_CONTEXT_EVIDENCE"),
+    reason="Set SEC_TABLE_CONTEXT_EVIDENCE to the private v7 corpus artifact root",
+)
+def test_v7_frozen_corpus_context_receipts():
+    root = Path(os.environ["SEC_TABLE_CONTEXT_EVIDENCE"])
+    manifest = json.loads((root / "manifest-v7-reviewed.json").read_bytes())
+    comparison = json.loads((root / "comparison-v7-reviewed.json").read_bytes())
+    audit = json.loads((root / "linked-audit-v7-reviewed.json").read_bytes())
+    assert len(manifest["documents"]) == len(comparison) == len(audit) == 20
+    for entry in manifest["documents"]:
+        assert hashlib.sha256(Path(entry["path"]).read_bytes()).hexdigest() == entry["sha256"]
+    for result in comparison:
+        assert result["lexical_equal"] and result["numeric_equal"]
+        assert result["emitted_lexical_coverage"]["ok"] and result["emitted_numeric_coverage"]["ok"]
+        assert not result["table_changes"]
+        assert not result["candidate_row_failures"] and not result["candidate_section_mixing"]
+        assert not result["new_period_misses"]
+        assert all(re.match(r"^(\([a-z0-9]+\)|\[[a-z0-9]+\])", gap["context"], re.I)
+                   for gap in result["new_context_misses"])
+    for result in audit:
+        assert not result["new_linked_note_misses"]
+        assert not result["data_row_occurrences"]["missing_occurrences"]
+        assert not result["data_row_occurrences"]["unexplained_extra_occurrences"]
