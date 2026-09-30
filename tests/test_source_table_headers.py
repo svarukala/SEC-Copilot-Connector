@@ -2,6 +2,9 @@
 
 from datetime import datetime
 import hashlib
+import json
+import os
+from pathlib import Path
 import re
 
 import pytest
@@ -15,6 +18,7 @@ from sec_connector.parser import _source_header_end, html_to_markdown, parse_doc
 from sec_connector.payloads import serialize_item
 from tests.corpus_replay import subsequence, tokens
 from tests.table_context_audit import data_row_counts
+from tests.source_header_audit import audit, digest
 
 
 def cell(text, span=3, align="center", extra=""):
@@ -182,3 +186,45 @@ def test_row_scope_and_inline_xbrl_facts_override_native_header_tags():
                       "<th>Assets</th><th><ix:nonfraction>1200</ix:nonfraction></th>"):
         soup = BeautifulSoup("<table><thead><tr>" + cell_html + "</tr></thead></table>", "lxml")
         assert _source_header_end([soup.tr.find_all("th", recursive=False)]) == 0
+
+
+def test_reviewed_bounds_reject_data_promotion_and_unexplained_repetition():
+    table = "| Caption | Context |\n| --- | --- |\n| In millions | Level 3 |\n| Asset | 1,200 |\n| Total | 1,200 |"
+    key = digest(table)
+    capture = {
+        "index": 0, "converted": table, "source_header_end": 2,
+        "source_structure": [], "source_cells": [["Caption", "Context"]],
+    }
+    annotation = {"table_sha256": key, "source_header_rows": 3,
+                  "band": "\n".join(table.splitlines()[:3])}
+    payloads = [{"content": {"value": table}}]
+    assert not audit(table, payloads, payloads, [annotation], {key: 3}, [capture])["unapproved_extra_rows"]
+    with pytest.raises(AssertionError, match="reviewed bound"):
+        audit(table, payloads, payloads, [dict(annotation, source_header_rows=4)], {key: 3}, [capture])
+    duplicated = [{"content": {"value": table + "\n| Asset | 1,200 |"}}]
+    assert audit(table, payloads, duplicated, [annotation], {key: 3}, [capture])["unapproved_extra_rows"]
+    missing = [{"content": {"value": table.replace("| Total | 1,200 |", "")}}]
+    assert audit(table, payloads, missing, [annotation], {key: 3}, [capture])["missing_occurrences"]
+
+
+@pytest.mark.skipif(not os.environ.get("SEC_SOURCE_HEADER_EVIDENCE"), reason="Private v8 corpus not configured")
+def test_frozen_source_structure_corpus_receipts():
+    root = Path(os.environ["SEC_SOURCE_HEADER_EVIDENCE"])
+    manifest = json.loads((root / "manifest-v8-final.json").read_bytes())
+    assert manifest["processing_version"] == 8 and len(manifest["documents"]) == 20
+    for entry in manifest["documents"]:
+        assert hashlib.sha256(Path(entry["path"]).read_bytes()).hexdigest() == entry["sha256"]
+    comparisons = json.loads((root / "comparison-v8-final.json").read_bytes())
+    assert len(comparisons) == 20
+    assert sum(r["baseline_period_misses"] for r in comparisons) == 169
+    assert all(r["period_misses"] == 0 and not r["new_period_misses"] for r in comparisons)
+    assert all(not r["table_changes"] and r["lexical_equal"] and r["numeric_equal"] for r in comparisons)
+    assert all(not r["added_headings"] and not r["removed_headings"] for r in comparisons)
+    results = json.loads((root / "structure-audit-v8-reviewed.json").read_bytes())
+    assert len(results) == 20
+    assert all(not r["after_missing"] and not r["new_missing"]
+               and not r["missing_occurrences"] and not r["unapproved_extra_rows"]
+               and not r["unique_occurrence_misses"] for r in results)
+    inventory = json.loads((root / "complex-header-source-inventory-all.json").read_bytes())
+    assert len(inventory) == 20 and sum(t["misses"] for t in inventory) == 169
+    assert all(all(score == 1 for score in t["match_scores"]) for t in inventory)

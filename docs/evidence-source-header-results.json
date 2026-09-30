@@ -1,0 +1,1923 @@
+{
+  "processing_version": 8,
+  "candidate_revision": "30449d352bd584713e37a3aab5d0939d88cfc920",
+  "comparison_baseline_revision": "4a06538491b9c005f74db8c45d4b9a49e43612cd",
+  "chunking": {
+    "target_size": 4000,
+    "max_size": 8000,
+    "overlap": 200,
+    "max_item_bytes": 31457280
+  },
+  "offline_only": true,
+  "source_and_original_state_read_only": true,
+  "adjudication": {
+    "diagnostic_pairs": 169,
+    "distinct_bands": 20,
+    "true_context_omissions": 169,
+    "false_positive_requirements": 0,
+    "unresolved_target_pairs": 0
+  },
+  "totals": {
+    "documents": 20,
+    "before_items": 7471,
+    "after_items": 7807,
+    "period_checks": 3441,
+    "before_period_misses": 169,
+    "after_period_misses": 0,
+    "new_period_misses": 0,
+    "explicit_linked_note_checks": 5414,
+    "explicit_linked_note_misses": 0,
+    "broad_context_checks": 7462,
+    "before_broad_context_misses": 1018,
+    "after_broad_context_misses": 778,
+    "new_broad_context_misses": 7,
+    "reviewed_header_bands": 79,
+    "source_header_checks": 2058,
+    "source_header_before_misses": 1400,
+    "source_header_after_misses": 0,
+    "unique_occurrence_checks": 1936,
+    "ambiguous_source_rows": 192,
+    "max_chars": 7998,
+    "max_request_bytes": 10003,
+    "lexical_tokens": 1660777,
+    "numeric_tokens": 223297,
+    "table_conversion_observations": 5259,
+    "rendered_data_rows": 29802
+  },
+  "pilot": {
+    "v8_items": 556,
+    "v7_full_payloads_identical": 556,
+    "live_v5_items": 566,
+    "shared_ids_with_v5": 554,
+    "new_ids_vs_v5": 2,
+    "stale_ids_vs_v5": 12,
+    "identical_full_payloads_vs_v5": 7
+  },
+  "receipt_sha256": {
+    "manifest-v8-final.json": "2a4c83d17a9614cf182021d83595b13fbc4f9b3417431f9b87d6de2931ab7d88",
+    "comparison-v8-final.json": "e928fcef535fff3fa129aa69734592cb1f1edf502ff7eea675976657bed74d69",
+    "linked-audit-v8-final.json": "998a464c1dc0c969cf39423a954938babf3705bdc8979909cb4c7da61efbf93f",
+    "structure-audit-v8-reviewed.json": "23c2b761bb592fb4be9333c9bdae741e10e56cecb218eadc15df80c70cbe13f8",
+    "reviewed-source-bands-v8.json": "a375c806a006d257fa79fcc691ec804fd76307e6dbbf5bdda10532dc4a49e0da",
+    "complex-header-source-inventory-all.json": "f3c2ab4a1fbc2e0987cb49b62248587fc31288084b40008ab7acfa60d97a125f",
+    "candidate-v8-final/results.json": "127f20121320ca417a0d9d02fefaafdece34f4a19a23f64388b62988376fffcf"
+  },
+  "runner_sha256": {
+    "corpus_replay.py": "b390f2a2d2447ab9f29af4c89b8551db366912c294f7abcf54d34141cfff31f0",
+    "corpus_compare.py": "40bfbfcea2ffa3e762056fdfdfd52e98bd091b3e3d9d75c4b7d79bef153b9656",
+    "table_context_audit.py": "522e9b5bea248c78c4d737d3517a41f8483619b8d04c9c96622fa2d1dbdd416a",
+    "source_header_audit.py": "7c7d0eba4796bde6d208eb9e83733bfecdd9e7f9d3516685fbbe72f5a0fd7364"
+  },
+  "limitations": [
+    "Single cached bank-document corpus; diagnostics are not financial accuracy scores.",
+    "Seven new broad misses are unmarked rows no longer incidentally sharing another row's note.",
+    "Ambiguous identical rows in different tables have occurrence and at-least-one-band checks, not unique per-copy attribution.",
+    "Legacy parser text-only flattening remains unchanged, including its synthetic date-as-data ambiguity.",
+    "Unstyled/indirect CSS headers, cross-page notes, indirect qualifiers and oversized bundles are not universally resolved.",
+    "Live v5 observations do not establish v8 Copilot efficacy; no live updates or retest performed."
+  ],
+  "documents": [
+    {
+      "id": "PNC-DEF14A-2026-01",
+      "source_sha256": "6b370b9316b08382d62d88c7b8286d9bee1ea4dd89633237a74d211f501b4931",
+      "filing": {
+        "cik": "0000713676",
+        "accession_number": "0001193125-26-102189",
+        "form": "DEF 14A",
+        "filing_date": "2026-03-11T00:00:00",
+        "company_name": "PNC FINANCIAL SERVICES GROUP, INC.",
+        "ticker": "PNC",
+        "primary_document": "d62941ddef14a.htm",
+        "file_number": "001-09718",
+        "report_period_end": "2026-04-22T00:00:00",
+        "acceptance_datetime": "2026-03-11T20:16:15Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "d62941ddef14a.htm",
+        "document_type": "DEF 14A",
+        "description": "DEF 14A",
+        "size": 4341813
+      },
+      "before_items": 556,
+      "after_items": 556,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7993,
+      "max_request_bytes": 9109,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "9085d016c83cc709993d42916190516eb3d91ee48c1d29a282ce129a3a9f92ed",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "WFC-DEF14A-2026-02",
+      "source_sha256": "d5ffbc89f4f6bcef84ddc8da7a67958a9c3399e952f5c25a85ca50f5a437241b",
+      "filing": {
+        "cik": "0000072971",
+        "accession_number": "0000072971-26-000200",
+        "form": "DEF 14A",
+        "filing_date": "2026-03-18T00:00:00",
+        "company_name": "WELLS FARGO & COMPANY/MN",
+        "ticker": "WFC",
+        "primary_document": "wfc-20260318.htm",
+        "file_number": "001-02979",
+        "report_period_end": "2025-12-31T00:00:00",
+        "acceptance_datetime": "2026-03-18T20:02:02Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "wfc-20260318.htm",
+        "document_type": "DEF 14A",
+        "description": "DEF 14A",
+        "size": 2741631
+      },
+      "before_items": 318,
+      "after_items": 318,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7379,
+      "max_request_bytes": 8413,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "69ccbd39d1a72c4232b80c937a02296ec9c7d0a86f52d9a95288348c93e113c3",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "JPM-DEF14A-2026-03",
+      "source_sha256": "bea52712a4297691c6844441f3a138bb53d9e8f38278b08b3d3731280c4fc476",
+      "filing": {
+        "cik": "0000019617",
+        "accession_number": "0000019617-26-000096",
+        "form": "DEF 14A",
+        "filing_date": "2026-04-06T00:00:00",
+        "company_name": "JPMORGAN CHASE & CO",
+        "ticker": "JPM",
+        "primary_document": "jpm-20260402.htm",
+        "file_number": "001-05805",
+        "report_period_end": "2026-04-06T00:00:00",
+        "acceptance_datetime": "2026-04-06T10:17:40Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "jpm-20260402.htm",
+        "document_type": "DEF 14A",
+        "description": "DEF 14A",
+        "size": 2932247
+      },
+      "before_items": 268,
+      "after_items": 268,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7767,
+      "max_request_bytes": 8885,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "60d5b1c2534500325d8c0d22b549ff3887bfc750d4bb1e3e4f0d05ac987d4f5a",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "BAC-DEF14A-2026-04",
+      "source_sha256": "66340ec4a1fd2f1abfecf9f8d250c58588506b35f4cfda1ad4dff616c4fc47b9",
+      "filing": {
+        "cik": "0000070858",
+        "accession_number": "0001193125-26-118929",
+        "form": "DEF 14A",
+        "filing_date": "2026-03-23T00:00:00",
+        "company_name": "BANK OF AMERICA CORP /DE/",
+        "ticker": "BAC",
+        "primary_document": "d43888ddef14a.htm",
+        "file_number": "001-06523",
+        "report_period_end": "2026-05-04T00:00:00",
+        "acceptance_datetime": "2026-03-23T15:02:56Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "d43888ddef14a.htm",
+        "document_type": "DEF 14A",
+        "description": "DEF 14A",
+        "size": 2108474
+      },
+      "before_items": 342,
+      "after_items": 342,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7899,
+      "max_request_bytes": 8978,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "4a2120897a523f31faa686eb78fd9286238cb4d2f0f081ea3c38136ad429615e",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "USB-DEF14A-2026-05",
+      "source_sha256": "c3e72c829a961e14f750962dae7a14e51d40c6f03bb377cf84a2bff36022c9bd",
+      "filing": {
+        "cik": "0000036104",
+        "accession_number": "0001104659-26-025844",
+        "form": "DEF 14A",
+        "filing_date": "2026-03-10T00:00:00",
+        "company_name": "US BANCORP \\DE\\",
+        "ticker": "USB",
+        "primary_document": "tm261379-1_def14a.htm",
+        "file_number": "001-06880",
+        "report_period_end": "2026-04-21T00:00:00",
+        "acceptance_datetime": "2026-03-10T20:15:43Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "tm261379-1_def14a.htm",
+        "document_type": "DEF 14A",
+        "description": "DEF 14A",
+        "size": 2677657
+      },
+      "before_items": 404,
+      "after_items": 404,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7984,
+      "max_request_bytes": 10003,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "40aa30daf3b06f6ac614991cf5ab154b10031a17ae3cea397d583685905bebf8",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "PNC-DEF14A-2022-06",
+      "source_sha256": "b9cd4f32657ff62b5800170b353ba93d8d719086c9f556e61ebb91644406b379",
+      "filing": {
+        "cik": "0000713676",
+        "accession_number": "0000713676-22-000023",
+        "form": "DEF 14A",
+        "filing_date": "2022-03-16T00:00:00",
+        "company_name": "PNC FINANCIAL SERVICES GROUP, INC.",
+        "ticker": "PNC",
+        "primary_document": "pnc2022proxystatement.htm",
+        "file_number": "001-09718",
+        "report_period_end": "2022-12-31T00:00:00",
+        "acceptance_datetime": "2022-03-16T13:01:12Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "pnc2022proxystatement.htm",
+        "document_type": "DEF 14A",
+        "description": "DEF 14A",
+        "size": 2171412
+      },
+      "before_items": 344,
+      "after_items": 344,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 6988,
+      "max_request_bytes": 8066,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "e888a070dd1d78b0c4fb97ce64aeba276e8d67009253bc50f3eaf270826f1ae3",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "PNC-10-K-2026-07",
+      "source_sha256": "c51fae6271386afaa150fc7e9855859389c22c3b1e830bfc0af2eeac50f33ca2",
+      "filing": {
+        "cik": "0000713676",
+        "accession_number": "0000713676-26-000020",
+        "form": "10-K",
+        "filing_date": "2026-02-20T00:00:00",
+        "company_name": "PNC FINANCIAL SERVICES GROUP, INC.",
+        "ticker": "PNC",
+        "primary_document": "pnc-20251231.htm",
+        "file_number": "001-09718",
+        "report_period_end": "2025-12-31T00:00:00",
+        "acceptance_datetime": "2026-02-20T18:54:31Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "pnc-20251231.htm",
+        "document_type": "10-K",
+        "description": "10-K",
+        "size": 9163813
+      },
+      "before_items": 632,
+      "after_items": 639,
+      "before_period_misses": 8,
+      "after_period_misses": 0,
+      "broad_context_misses": 40,
+      "new_broad_context_misses": 1,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7671,
+      "max_request_bytes": 8728,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "7184b3b4eaeb2357d046a5c792eafc8470e76b15da4acbb9be4f4c9fb8bb99b9",
+      "source_header_checks": 127,
+      "source_header_before_misses": 74,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 121,
+      "ambiguous_source_rows": 10,
+      "adjudicated_bands": [
+        {
+          "raw_html_table_index": 116,
+          "diagnostic_pairs": 4,
+          "label_sha256": [
+            "572089848caf5e940e7b894ecb0670c4b0684f953059485ea66212bb52a55fdd"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 117,
+          "diagnostic_pairs": 4,
+          "label_sha256": [
+            "3646935cd4ad15f426179db9cc8e58149357d69b48b3aaeeaba8bbaddd5b9587"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        }
+      ],
+      "reviewed_new_header_bands": [
+        {
+          "table_sha256": "688dd605fe06e53cf9d8a9ea1e95cdd6b4929207e534f81b56d226f30403e777",
+          "band_sha256": "2073021fe40800426da4ac9109f6c3447a4020d3676dcf7c24a8eaab3041161c",
+          "reviewed_header_rows": 3,
+          "checks": 14,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 12,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "6088052c06417254d59057d0725137b72aadd77de33524ec20780b45df0739d2",
+          "band_sha256": "24206a9ef487de5e1729705473962ed9f915226c9f8abed444d256d6db19516a",
+          "reviewed_header_rows": 3,
+          "checks": 32,
+          "before_missing": 22,
+          "after_missing": 0,
+          "unique_occurrence_checks": 36,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "e531d47d2ab7996d4cf6f0e563ef28e799b0123c0c6e5e2824d2670676eb79e0",
+          "band_sha256": "0beb5c6d55cefc744c2032e3e4be5882eded72642fb640c85210ca5f4940e0fa",
+          "reviewed_header_rows": 3,
+          "checks": 28,
+          "before_missing": 18,
+          "after_missing": 0,
+          "unique_occurrence_checks": 26,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "0ea07090d4e8e0803124b39c503aae82de8acf8bb6358ba5e2cb599d06765e07",
+          "band_sha256": "dc82fb597b8e082e0763a2c6f1accf03910ae915c2187110012aef8829c1eb95",
+          "reviewed_header_rows": 4,
+          "checks": 22,
+          "before_missing": 16,
+          "after_missing": 0,
+          "unique_occurrence_checks": 19,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "3a5e7bc21b55cb94d0e4ab7f2a135e36bdede05aa1d0b326614206c435596c1c",
+          "band_sha256": "9c6b46853ae99648b9c1f5aab1a74ed229e856fe8f4cff69d3d0eb1bfa5c3744",
+          "reviewed_header_rows": 4,
+          "checks": 22,
+          "before_missing": 18,
+          "after_missing": 0,
+          "unique_occurrence_checks": 19,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "52e01c7b8a1defdee8d3d13000a526486405f0af28f3b3bcb870957a03f8dbb9",
+          "band_sha256": "0beb5c6d55cefc744c2032e3e4be5882eded72642fb640c85210ca5f4940e0fa",
+          "reviewed_header_rows": 3,
+          "checks": 9,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 9,
+          "unique_occurrence_misses": 0
+        }
+      ]
+    },
+    {
+      "id": "WFC-10-K-2026-08",
+      "source_sha256": "63f0906ae441374efdd57b759c550ad69982fcfe41c737f1c39e9679e57379a5",
+      "filing": {
+        "cik": "0000072971",
+        "accession_number": "0000072971-26-000133",
+        "form": "10-K",
+        "filing_date": "2026-02-24T00:00:00",
+        "company_name": "WELLS FARGO & COMPANY/MN",
+        "ticker": "WFC",
+        "primary_document": "wfc-20251231_d2.htm",
+        "file_number": "001-02979",
+        "report_period_end": "2025-12-31T00:00:00",
+        "acceptance_datetime": "2026-02-24T21:46:31Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "wfc-20251231_d2.htm",
+        "document_type": "10-K",
+        "description": "FORM 10-K",
+        "size": 359609
+      },
+      "before_items": 60,
+      "after_items": 60,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 6527,
+      "max_request_bytes": 7613,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "63d4b3def35af82871f1d4de4b3d4f5000ec87837123bf95de85b246b1caf1de",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "JPM-10-K-2026-09",
+      "source_sha256": "4d9febdbc2038dcdca8726053286df4cbbfd48885051cbd781efcc3becb66a23",
+      "filing": {
+        "cik": "0000019617",
+        "accession_number": "0001628280-26-008131",
+        "form": "10-K",
+        "filing_date": "2026-02-13T00:00:00",
+        "company_name": "JPMORGAN CHASE & CO",
+        "ticker": "JPM",
+        "primary_document": "jpm-20251231.htm",
+        "file_number": "001-05805",
+        "report_period_end": "2025-12-31T00:00:00",
+        "acceptance_datetime": "2026-02-13T21:20:00Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "jpm-20251231.htm",
+        "document_type": "10-K",
+        "description": "10-K",
+        "size": 12927325
+      },
+      "before_items": 940,
+      "after_items": 1035,
+      "before_period_misses": 49,
+      "after_period_misses": 0,
+      "broad_context_misses": 151,
+      "new_broad_context_misses": 5,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7985,
+      "max_request_bytes": 9035,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "3d808d361bc675c5849446ee3eba4f15db3b499164777f02d2b4a57067534291",
+      "source_header_checks": 488,
+      "source_header_before_misses": 331,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 483,
+      "ambiguous_source_rows": 19,
+      "adjudicated_bands": [
+        {
+          "raw_html_table_index": 362,
+          "diagnostic_pairs": 13,
+          "label_sha256": [
+            "69c1627c1afb8a511725f5e5754c156d9a16b6916a8eccee2a450cbd67ea91ad"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 364,
+          "diagnostic_pairs": 11,
+          "label_sha256": [
+            "c9f95177e02cad7dc2c419f1d0f9be17f5668bf907ff9cfee479b032e15527b2"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 366,
+          "diagnostic_pairs": 11,
+          "label_sha256": [
+            "9f47253722e36a9bcccfd340cb6e97dd097d3696e703a240d1157d635b763ab5"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 666,
+          "diagnostic_pairs": 14,
+          "label_sha256": [
+            "bb455f1b4f667ca3795ecedd555cfee085742946cc5d6d8eea256c799386f705"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        }
+      ],
+      "reviewed_new_header_bands": [
+        {
+          "table_sha256": "3b4cf38f7953db82f450c60e1298fc38e997192e34b4c33c9bea2b909d7f334e",
+          "band_sha256": "54d08f09917740b90829c4e22903e5d166841f67378f93dff0ecb6ca103a7c94",
+          "reviewed_header_rows": 3,
+          "checks": 10,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 10,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "c0259f5776fadc414280772540f014c6089b619e3f268d94805b44af8a8a5418",
+          "band_sha256": "6ca1ace1455c09cd7a49fa3c24c78e66ada5973e2eaf585faca8f1e7cf4327d0",
+          "reviewed_header_rows": 3,
+          "checks": 10,
+          "before_missing": 1,
+          "after_missing": 0,
+          "unique_occurrence_checks": 10,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "e6ae1ccc61fc3f69dc57352a49cdba76c6b107fb8a0b469ff6a7348cc7547b15",
+          "band_sha256": "f9396ff1285e63c99600b2c431246ff963525ade446c0cfd10763254df89eac2",
+          "reviewed_header_rows": 5,
+          "checks": 24,
+          "before_missing": 19,
+          "after_missing": 0,
+          "unique_occurrence_checks": 24,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "fead0c0d0f424c5d347cdadfeec894f0920326c72a7a2b8122e89d7869739b91",
+          "band_sha256": "94b8e83280142be1cd68fd2723bd4e5d0dd171c6728f9d197f19128b6c2e6c67",
+          "reviewed_header_rows": 5,
+          "checks": 24,
+          "before_missing": 22,
+          "after_missing": 0,
+          "unique_occurrence_checks": 24,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "4ebd8d46d13a1851042354da9b75ed856ed05323b5c5f90ad8b6b017666996d1",
+          "band_sha256": "599920cf65a3c67e4544c95f60043589d7d9a7d4e30752d929f895e0d93769bd",
+          "reviewed_header_rows": 3,
+          "checks": 14,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 13,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "8eea66e0ff67035d386b69658036ae4b96a832de1a00902e49c4dcdcc4d76fe0",
+          "band_sha256": "d9ed84e4ae43251d837b8303d3e8b44179ff2cd64f0b8e626612087138ddaf07",
+          "reviewed_header_rows": 3,
+          "checks": 16,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 16,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "ffcec49b56f8a50bf253c058b0ab95ccac768837aa6f2307463d4cca6fb92322",
+          "band_sha256": "58d7adcafd518048a9266f80374a7c15d5d5b5c5c82ffc0aba2b47293e425220",
+          "reviewed_header_rows": 4,
+          "checks": 64,
+          "before_missing": 50,
+          "after_missing": 0,
+          "unique_occurrence_checks": 66,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "720c6afc7d5371adb710b29a987ef353d57fb3ced3f3ddc1997353f5f25ef5a2",
+          "band_sha256": "225f1122e71a61fdcce432ecd039393d65d605d19835d2e4e2fddc0aaf83e903",
+          "reviewed_header_rows": 3,
+          "checks": 64,
+          "before_missing": 47,
+          "after_missing": 0,
+          "unique_occurrence_checks": 66,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "40796f280950031c39827dd66d837bdb9bc2e74ea2a6ab535b9ab3ae1a7cfbbf",
+          "band_sha256": "a510e6705e9de92fabb57dd53ea4546eb940503e6e2c2dbd1187e31d83ca0ac2",
+          "reviewed_header_rows": 4,
+          "checks": 42,
+          "before_missing": 39,
+          "after_missing": 0,
+          "unique_occurrence_checks": 33,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "19117a28997aa1e7d56798eba32fcde8cb759ee59ae108dfb146b5facf33e895",
+          "band_sha256": "f8ceb4052fe0c16849ff46aeb17cda2d6142094bdb4d55e6dc34e18532d9ec03",
+          "reviewed_header_rows": 4,
+          "checks": 42,
+          "before_missing": 37,
+          "after_missing": 0,
+          "unique_occurrence_checks": 33,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "3355d0258a0239d1e2490994ddfc688e9e054d11481496a73f95899fa3f5b650",
+          "band_sha256": "c3a52bc1d47b01ac387c03a96edf25f0809fbc2aa88e458e0535e16d7ce9bf00",
+          "reviewed_header_rows": 4,
+          "checks": 42,
+          "before_missing": 40,
+          "after_missing": 0,
+          "unique_occurrence_checks": 44,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "9d0ba8ae6596404c671806864a963ed5aedc314724382cf0047b9ac313631105",
+          "band_sha256": "0e286994768866442360ea8c2280a466eea7c1d5bd9fd5603564d4235de4b146",
+          "reviewed_header_rows": 4,
+          "checks": 16,
+          "before_missing": 10,
+          "after_missing": 0,
+          "unique_occurrence_checks": 16,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "478af0f4e02afff5458e45b26e7bd7f14e1b8f22627f1a3362a37c33037b4635",
+          "band_sha256": "76e91f0523b41bab1f158fc2d50a0a2e0ab25b7037c7f5c99de620b162f4f00f",
+          "reviewed_header_rows": 4,
+          "checks": 1,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 1,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "c77b27e36e80653e3739c995d40977849b4f508400e159b098d64e14d4637361",
+          "band_sha256": "d234335cdd07e72c9fb2fa605fd36eac72a5ab8f7a39c2841dba5d49939c38a1",
+          "reviewed_header_rows": 4,
+          "checks": 14,
+          "before_missing": 5,
+          "after_missing": 0,
+          "unique_occurrence_checks": 14,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "b3f73c05ccfffd2acbdbef2a009158741b328dd160973875b407e6de43f39865",
+          "band_sha256": "152974bc00256dc498b43d72ab2999bb6cdef54c2bb3311604979bf92312c3ad",
+          "reviewed_header_rows": 4,
+          "checks": 14,
+          "before_missing": 3,
+          "after_missing": 0,
+          "unique_occurrence_checks": 14,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "39fd74f9016fbb142e526b0e102e34418f56593b43bbab40a77560ecc8aedbf9",
+          "band_sha256": "0703f9d5993d7ebae468b9de6f888a2056386a928c7192392d9fce7f897a3296",
+          "reviewed_header_rows": 3,
+          "checks": 50,
+          "before_missing": 33,
+          "after_missing": 0,
+          "unique_occurrence_checks": 58,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "1a406adfa98090135de5e74896c47abb3018d0b5d7d13e1a958b7109b3dc47d1",
+          "band_sha256": "46fa0b7ca3b0d289415d1013bcb2eb60f6b3381bd0a4bb72a92afb3a820a9b32",
+          "reviewed_header_rows": 3,
+          "checks": 2,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 2,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "d4aff1d830804033d70640ec6fcb19506cc147641c5e851d385213e71eaca5cd",
+          "band_sha256": "00eca231475dd053bda88cd03a609b91cde10b057aaecd14bd29b3c4435e825a",
+          "reviewed_header_rows": 3,
+          "checks": 2,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 2,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "4c91cf95c25f2f8bf8432b85ca5243313aac5969c18dc63251ec7fc924a034a0",
+          "band_sha256": "b293334e21fd7cd42faf938ac0072d0f0328e26a9bf766cdd356ad60c2ec2f23",
+          "reviewed_header_rows": 5,
+          "checks": 37,
+          "before_missing": 25,
+          "after_missing": 0,
+          "unique_occurrence_checks": 37,
+          "unique_occurrence_misses": 0
+        }
+      ]
+    },
+    {
+      "id": "BAC-10-K-2026-10",
+      "source_sha256": "c8725c7963d19cd6a2f3c1d0034b2a1068b4490124be6b6600a4db23be5ed134",
+      "filing": {
+        "cik": "0000070858",
+        "accession_number": "0000070858-26-000157",
+        "form": "10-K",
+        "filing_date": "2026-02-25T00:00:00",
+        "company_name": "BANK OF AMERICA CORP /DE/",
+        "ticker": "BAC",
+        "primary_document": "bac-20251231.htm",
+        "file_number": "001-06523",
+        "report_period_end": "2025-12-31T00:00:00",
+        "acceptance_datetime": "2026-02-25T22:01:44Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "bac-20251231.htm",
+        "document_type": "10-K",
+        "description": "10-K",
+        "size": 12819060
+      },
+      "before_items": 856,
+      "after_items": 907,
+      "before_period_misses": 26,
+      "after_period_misses": 0,
+      "broad_context_misses": 140,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7998,
+      "max_request_bytes": 9030,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "e53a32544ad76f75423fb6281d81d625c539838185825e37da00c0d6dee3f3ca",
+      "source_header_checks": 349,
+      "source_header_before_misses": 227,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 319,
+      "ambiguous_source_rows": 48,
+      "adjudicated_bands": [
+        {
+          "raw_html_table_index": 134,
+          "diagnostic_pairs": 16,
+          "label_sha256": [
+            "f7104b58ed8da1b44cfe1932b6380a12b0afee00d39d188e72ca0b823b4a5dfd"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 222,
+          "diagnostic_pairs": 5,
+          "label_sha256": [
+            "a0825889a8cbb7f049882b9bb1ec5a496aaedf4724d64c140fede2ba48445e6d"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 229,
+          "diagnostic_pairs": 5,
+          "label_sha256": [
+            "25b5b002f97779eca321d63dd00f7ce63887567d46addd96751197dd0f067a8d"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        }
+      ],
+      "reviewed_new_header_bands": [
+        {
+          "table_sha256": "df975e9527da2521b5e40af2769fd21a180a762b17bdbe524fd1d4dc5c035b99",
+          "band_sha256": "5f308e7f7ee194530bd2699a2408deb0664a7c4bb1f3512dbce3fc02801e2969",
+          "reviewed_header_rows": 5,
+          "checks": 7,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 7,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "8dfcdf291f4fa119e4024ad4cee7ee46e5f5515c4373810cee2df9cda8a71807",
+          "band_sha256": "b8e3ffd60c0be4092fedb0d709221e4bc980c15059df1fce5988de1ecdd8acb6",
+          "reviewed_header_rows": 3,
+          "checks": 21,
+          "before_missing": 16,
+          "after_missing": 0,
+          "unique_occurrence_checks": 21,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "b58ba092e1b759543504f0adf83ecadf4038cf86465d15adb8367c3fc243ee09",
+          "band_sha256": "0e2a85fbb634cf14cc0f60432fff384c52c663ee2bf25c80bcb7f56bd9315823",
+          "reviewed_header_rows": 3,
+          "checks": 14,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 14,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "dbd8a897c844bdd757158d19cfafb802891c82dec6a2a4777f22edeafa866c91",
+          "band_sha256": "8161d6b4a57a5bb859151503ef81e3392fe4898ad85ffd0c00f3e3070ff6bd71",
+          "reviewed_header_rows": 4,
+          "checks": 8,
+          "before_missing": 5,
+          "after_missing": 0,
+          "unique_occurrence_checks": 7,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "be10746cc4b166e3571e6cdce66a466b05c52d24f803c0b9d0a7af6ea5092293",
+          "band_sha256": "dfda207d0204c991b335fc9f38ec867bfd58c159c0c01cb3c63354a924b073c3",
+          "reviewed_header_rows": 4,
+          "checks": 8,
+          "before_missing": 5,
+          "after_missing": 0,
+          "unique_occurrence_checks": 7,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "b7f0e4c3e6a29b67f0dcd709b440ec1cf608f1cc79c3d89a10e99cd118bf61da",
+          "band_sha256": "de392928cf7ff47d4592ee610630954bc81cd21c299d2b51196b86c51d677e4c",
+          "reviewed_header_rows": 4,
+          "checks": 48,
+          "before_missing": 37,
+          "after_missing": 0,
+          "unique_occurrence_checks": 40,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "d099dd13a371f88bb41ddd5de975a6ad929e98bca37199e016dc95e2748c624b",
+          "band_sha256": "631092cfd82a55d450b4a658aab4bf9fcc962d2bdd636362be2c5da39df224cc",
+          "reviewed_header_rows": 4,
+          "checks": 48,
+          "before_missing": 37,
+          "after_missing": 0,
+          "unique_occurrence_checks": 40,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "419cf47af281b47cf1a7aeaeb8489ab525e98058726f228c2c3253c3831f1fc5",
+          "band_sha256": "33bd8d57d0295b4f97f00b1a932fa45cd0659229ca5bbd986ac855a2de1b9d74",
+          "reviewed_header_rows": 3,
+          "checks": 44,
+          "before_missing": 40,
+          "after_missing": 0,
+          "unique_occurrence_checks": 40,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "8f5e05af6b411b7cb2995de19a5ba61da7237ab5cd8250e07a01a8f66610f4e6",
+          "band_sha256": "e4ca1a49c8577d5c1925dfd4fae77cac5d73d85941f674ca24e7e3dfb5f4341c",
+          "reviewed_header_rows": 4,
+          "checks": 23,
+          "before_missing": 22,
+          "after_missing": 0,
+          "unique_occurrence_checks": 21,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "e19a5a0e424d095c3e004f898c86f40703344ab2f2530a9896b72f050e9e1e41",
+          "band_sha256": "59b398aa9925f5821e4a586adacea2a09fe55be4189bf72ef9c4ff789b80d1e3",
+          "reviewed_header_rows": 5,
+          "checks": 57,
+          "before_missing": 37,
+          "after_missing": 0,
+          "unique_occurrence_checks": 56,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "df4aa3b6a69e2f54a056650d414a0ce74798e4c256306b0613fcf7bc079d8a29",
+          "band_sha256": "51a3cbdeb8a76421da8c0b36ed5c52a64190b219184f85683f1754476465e60f",
+          "reviewed_header_rows": 3,
+          "checks": 50,
+          "before_missing": 28,
+          "after_missing": 0,
+          "unique_occurrence_checks": 42,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "12b3e89ffab4ea45c259518ea17619f482eae3c842b1facc6bf93b7b1e363378",
+          "band_sha256": "56127ecd99777d77f4d6d25afdd6442919a82c617e97344bb82c875cefc7de97",
+          "reviewed_header_rows": 4,
+          "checks": 6,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 6,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "f0521c755dda20e636c9b6b5ba5d3a9b93cb9a214cb5769d431ceaa61063fc32",
+          "band_sha256": "f71d69b1966a26124089001ed6ed74f92c0aa7896f4a71d7cd49740e55ff520c",
+          "reviewed_header_rows": 4,
+          "checks": 15,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 18,
+          "unique_occurrence_misses": 0
+        }
+      ]
+    },
+    {
+      "id": "USB-10-K-2026-11",
+      "source_sha256": "b71b00c4b8817405c7608c25fcd4c6c23a2586e3c9d2c1f6ab2a6fd95584f41b",
+      "filing": {
+        "cik": "0000036104",
+        "accession_number": "0000036104-26-000011",
+        "form": "10-K",
+        "filing_date": "2026-02-23T00:00:00",
+        "company_name": "US BANCORP \\DE\\",
+        "ticker": "USB",
+        "primary_document": "usb-20251231.htm",
+        "file_number": "001-06880",
+        "report_period_end": "2025-12-31T00:00:00",
+        "acceptance_datetime": "2026-02-23T22:09:06Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "usb-20251231.htm",
+        "document_type": "10-K",
+        "description": "10-K",
+        "size": 972606
+      },
+      "before_items": 96,
+      "after_items": 96,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7192,
+      "max_request_bytes": 8273,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "8757c31036511b6e1d9393acaa22318974795df1d385e5987bc1a7975790ffc5",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "PNC-10-Q-2026-12",
+      "source_sha256": "83eaaaefcbefccd03ad03b4ba7ef2288d0a375e548837fc777cb3523a5d33824",
+      "filing": {
+        "cik": "0000713676",
+        "accession_number": "0001628280-26-053170",
+        "form": "10-Q",
+        "filing_date": "2026-08-05T00:00:00",
+        "company_name": "PNC FINANCIAL SERVICES GROUP, INC.",
+        "ticker": "PNC",
+        "primary_document": "pnc-20260630.htm",
+        "file_number": "001-09718",
+        "report_period_end": "2026-06-30T00:00:00",
+        "acceptance_datetime": "2026-08-05T18:19:22Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "pnc-20260630.htm",
+        "document_type": "10-Q",
+        "description": "10-Q",
+        "size": 7742719
+      },
+      "before_items": 386,
+      "after_items": 393,
+      "before_period_misses": 16,
+      "after_period_misses": 0,
+      "broad_context_misses": 37,
+      "new_broad_context_misses": 1,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7577,
+      "max_request_bytes": 8669,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "d134b6b47e968dbb8f655cd1621ec9da192122272d9aba594a62ab72288ffaac",
+      "source_header_checks": 170,
+      "source_header_before_misses": 98,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 163,
+      "ambiguous_source_rows": 15,
+      "adjudicated_bands": [
+        {
+          "raw_html_table_index": 102,
+          "diagnostic_pairs": 4,
+          "label_sha256": [
+            "6e9f79d72f6553a4ef240d60327ad73c223b6eacaf3760ea8b01aceecb1968a2"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 103,
+          "diagnostic_pairs": 4,
+          "label_sha256": [
+            "7d1a8799cf2c25a11dfd8bd95fca0ea3a90eb0b8c797ea6317e04a5ac9492016"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 104,
+          "diagnostic_pairs": 4,
+          "label_sha256": [
+            "b5f41de350a6cb80ab0989ebcc0673e09bae69a688733a5ff911d2c118bc6311"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 105,
+          "diagnostic_pairs": 4,
+          "label_sha256": [
+            "462bbab8ebed816622e943e9ab30f999fba16fde5f5ada3619819ff412c75c41"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        }
+      ],
+      "reviewed_new_header_bands": [
+        {
+          "table_sha256": "39b14290e8c7d67904a7b61d40983d82bec9ce3d2219b66e86579099e74ccc46",
+          "band_sha256": "3f2e3be5e2e50085b76edac9b5350d3ae0ce39d244dd849d3e7e4853156b6be9",
+          "reviewed_header_rows": 3,
+          "checks": 28,
+          "before_missing": 18,
+          "after_missing": 0,
+          "unique_occurrence_checks": 32,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "20abfa960e8c26f3c2d917392edbe413812432e67acf7bb1daf3af590837ffb8",
+          "band_sha256": "309549ae67b26059678019e5bc047441b1c9d5b6dae45d086bab8880b8dfb79e",
+          "reviewed_header_rows": 3,
+          "checks": 28,
+          "before_missing": 18,
+          "after_missing": 0,
+          "unique_occurrence_checks": 26,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "56fc49dcf2cc542a860d4861ad6eee56516bf45e1ec1f1634956c6d8e2e5a42d",
+          "band_sha256": "bcaec641a4571d69717fe78dce211e42495bbf079953fc8eeb981dee2f14534f",
+          "reviewed_header_rows": 4,
+          "checks": 21,
+          "before_missing": 14,
+          "after_missing": 0,
+          "unique_occurrence_checks": 18,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "441b3a8558c920f77dca2bf83dcc173bb185c932f75c84646df8ae6aad10dc4e",
+          "band_sha256": "b68cb92183462230319116e95ddd631f285af5ff5d5a9af16f1a749cc28e2efc",
+          "reviewed_header_rows": 4,
+          "checks": 22,
+          "before_missing": 16,
+          "after_missing": 0,
+          "unique_occurrence_checks": 17,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "e7248b92c3f1af517a38fa624a7bd421790a0e8cb8e14600a06ecbff0fa0c9fb",
+          "band_sha256": "3750747cd39ab053ee74aa8c988e5e466d6bfb519921bf45b3fd1cb8fcd82c13",
+          "reviewed_header_rows": 4,
+          "checks": 21,
+          "before_missing": 15,
+          "after_missing": 0,
+          "unique_occurrence_checks": 21,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "40790c5527eea56f4d4e6c00a00cd91c0bba034417d8a70c5f5becdce2125b2d",
+          "band_sha256": "22402c4b8a17dc49d08c1b7f92519d037d0a36a7c85f74e32f7c7f7b93fa8cfb",
+          "reviewed_header_rows": 4,
+          "checks": 22,
+          "before_missing": 17,
+          "after_missing": 0,
+          "unique_occurrence_checks": 17,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "a598ce17d82dc32a420092042e1f27ef5fc6b03fc660ad21edfaf95ee3f172ad",
+          "band_sha256": "58922e33097b3936f45d23c4520b419ee390e91c2b330e6a4c239dc12ad41ff9",
+          "reviewed_header_rows": 3,
+          "checks": 28,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 32,
+          "unique_occurrence_misses": 0
+        }
+      ]
+    },
+    {
+      "id": "WFC-10-Q-2026-13",
+      "source_sha256": "bd81be90cdcfd43877d280b274d1f1865c4b7e2a0498e2a3767bedc0fa049686",
+      "filing": {
+        "cik": "0000072971",
+        "accession_number": "0000072971-26-000302",
+        "form": "10-Q",
+        "filing_date": "2026-07-28T00:00:00",
+        "company_name": "WELLS FARGO & COMPANY/MN",
+        "ticker": "WFC",
+        "primary_document": "wfc-20260630.htm",
+        "file_number": "001-02979",
+        "report_period_end": "2026-06-30T00:00:00",
+        "acceptance_datetime": "2026-07-28T20:46:31Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "wfc-20260630.htm",
+        "document_type": "10-Q",
+        "description": "FORM 10-Q",
+        "size": 10648938
+      },
+      "before_items": 370,
+      "after_items": 370,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 18,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7936,
+      "max_request_bytes": 9126,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "2203fae5041b007b400fb7797d89fd326bfa6646af1d249321239edae74f6bac",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "JPM-10-Q-2024-14",
+      "source_sha256": "7e20adec873f5d9d0db195a70ffd37e38ec24d11215799775a5dd1a0905ff155",
+      "filing": {
+        "cik": "0000019617",
+        "accession_number": "0000019617-24-000611",
+        "form": "10-Q",
+        "filing_date": "2024-10-30T00:00:00",
+        "company_name": "JPMORGAN CHASE & CO",
+        "ticker": "JPM",
+        "primary_document": "jpm-20240930.htm",
+        "file_number": "001-05805",
+        "report_period_end": "2024-09-30T00:00:00",
+        "acceptance_datetime": "2024-10-30T20:18:49Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "jpm-20240930.htm",
+        "document_type": "10-Q",
+        "description": "10-Q",
+        "size": 11717560
+      },
+      "before_items": 643,
+      "after_items": 764,
+      "before_period_misses": 44,
+      "after_period_misses": 0,
+      "broad_context_misses": 189,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7921,
+      "max_request_bytes": 8968,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "ad69207121897c375074da83d4df64bef70839332e5c0054b37e1c99cf85f306",
+      "source_header_checks": 536,
+      "source_header_before_misses": 396,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 503,
+      "ambiguous_source_rows": 45,
+      "adjudicated_bands": [
+        {
+          "raw_html_table_index": 140,
+          "diagnostic_pairs": 11,
+          "label_sha256": [
+            "9806c5ae74dc917ae9dd86d7f5bd19dfaa38b25c7032c63ccdad5c42ac76fe0f"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 141,
+          "diagnostic_pairs": 11,
+          "label_sha256": [
+            "009860b25ee02ec1c486d654d03381c7720136a3072146bfc92242067198397a"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 142,
+          "diagnostic_pairs": 11,
+          "label_sha256": [
+            "80f80182b86c0571493809d2f32e6398904fd57abafaecc3d533f28b5eb5af2d"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 143,
+          "diagnostic_pairs": 11,
+          "label_sha256": [
+            "6a42aafde0cdc6f120f5b42f570cd2b7aafa3d19d0f685c8e184ce265b3f1c37"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        }
+      ],
+      "reviewed_new_header_bands": [
+        {
+          "table_sha256": "7fb9c632e34098414e0304546413aaef67dc1bb8085b027f0dd684a8beb387fb",
+          "band_sha256": "823772bd77eff93eb40fbe3497f99257f6508712f402520b1ccb13fe46e9ae74",
+          "reviewed_header_rows": 4,
+          "checks": 20,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 20,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "6dee791bc0fb0b2f5cc6e6d827df0852b658513938362f76d6b25d7e8bb5dbf5",
+          "band_sha256": "4d3148efb4838533f2714eccff709a31165270159d86654746c3aa9866f15c72",
+          "reviewed_header_rows": 3,
+          "checks": 16,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 16,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "d352ef3fbe6792b363663326b99e7940869a29f432ffc5bbb87748fb29c37179",
+          "band_sha256": "9c9840c95c4b6fefd84d99ed934d53af63fc90175a0b479289f8a0e3ab96d297",
+          "reviewed_header_rows": 5,
+          "checks": 64,
+          "before_missing": 50,
+          "after_missing": 0,
+          "unique_occurrence_checks": 66,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "9a26ffccf5dec8bacdbe2a119f683a9268be8b6211017b3b432add92e00f863c",
+          "band_sha256": "03ca586213b73279ec7d3a0d0ab47505323d61b215e6e8aa1ef1215a4c6799e6",
+          "reviewed_header_rows": 4,
+          "checks": 64,
+          "before_missing": 49,
+          "after_missing": 0,
+          "unique_occurrence_checks": 66,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "b2ffd3dc79acbd3e5ea57c04a68240e30ad4217003c3aeab511d68e29457d27c",
+          "band_sha256": "b1357999a76f8b5a8bd6959d777da083a86885a5303a9e065f30c0c4a3d7ff2c",
+          "reviewed_header_rows": 4,
+          "checks": 41,
+          "before_missing": 41,
+          "after_missing": 0,
+          "unique_occurrence_checks": 41,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "e927a87c8bef40b11f80c2d254c7f242892ce8f4e5df199aefb3273b491fee47",
+          "band_sha256": "ca0a74a8d7ad9a5e021f6f392831beede26166b79641170bc7880d54096313e2",
+          "reviewed_header_rows": 4,
+          "checks": 41,
+          "before_missing": 41,
+          "after_missing": 0,
+          "unique_occurrence_checks": 32,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "96796760d3010653fc2993b28a1e6236ccfc54a3a98c43d1942d186af88b71c3",
+          "band_sha256": "5e449836d45a7f85766279147e00a00cd3d1c6b1d51d73b78b78e965846ef4ba",
+          "reviewed_header_rows": 4,
+          "checks": 41,
+          "before_missing": 41,
+          "after_missing": 0,
+          "unique_occurrence_checks": 32,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "a963e30ffdcf0e66e7f24c350661674e24f743cc1d8591c4e65294f99aac0be3",
+          "band_sha256": "be7dc71bf2c37aba3e2d044e086671b5020406b552e88c1e30423695d82fd05d",
+          "reviewed_header_rows": 4,
+          "checks": 41,
+          "before_missing": 41,
+          "after_missing": 0,
+          "unique_occurrence_checks": 32,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "8dfbebfc43dac8bb1b9b6a62ed4e5b20c7b6239d3ddcdf4b349a6db1e879037a",
+          "band_sha256": "991323f6c087d012569a2d8281deb84d482257091404f0a984c3ba78b73f0535",
+          "reviewed_header_rows": 3,
+          "checks": 5,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 3,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "7a718c0bb5431afa5d2e6eb8858f8ca720aa5208c02940e2c67ce0e3e405cbcc",
+          "band_sha256": "eb08b8d8e770c413ec796fb79d652a6d1e0e505ab191bba7fa64ef81986e2d90",
+          "reviewed_header_rows": 3,
+          "checks": 5,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 3,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "5624a3631d2aab63e61f7fadaea4ad6337abc5c88baa1e71956641519e14aa5b",
+          "band_sha256": "89c2dd8ba1d724e6cf0112dd8c2ba2beb0c75ae455e984d0a18f5a5cfcd1f8d1",
+          "reviewed_header_rows": 4,
+          "checks": 16,
+          "before_missing": 10,
+          "after_missing": 0,
+          "unique_occurrence_checks": 16,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "94b30627b4cdecc2aa5c94df91476add7c687212f004ab69b2642bb3ccc56824",
+          "band_sha256": "e3925f8f60862e890015af8f9ddf581caa0aaecfb00bf6ae2e812cac0bf90b06",
+          "reviewed_header_rows": 4,
+          "checks": 1,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 1,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "1009bdabac72bf4d56a927fedcbd50e8e893ab12ba84106e9b9956f61bed9f8e",
+          "band_sha256": "bb2eb3ea082ce8b13cd97792add6baab4640a8c10511d35672daac7be9e58b98",
+          "reviewed_header_rows": 4,
+          "checks": 14,
+          "before_missing": 4,
+          "after_missing": 0,
+          "unique_occurrence_checks": 10,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "9d6f216fc6b0f5944d961c51289f88267615c521ff4b17194e4873b013fc637c",
+          "band_sha256": "19353856d5717ca2dab7f8b91ad7b0bb3b61867f8794305db3ee518b6c0f1582",
+          "reviewed_header_rows": 4,
+          "checks": 14,
+          "before_missing": 5,
+          "after_missing": 0,
+          "unique_occurrence_checks": 10,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "d169bbe76a7fed7aae2b8882d5bee97b814ce061987008416889b3af7b609da9",
+          "band_sha256": "228ec1ce23ffda093a3e093cd2b4a8b2a1b100c2adc17db9a67f91964dea9f74",
+          "reviewed_header_rows": 3,
+          "checks": 50,
+          "before_missing": 33,
+          "after_missing": 0,
+          "unique_occurrence_checks": 58,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "89a5ebc42e9e97fa15643a82b8779545520fe6f17d3068b591682bd8ed3741ac",
+          "band_sha256": "c88efe467e433be993bda4de186c01e0fab160d78f1ecacc0aff2f4501555a71",
+          "reviewed_header_rows": 4,
+          "checks": 2,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 2,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "668428a1924fa1655334bf46bb39b0a1bada8a8633df9a26958d1d0eae1b58e6",
+          "band_sha256": "8e8abbe499c9ca8814f77a4dc53916f9cc2f01a749338d4b4a825c77045df367",
+          "reviewed_header_rows": 4,
+          "checks": 2,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 2,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "1158f7403416e8498686b559105d51419642b3a3933b0b36947e2b61487f982c",
+          "band_sha256": "79e286aa737837a8caaab56b7f1ad4a827d35e6982c45e81dc43465468c2d93a",
+          "reviewed_header_rows": 5,
+          "checks": 23,
+          "before_missing": 23,
+          "after_missing": 0,
+          "unique_occurrence_checks": 23,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "f551bc3c4ff49216c7f99fb9de76620dd2b0d176f9da7070be59ec75110932ce",
+          "band_sha256": "828d785cf5b6ddfafb25cb388519559cf5c303baee73a44d3f0b672a7908c689",
+          "reviewed_header_rows": 3,
+          "checks": 38,
+          "before_missing": 29,
+          "after_missing": 0,
+          "unique_occurrence_checks": 35,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "1847758310701ce8230aa636a2cca25d5731e4667b8e8b6f41ab0ea899f84016",
+          "band_sha256": "fceb85c5818266e680a27419d7d587c78863a2be8a418674c5f81f2dca9fdab0",
+          "reviewed_header_rows": 3,
+          "checks": 38,
+          "before_missing": 29,
+          "after_missing": 0,
+          "unique_occurrence_checks": 35,
+          "unique_occurrence_misses": 0
+        }
+      ]
+    },
+    {
+      "id": "BAC-10-Q-2025-15",
+      "source_sha256": "c55e9ad66cc73eeb3993369cc8d9d6a2341aa22b69d93dab26fa297754c380b3",
+      "filing": {
+        "cik": "0000070858",
+        "accession_number": "0000070858-25-000405",
+        "form": "10-Q",
+        "filing_date": "2025-10-31T00:00:00",
+        "company_name": "BANK OF AMERICA CORP /DE/",
+        "ticker": "BAC",
+        "primary_document": "bac-20250930.htm",
+        "file_number": "001-06523",
+        "report_period_end": "2025-09-30T00:00:00",
+        "acceptance_datetime": "2025-10-31T20:36:23Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "bac-20250930.htm",
+        "document_type": "10-Q",
+        "description": "10-Q",
+        "size": 11003125
+      },
+      "before_items": 677,
+      "after_items": 732,
+      "before_period_misses": 26,
+      "after_period_misses": 0,
+      "broad_context_misses": 203,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7967,
+      "max_request_bytes": 9047,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "9a4eb38d2820472e1643802ec4c5e783b2b4aa5da61cec839bbb37526ea59c63",
+      "source_header_checks": 388,
+      "source_header_before_misses": 274,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 347,
+      "ambiguous_source_rows": 55,
+      "adjudicated_bands": [
+        {
+          "raw_html_table_index": 91,
+          "diagnostic_pairs": 16,
+          "label_sha256": [
+            "10c06c49ba1fe7ec67562edf0f5f2a1a2ef9b46695fd02106202b8dfa975218e"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 153,
+          "diagnostic_pairs": 5,
+          "label_sha256": [
+            "725fb2d3b370292adda67f2f1a485f3329285120656d257a94e566aa067f009f"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        },
+        {
+          "raw_html_table_index": 160,
+          "diagnostic_pairs": 5,
+          "label_sha256": [
+            "25b5b002f97779eca321d63dd00f7ce63887567d46addd96751197dd0f067a8d"
+          ],
+          "finding": "true source header/context; not a financial data row"
+        }
+      ],
+      "reviewed_new_header_bands": [
+        {
+          "table_sha256": "940516566fb67b890d6d9356c8a2d79b9cddd75ae6e045f839d80df82605c5d3",
+          "band_sha256": "9070658e0b63cff434c427f3b1268c8c53ed0c4e9288ebe46748d23f2978577b",
+          "reviewed_header_rows": 5,
+          "checks": 7,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 7,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "88311357178d39a4349fdc10477def9b9000291dbd068e8edbc8f0d4a7ab6cb5",
+          "band_sha256": "4bf572f411680e06b71b78e89870e5dc8dee5ab46a101fcaaeec06b9553509a8",
+          "reviewed_header_rows": 3,
+          "checks": 21,
+          "before_missing": 16,
+          "after_missing": 0,
+          "unique_occurrence_checks": 21,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "05ee92efba510246dc04fde43f003a1472b1b34494b529563ea469b00422aa54",
+          "band_sha256": "218fdbd1f982ff7a429a7bf1d2c6cf1b2783a8830087e86de498d80ba5891f7c",
+          "reviewed_header_rows": 6,
+          "checks": 14,
+          "before_missing": 14,
+          "after_missing": 0,
+          "unique_occurrence_checks": 14,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "c5be90b129e2c322154aca3d4558dd07919a27480eaf2176a9aa51285f0430f6",
+          "band_sha256": "333bae418284d3a6a25fa3828b2615a4a44ce417d60417024e141c66b36b3d8b",
+          "reviewed_header_rows": 5,
+          "checks": 14,
+          "before_missing": 14,
+          "after_missing": 0,
+          "unique_occurrence_checks": 14,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "ae24e23d7644c3438dea6ac485fc8a89ad5e4d944a6a827a99c2b891832bda56",
+          "band_sha256": "91c737e4ad143180a9b1e2d791f018b5a3e5e056fab30f399bed5dff3f84bd81",
+          "reviewed_header_rows": 4,
+          "checks": 8,
+          "before_missing": 5,
+          "after_missing": 0,
+          "unique_occurrence_checks": 7,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "be10746cc4b166e3571e6cdce66a466b05c52d24f803c0b9d0a7af6ea5092293",
+          "band_sha256": "dfda207d0204c991b335fc9f38ec867bfd58c159c0c01cb3c63354a924b073c3",
+          "reviewed_header_rows": 4,
+          "checks": 8,
+          "before_missing": 5,
+          "after_missing": 0,
+          "unique_occurrence_checks": 7,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "3f4ead2ec26d7afaee4735059b176d1d7d32eea057be827c439bbd5e7374aa51",
+          "band_sha256": "514136d2bc5e9e05a452acf05f86e5cd06b1961ded626e40859591e47c40a6bd",
+          "reviewed_header_rows": 4,
+          "checks": 48,
+          "before_missing": 37,
+          "after_missing": 0,
+          "unique_occurrence_checks": 40,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "d099dd13a371f88bb41ddd5de975a6ad929e98bca37199e016dc95e2748c624b",
+          "band_sha256": "631092cfd82a55d450b4a658aab4bf9fcc962d2bdd636362be2c5da39df224cc",
+          "reviewed_header_rows": 4,
+          "checks": 48,
+          "before_missing": 37,
+          "after_missing": 0,
+          "unique_occurrence_checks": 40,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "6912fa3302c8f89670154c1f0e9f35817a13f11c039e0c69b14a1c30d1544e6c",
+          "band_sha256": "302ee5fc5a0ee6840093d93e5fdf548892db1d161c02f5bacf11fef45a473d69",
+          "reviewed_header_rows": 3,
+          "checks": 44,
+          "before_missing": 40,
+          "after_missing": 0,
+          "unique_occurrence_checks": 39,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "3d84eef2f6fdc6d43071f3a4af053458807548a4208202138133994fd10f7b71",
+          "band_sha256": "1020dbf4f638a3af425751362fc09d921b5075bb2734a71ce69576e564a74c36",
+          "reviewed_header_rows": 3,
+          "checks": 44,
+          "before_missing": 40,
+          "after_missing": 0,
+          "unique_occurrence_checks": 39,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "01ad17d6fb1de9b923a6bf55475574c75e8acf475f261fd3497081b8dc4d4416",
+          "band_sha256": "140160ed67cbf234a3099389d51600d5a57d495d7a8b09a0157b14564782a73b",
+          "reviewed_header_rows": 5,
+          "checks": 58,
+          "before_missing": 37,
+          "after_missing": 0,
+          "unique_occurrence_checks": 49,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "3e9db4a8f19af95933f644f20884ed21b329433633601c9cacf8bbbf90d25272",
+          "band_sha256": "51a3cbdeb8a76421da8c0b36ed5c52a64190b219184f85683f1754476465e60f",
+          "reviewed_header_rows": 3,
+          "checks": 51,
+          "before_missing": 29,
+          "after_missing": 0,
+          "unique_occurrence_checks": 42,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "0dfee01a0dbccbc73df01418045ad93bd8f71d2bc67f709caa58507336fd5946",
+          "band_sha256": "9e3240c33a421514ecaaf6ae9b7dc620e05a63d2ae110632d6d7aedf707e31be",
+          "reviewed_header_rows": 4,
+          "checks": 8,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 10,
+          "unique_occurrence_misses": 0
+        },
+        {
+          "table_sha256": "d7d121a14ba10d18d062e6c88fa3fb6d2571f4e0279cf2610d9e999db04ebec3",
+          "band_sha256": "0fc279861f4a0fe85c537775192d1f1e3dc0c872d4eaf6fb7abe85dc1a65ff7b",
+          "reviewed_header_rows": 4,
+          "checks": 15,
+          "before_missing": 0,
+          "after_missing": 0,
+          "unique_occurrence_checks": 18,
+          "unique_occurrence_misses": 0
+        }
+      ]
+    },
+    {
+      "id": "USB-10-Q-2023-16",
+      "source_sha256": "9dd59892963021597df5c78344a1bd6de1ccf9ab4de7f3394dc0aaab7d1d4eef",
+      "filing": {
+        "cik": "0000036104",
+        "accession_number": "0001193125-23-268341",
+        "form": "10-Q",
+        "filing_date": "2023-11-01T00:00:00",
+        "company_name": "US BANCORP \\DE\\",
+        "ticker": "USB",
+        "primary_document": "d542369d10q.htm",
+        "file_number": "001-06880",
+        "report_period_end": "2023-09-30T00:00:00",
+        "acceptance_datetime": "2023-11-01T21:19:18Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "d542369d10q.htm",
+        "document_type": "10-Q",
+        "description": "10-Q",
+        "size": 6396940
+      },
+      "before_items": 392,
+      "after_items": 392,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7956,
+      "max_request_bytes": 9158,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "f253b66570c9e67c2ef7458e5f87636571d420b4efce92048a5ac11020d84b91",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "PNC-8-K-2026-17",
+      "source_sha256": "5303b5ee3316b7eec260ebc825fc4abbec8f7c5a3e0a6e2553b421633ed9b588",
+      "filing": {
+        "cik": "0000713676",
+        "accession_number": "0001628280-26-048244",
+        "form": "8-K",
+        "filing_date": "2026-07-15T00:00:00",
+        "company_name": "PNC FINANCIAL SERVICES GROUP, INC.",
+        "ticker": "PNC",
+        "primary_document": "pnc-20260715.htm",
+        "file_number": "001-09718",
+        "report_period_end": "2026-07-15T00:00:00",
+        "acceptance_datetime": "2026-07-15T10:40:23Z"
+      },
+      "document": {
+        "sequence": 3,
+        "filename": "q22026financialsupplement.htm",
+        "document_type": "EX-99.2",
+        "description": "EX-99.2",
+        "size": 1842847
+      },
+      "before_items": 132,
+      "after_items": 132,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 7297,
+      "max_request_bytes": 8401,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "78c21d6b9826b6085263473a876451cd7bc8344e412b602d33b8a4c7f846614c",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "JPM-8-K-2026-18",
+      "source_sha256": "cbd3405248e33b52c44251b42dcc806089aca90cf9f5c37b7eb9a273c15890ea",
+      "filing": {
+        "cik": "0000019617",
+        "accession_number": "0001628280-26-048078",
+        "form": "8-K",
+        "filing_date": "2026-07-14T00:00:00",
+        "company_name": "JPMORGAN CHASE & CO",
+        "ticker": "JPM",
+        "primary_document": "jpm-20260714.htm",
+        "file_number": "001-05805",
+        "report_period_end": "2026-07-14T00:00:00",
+        "acceptance_datetime": "2026-07-14T10:30:38Z"
+      },
+      "document": {
+        "sequence": 2,
+        "filename": "a2q26erfexhibit991narrative.htm",
+        "document_type": "EX-99.1",
+        "description": "JPMORGAN CHASE & CO. EARNINGS RELEASE - SECOND QUARTER 2026 RESULTS",
+        "size": 207499
+      },
+      "before_items": 14,
+      "after_items": 14,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 6028,
+      "max_request_bytes": 7160,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "f054d7f4f536a6fa67c5399ae3f7bf2ed0758c6839de891fbed01e03c3695597",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "USB-8-K-2026-19",
+      "source_sha256": "da532af4228acb56f3a9ff3e13769f4980592cac2d9d9a979207ea1c23687e32",
+      "filing": {
+        "cik": "0000036104",
+        "accession_number": "0000036104-26-000039",
+        "form": "8-K",
+        "filing_date": "2026-07-16T00:00:00",
+        "company_name": "US BANCORP \\DE\\",
+        "ticker": "USB",
+        "primary_document": "usb-20260716.htm",
+        "file_number": "001-06880",
+        "report_period_end": "2026-07-16T00:00:00",
+        "acceptance_datetime": "2026-07-16T10:59:35Z"
+      },
+      "document": {
+        "sequence": 3,
+        "filename": "a2q26earningssupplement.htm",
+        "document_type": "EX-99.2",
+        "description": "EX-99.2",
+        "size": 1739136
+      },
+      "before_items": 21,
+      "after_items": 21,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 6714,
+      "max_request_bytes": 7712,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "8a63b61f0b680a4df9f7d41e356fa08e56b18a4de21a2f9a2587460dc8794944",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    },
+    {
+      "id": "BAC-8-K-2026-20",
+      "source_sha256": "5a47075e668172e8ab6075ce2bb8b1cbf802e50060142e0d75acd73bf6afa005",
+      "filing": {
+        "cik": "0000070858",
+        "accession_number": "0000070858-26-000273",
+        "form": "8-K",
+        "filing_date": "2026-05-06T00:00:00",
+        "company_name": "BANK OF AMERICA CORP /DE/",
+        "ticker": "BAC",
+        "primary_document": "bac-20260504.htm",
+        "file_number": "001-06523",
+        "report_period_end": "2026-05-04T00:00:00",
+        "acceptance_datetime": "2026-05-06T20:34:21Z"
+      },
+      "document": {
+        "sequence": 1,
+        "filename": "bac-20260504.htm",
+        "document_type": "8-K",
+        "description": "8-K",
+        "size": 96561
+      },
+      "before_items": 20,
+      "after_items": 20,
+      "before_period_misses": 0,
+      "after_period_misses": 0,
+      "broad_context_misses": 0,
+      "new_broad_context_misses": 0,
+      "explicit_linked_note_misses": 0,
+      "max_chars": 4022,
+      "max_request_bytes": 5058,
+      "parsed_markdown_unchanged": true,
+      "source_cells_and_table_conversion_unchanged": true,
+      "ordered_output_coverage": true,
+      "unapproved_data_repetition": 0,
+      "payload_sha256": "d54bcfbbc87e2fd9b2197e39059270505bcdeb4513bda4b1a6c2a760369f4fdc",
+      "source_header_checks": 0,
+      "source_header_before_misses": 0,
+      "source_header_after_misses": 0,
+      "unique_occurrence_checks": 0,
+      "ambiguous_source_rows": 0,
+      "adjudicated_bands": [],
+      "reviewed_new_header_bands": []
+    }
+  ]
+}

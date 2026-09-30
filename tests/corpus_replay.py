@@ -13,8 +13,8 @@ from pathlib import Path
 import re
 import socket
 
-from sec_connector import parser
-from sec_connector.chunker import chunk_document, _table_header_count
+from sec_connector import chunker, parser
+from sec_connector.chunker import chunk_document
 from sec_connector.config import AppConfig, ChunkingConfig
 from sec_connector.graph_client import GraphClient
 from sec_connector.models import DocumentInfo, FilingMetadata
@@ -152,7 +152,9 @@ def replay(entry, output, config):
     for match in re.finditer(r"^\|[^\n]*(?:\n\|[^\n]*)*", parsed.content, re.MULTILINE):
         table = match.group()
         count = getattr(parsed, "table_header_rows", {}).get(sha(table.encode()), 0)
-        old_count = _table_header_count(table.splitlines())
+        if not count:
+            continue
+        old_count = chunker._table_header_count(table.splitlines())
         if count > old_count:
             band = "\n".join(table.splitlines()[:count])
             annotations.append({

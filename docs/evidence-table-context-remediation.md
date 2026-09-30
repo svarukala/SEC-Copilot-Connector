@@ -1,5 +1,9 @@
 # Offline financial-table context remediation (v7)
 
+Subsequent, separately authorized offline work is recorded in the
+[v8 source-structure report](evidence-source-header-remediation.md). The v7
+results and limitations below remain historical evidence, not rewritten results.
+
 ## Decision
 
 **The bounded repair is ready for review, not unrestricted rollout.** It fixes
