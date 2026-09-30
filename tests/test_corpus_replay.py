@@ -47,7 +47,7 @@ def test_relational_audit_detects_units_and_linked_footnote():
 def test_frozen_corpus_receipts_and_source_hashes():
     root = Path(os.environ["SEC_CORPUS_EVIDENCE"])
     manifest = json.loads((root / "manifest-v6-final.json").read_bytes())
-    comparison = json.loads((root / "comparison-v6-final.json").read_bytes())
+    comparison = json.loads((root / "comparison-v6-refined.json").read_bytes())
     assert len(manifest["documents"]) == len(comparison) == 20
     results = {result["id"]: result for result in comparison}
     for entry in manifest["documents"]:

@@ -35,9 +35,11 @@ The implementation is generic, with no issuer, amount, year, or answer matching:
   amendments. Proxy meeting dates and 8-K event dates are not fiscal periods.
   No compensation year is inferred from the filing year or meeting date.
 
-Processing version is now 5. Existing prepared manifests remain replayable;
-this change does not rewrite them. Do not assume ordinary resume applies this
-experiment to existing prepared payloads.
+The frozen live experiment uses processing version 5. The subsequent
+[broader offline validation](evidence-corpus-validation.md) found heading
+false positives and produced a refined version 6; it did not update live
+connections. Existing prepared manifests remain replayable; ordinary resume
+does not silently rewrite them or apply the newer experiment.
 
 ## Offline observations
 
