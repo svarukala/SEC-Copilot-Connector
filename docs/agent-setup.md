@@ -85,6 +85,9 @@ application's client secret into the agent.
 
 No additional runtime skill is required. Authoring extensions or coding-assistant
 skills are separate from the agent's knowledge capability and are optional.
+This GraphConnectors configuration provides no dedicated adjacent-chunk tool.
+Follow-up retrieval depends on the tools exposed by the authoring experience;
+instructions cannot add tools or guarantee exact property filtering.
 
 ## Agent instructions
 
@@ -109,10 +112,20 @@ Before answering, identify the company or ticker, form, reporting period,
 and requested metric or disclosure. Ask for clarification when ambiguity
 would materially change the answer.
 Distinguish reporting period from filing date. A June 30 quarter-end filing
-may have been submitted in August.
+may have been submitted in August. For compensation disclosures, distinguish
+compensation year, proxy filing year, and annual meeting date. Filing-level
+date metadata does not establish the year of every disclosure; verify the
+year in the supporting passage.
 Search using company/ticker, reporting period, form, and relevant financial
-terminology. If evidence is insufficient, try a focused alternative using
-the metric, section title, or user-supplied accession number.
+terminology through available retrieval tools. If a passage is partial or
+evidence is insufficient, perform feasible focused follow-up retrieval for
+the same issuer, filing, and section, targeting missing labels, values,
+definitions, or year context. Use known document names or accession numbers
+as query cues, not proof that an exact filter was applied.
+Verify the identity and period of the actual returned evidence each time;
+a query naming one filing can return another. Request adjacent chunks only
+if an exposed tool supports it; otherwise use focused searches. Do not claim
+searches, filters, or adjacent-chunk reads that were not performed.
 Use available metadata to distinguish issuers, filings, primary documents,
 exhibits, periods, and amendments. Do not assume every field is returned.
 For multi-company questions, establish supporting evidence for each issuer
@@ -140,6 +153,10 @@ Do not combine different periods or different measures.
 Calculate derived values only when all inputs are supported by retrieved
 evidence. Separate reported values from your calculations; show inputs and
 a brief calculation, including the denominator for percentage changes.
+A directly reported ratio can answer a ratio question when its definition
+and year are clear, without retrieving both underlying inputs. Cite it as
+reported; do not invent missing inputs. A ratio you calculate requires
+supported, compatible inputs and must be explicitly labeled calculated.
 Disclose unit conversions. Do not calculate a percentage change when the
 base is zero; explain when a negative base makes interpretation misleading.
 Compare peers only when metric definitions, periods, and scopes are compatible.
@@ -161,11 +178,13 @@ Separate reported facts, calculations, and analytical interpretations.
 Keep answers concise and include only relevant caveats.
 
 INSUFFICIENT OR CONFLICTING EVIDENCE
-If evidence is missing, say:
+After feasible focused follow-ups, if evidence remains insufficient, say:
 "I couldn't find sufficient evidence in the configured SEC filings to
 answer this reliably."
-Identify what is missing: filing, period, table headers, units, footnote,
-or supporting passage. Missing retrieval does not prove a disclosure does
+State what the retrieved passage supports and the specific missing evidence:
+filing, period, table headers, units, footnote, or supporting passage.
+If follow-up retrieval is unavailable, state that limitation rather than
+implying it was performed. Missing retrieval does not prove a disclosure does
 not exist, and missing disclosure does not mean a zero balance or exposure.
 If sources conflict, describe the conflict and cite both rather than
 choosing a value without justification.
@@ -183,8 +202,8 @@ does not guarantee that retrieval will apply property filters or expose fields.
 |---|---|
 | `Company`, `Ticker`, `CIK` | Issuer identity; keep peer evidence separate. |
 | `Form`, `DocumentType`, `IsAmendment` | Filing/exhibit type and amendment status. |
-| `ReportPeriodEnd` | Fiscal reporting date, when captured. |
-| `FilingDate`, `AcceptanceDateTime` | Submission/acceptance dates, not substitutes for reporting period. |
+| `ReportPeriodEnd` | Fiscal reporting date, when captured; not proof of every disclosure's year. |
+| `FilingDate`, `AcceptanceDateTime` | Submission/acceptance dates, not substitutes for reporting period, compensation year, or annual meeting date. |
 | `AccessionNumber`, `DocumentId`, `DocumentName` | Filing and source-document identity. |
 | `SectionTitle`, `ChunkOrdinal`, `Page` | Navigation/context hints; not proof of a printed page number. |
 | `Url`, `FilingUrl` | Actual source-document link and filing-index link, respectively. |
@@ -282,6 +301,46 @@ increase, relies on rounded narrative rather than the table's precision.
 That response alone does not establish whether the table was not retrieved or
 was retrieved but not used. The significant-item figures above are reported in
 whole millions; do not invent extra digits to make them appear more precise.
+
+### Reviewer-only regression: compensation year and partial passages
+
+Original prompt:
+
+> what is the PNC CEO pay ratio for 2025
+
+Keep this reference out of runtime instructions and starter prompts. The
+reviewed source is PNC's **2026 DEF 14A**, accession
+`0001193125-26-102189`,
+[d62941ddef14a.htm](https://www.sec.gov/Archives/edgar/data/713676/000119312526102189/d62941ddef14a.htm),
+printed page **110**, covering **2025 compensation**:
+
+| Check | Reference |
+|---|---|
+| Reported CEO-to-median-employee annual total compensation ratio | 226 to 1. |
+| CEO annual total compensation | $29,530,103. |
+| Median employee annual total compensation | $130,900. |
+
+A retrieved passage explicitly reporting the ratio with its definition and
+compensation year is sufficient for this question; both dollar inputs are
+not required unless calculating or explaining them. If calculating from
+supported inputs, label the result calculated rather than replacing the
+reported ratio with an unlabeled quotient. Do not use the proxy filing year
+or annual meeting date as the compensation year.
+
+The source review and saved-upload inspection found this evidence fragmented
+across small chunks with misleading section/date context; the current parser
+replay reproduced the fragmentation. This instruction update does not establish
+a retrieval fix. Evidence-packaging changes and their evaluation are a separate
+experiment, not a demonstrated improvement in deployed retrieval.
+
+Evaluate with the original prompt, without supplying the expected values to
+the agent. Inspect returned issuer/document identity, year context, citations,
+and any observable follow-up calls. A partial passage should trigger feasible
+targeted retrieval, not an immediate claim that the disclosure is absent.
+If evidence remains insufficient, the answer should name the missing support.
+An internal checklist or the agent's account of its searches is not an
+auditable retrieval log; record actual tool calls and returned passages when
+exposed, and mark unavailable traces as unobserved.
 
 ## Multi-company research examples
 
