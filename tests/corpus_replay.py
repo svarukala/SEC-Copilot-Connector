@@ -14,7 +14,7 @@ import re
 import socket
 
 from sec_connector import parser
-from sec_connector.chunker import chunk_document
+from sec_connector.chunker import chunk_document, _table_header_count
 from sec_connector.config import AppConfig, ChunkingConfig
 from sec_connector.graph_client import GraphClient
 from sec_connector.models import DocumentInfo, FilingMetadata
@@ -63,6 +63,15 @@ def replay(entry, output, config):
                 "has_explicit_headers": bool(el.find("th")),
                 "has_footnotes": bool(el.find("sup")),
                 "converted": converted.strip(),
+                "source_header_end": parser._source_header_end([
+                    row.find_all(["td", "th"], recursive=False) for row in el.find_all("tr")
+                ]) if hasattr(parser, "_source_header_end") else 0,
+                "source_structure": [
+                    [{"text": cell.get_text(" ", strip=True), "tag": cell.name,
+                      "attrs": dict(cell.attrs)}
+                     for cell in row.find_all(["td", "th"], recursive=False)]
+                    for row in el.find_all("tr")
+                ],
             })
         return converted
 
@@ -139,6 +148,27 @@ def replay(entry, output, config):
         "deterministic_payloads": True,
         "payload_sha256": sha(json.dumps(payloads, sort_keys=True).encode()),
     }
+    annotations = []
+    for match in re.finditer(r"^\|[^\n]*(?:\n\|[^\n]*)*", parsed.content, re.MULTILINE):
+        table = match.group()
+        count = getattr(parsed, "table_header_rows", {}).get(sha(table.encode()), 0)
+        old_count = _table_header_count(table.splitlines())
+        if count > old_count:
+            band = "\n".join(table.splitlines()[:count])
+            annotations.append({
+                "table_sha256": sha(table.encode()), "source_header_rows": count,
+                "text_header_rows": old_count, "band": band,
+                "table": table,
+                "rows_missing_band": [
+                    row for row in table.splitlines()[count:]
+                    if not any(band in chunks[index].content for index in row_chunks[row])
+                ],
+            })
+    result["source_header_annotations"] = len(annotations)
+    result["source_header_missing_rows"] = sum(len(a["rows_missing_band"]) for a in annotations)
+    (output.parent / (entry["id"] + "-annotations.json")).write_text(
+        json.dumps(annotations, indent=2), encoding="utf-8"
+    )
     output.mkdir()
     (output / "parsed.md").write_text(parsed.content, encoding="utf-8")
     for name, value in (("result", result), ("tables", tables), ("payloads", payloads)):

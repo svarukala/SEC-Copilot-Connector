@@ -56,7 +56,7 @@ async def test_reprocess_upgrades_early_pending_and_preserves_unselected_queue(
     assert result["filings_completed"] == 1
     async with pipeline._state() as state:
         selected = await state.get_filing(selected_id)
-        assert selected.processing_options["processing_version"] == PROCESSING_VERSION == 7
+        assert selected.processing_options["processing_version"] == PROCESSING_VERSION == 8
         assert [await state.get_filing(item_id) for item_id in excluded_ids] == before
         scope = json.loads((await state.get_stats())["last_run"]["scope"])
         assert scope["reprocess"] is True

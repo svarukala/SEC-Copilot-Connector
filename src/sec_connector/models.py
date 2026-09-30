@@ -102,6 +102,7 @@ class ParsedDocument(BaseModel):
     document: DocumentInfo
     content: str
     content_type: str = "text/markdown"
+    table_header_rows: dict[str, int] = Field(default_factory=dict)
 
 
 class ContentChunk(BaseModel):

@@ -1,6 +1,7 @@
 """Document chunking strategies for SEC filings."""
 
 import re
+import hashlib
 from typing import Optional
 
 from .config import GRAPH_MAX_ITEM_BYTES, ChunkingConfig
@@ -252,9 +253,12 @@ def _table_notes(following: str, table: str) -> list[tuple[str, str]]:
 def _split_table(
     table: str, context: str, target_size: int, max_size: int, max_bytes: int,
     notes: Optional[list[tuple[str, str]]] = None,
+    source_header_count: int = 0,
 ) -> list[str]:
     rows = table.splitlines()
-    header_count = _table_header_count(rows)
+    if source_header_count < 0 or source_header_count > len(rows):
+        raise ValueError("Source table header count is outside the matched table")
+    header_count = max(_table_header_count(rows), source_header_count)
     header = "\n".join(rows[:header_count])
     data = rows[header_count:]
     prefix = "\n\n".join(part for part in (context, header) if part)
@@ -327,7 +331,8 @@ def _split_table(
 
 
 def _split_content(
-    content: str, target_size: int, max_size: int, overlap: int, max_bytes: int
+    content: str, target_size: int, max_size: int, overlap: int, max_bytes: int,
+    table_header_rows: Optional[dict[str, int]] = None,
 ) -> list[str]:
     """Keep table rows atomic; apply overlap exclusively to prose blocks."""
     # A complete section is better evidence than isolated layout/table blocks.
@@ -363,7 +368,12 @@ def _split_content(
             if not _fits(context, max_size // 3, max(4, max_bytes // 3)):
                 logger.warning("Table caption context exceeds reserved budget; retained in preceding source block")
                 context = ""
-            chunks.extend(_split_table(block.strip(), context, target_size, max_size, max_bytes, notes))
+            table = block.strip()
+            key = hashlib.sha256(table.encode("utf-8")).hexdigest()
+            chunks.extend(_split_table(
+                table, context, target_size, max_size, max_bytes, notes,
+                (table_header_rows or {}).get(key, 0),
+            ))
         else:
             chunks.extend(
                 part for piece in _split_prose(block, target_size, max_size, overlap)
@@ -417,7 +427,9 @@ def chunk_document(
             overlap = min(config.overlap, target - 1)
             sub_chunks.extend(
                 (context + piece, section_title)
-                for piece in _split_content(section, target, char_budget, overlap, byte_budget)
+                for piece in _split_content(
+                    section, target, char_budget, overlap, byte_budget, parsed_doc.table_header_rows
+                )
                 if piece
             )
 
