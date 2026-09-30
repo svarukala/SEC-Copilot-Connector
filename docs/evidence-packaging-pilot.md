@@ -115,7 +115,7 @@ prune an inventory, or reconstruct scope from dates or chunk ordinals. Chunk IDs
 can overlap across versions with changed content; this is not an atomic swap.
 Freeze evaluation during replacement and wait for indexing/readback afterward.
 
-## Controlled A/B evaluation (not executed)
+## Controlled A/B evaluation protocol (controls not independently verified)
 
 The user subsequently reported that updated instructions alone returned the
 correct CEO pay ratio. This is a user-reported successful observation, not a
@@ -162,6 +162,47 @@ and period/neighbor-control outcomes, retaining failures and run counts.
 Advance only if the candidate improves coherent source-grounded answers without
 regressing period or neighbor controls; a tie or inconsistent results remain
 inconclusive. **Offline co-location is not actual Copilot success.**
+
+### User-reported live observations: September 30, 2026, 17:03 EDT
+
+These observations were reported by the user and relayed to this session.
+They are not independently captured agent traces or a verified
+configuration-controlled experiment.
+
+| Arm | User-reported outcome | Available evidence and limitations |
+|---|---|---|
+| Candidate | Correct and accurate on all **three attempts**; subjectively fast on each. | Full candidate responses, citations, and measured timings were not supplied. Individual fact/citation scores cannot be independently assigned. |
+| Baseline | Failed on every attempted run. | The exact number of attempts was **not supplied**. A pasted baseline response was summarized in the handoff; no complete retrieval trace was captured here. |
+
+The supplied baseline response identified the correct PNC 2026 proxy, accession
+`0001193125-26-102189`, and the explicit compensation year **2025**. It said the
+retrieved passage ended immediately after "For the year ended December 31,
+2025:" and that it could not retrieve the reported ratio. It cited the correct
+SEC document and declined to supply the missing ratio.
+
+That response also characterized the connector content as not including the
+ratio, or suggested additional chunks needed to become available. That is not
+established by the response and must not be treated as an ingestion diagnosis:
+all **1,089 baseline items**, including the numeric evidence, had already received
+PUT acknowledgments and passed exact-item GET readback. The **566 candidate
+items** likewise passed both checks. A passage missing from the agent's retrieved
+context is distinct from missing persisted connector content. These receipts do
+not independently establish search-index availability or explain which retrieval
+stage omitted the baseline evidence.
+
+Matching exact base instructions and installed skill versions, fresh chats,
+and exclusive binding to the intended A/B connection were recommended but have
+**not been independently confirmed** for these attempts. Prompt identity, run
+order, candidate citations, and period/neighbor-control outcomes are also not
+documented by this report. Preserve the earlier instruction-only success as a
+separate user-reported observation; these baseline failures do not establish
+that the baseline always fails under every instruction configuration.
+
+**Interpretation:** this is a promising user-reported, single-filing success
+consistent with the coherent-packaging hypothesis. It is not proof of
+configuration-controlled causality, generalization to other filings, or a
+measured latency improvement. No additional upload, ingestion, agent/skill
+change, or broader rollout was performed or authorized by recording this result.
 
 ## Frozen-manifest loader
 
