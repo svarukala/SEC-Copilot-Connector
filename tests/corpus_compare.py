@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import re
 
-from corpus_replay import numbers, tokens
+from tests.corpus_replay import numbers, tokens
 
 
 def contextual_rows(text, payloads):
@@ -39,6 +39,33 @@ def contextual_rows(text, payloads):
     return output
 
 
+def period_rows(text, payloads):
+    """Catch date/units rows left in the body rather than repeated as headers."""
+    row_contexts = {}
+    for payload in payloads:
+        content = payload["content"]["value"]
+        for row in content.splitlines():
+            if row.startswith("|"):
+                row_contexts.setdefault(row, []).append(content)
+    checks = {}
+    for match in re.finditer(r"^\|[^\n]*(?:\n\|[^\n]*)*", text, re.MULTILINE):
+        lines = match.group().splitlines()
+        if len(lines) < 4 or re.search(r"\b(?:19|20)\d{2}\b", lines[0]):
+            continue
+        period = next((
+            i for i in range(2, min(6, len(lines)))
+            if len(re.findall(r"\b(?:19|20)\d{2}\b", lines[i])) >= 2
+            and not re.search(r"\d,\d{3}", lines[i])
+        ), None)
+        if period is None:
+            continue
+        label = lines[period]
+        for row in lines[period + 1:]:
+            if re.search(r"\d,\d{3}", row):
+                checks[(row, label)] = any(label in c for c in row_contexts.get(row, []))
+    return checks
+
+
 def compare(baseline, candidate):
     before = json.loads((baseline / "result.json").read_bytes())
     after = json.loads((candidate / "result.json").read_bytes())
@@ -65,6 +92,8 @@ def compare(baseline, candidate):
         {"row": row, "context": label} for (row, label), preserved in new_context.items()
         if not preserved and old_context.get((row, label))
     ]
+    old_period = period_rows(a, json.loads((baseline / "payloads.json").read_bytes()))
+    new_period = period_rows(b, json.loads((candidate / "payloads.json").read_bytes()))
     outcomes = {
         "id": after["id"], "baseline_chunks": before["chunks"], "candidate_chunks": after["chunks"],
         "lexical_equal": tokens(a) == tokens(b),
@@ -88,6 +117,13 @@ def compare(baseline, candidate):
         "context_checks": len(new_context),
         "context_misses": sum(not passed for passed in new_context.values()),
         "new_context_misses": context_regressions,
+        "period_checks": len(new_period),
+        "period_misses": sum(not passed for passed in new_period.values()),
+        "baseline_period_misses": sum(not passed for passed in old_period.values()),
+        "new_period_misses": [
+            {"row": row, "period": label} for (row, label), passed in new_period.items()
+            if not passed and old_period.get((row, label))
+        ],
     }
     return outcomes
 

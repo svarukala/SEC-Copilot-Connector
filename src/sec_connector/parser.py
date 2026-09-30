@@ -62,10 +62,14 @@ def _is_styled_heading(tag, label: str) -> bool:
     """Do not promote styled sentence fragments, list introductions, or dates."""
     if re.search(r"[.,:!?;]$", label) or not _is_bold_block(tag):
         return False
+    if re.search(r":\s*[$\u20ac\u00a3]?\s*\d[\d,.]*\s*$", label):
+        return False
     date_label = re.sub(
         r"^(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+",
         "", label, flags=re.IGNORECASE,
     )
+    date_label = re.sub(r"^for\s+(?:the\s+)?", "", date_label, flags=re.IGNORECASE)
+    date_label = re.sub(r"\bquarterly\s+period\b", "quarter", date_label, flags=re.IGNORECASE)
     if _is_period_heading(date_label):
         return False
     following = tag.find_next(["p", "div", "table", "h1", "h2", "h3"])

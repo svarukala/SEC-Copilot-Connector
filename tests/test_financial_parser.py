@@ -281,6 +281,10 @@ def test_nested_emphasis_does_not_invent_section_headings(html):
     "Dear Shareholders,", "The company and its vendors face incidents,",
     "We request approval of the following resolution:",
     "Wednesday, April 22, 2026", "December 31, 2025",
+    "For the fiscal year ended December 31, 2025",
+    "For the quarterly period ended June 30, 2026",
+    "Shares outstanding at January 31, 2026: 2,700,000",
+    "Aggregate market value at June 30, 2025: $123,456",
 ])
 def test_styled_prose_introductions_and_dates_are_not_headings(label):
     assert "###" not in html_to_markdown(
@@ -308,6 +312,11 @@ def test_real_styled_heading_and_explicit_heading_remain_recognized():
     assert "## Resolution:" in md
     assert "### Executive pay ratio" in md
     assert "### Table 12: Comparative revenue" in md
+
+
+def test_financial_headline_with_amount_is_not_a_numeric_label_value():
+    label = "SYNTHETIC REPORTS NET INCOME OF $2.1 BILLION"
+    assert html_to_markdown(f'<p><span style="font-weight:bold">{label}</span></p>') == f"### {label}"
 
 
 def test_hidden_css_and_ix_headers_removed_visible_facts_retained():
