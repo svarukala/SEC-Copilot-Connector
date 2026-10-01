@@ -12,7 +12,8 @@ import pytest
 
 from sec_connector import sample_upload
 from sec_connector.config import ChunkingConfig
-from sec_connector.pilot_upload import Journal, digest, load_arm
+from sec_connector.pilot_upload import Journal, SERVICE_METADATA_KEYS, digest, load_arm
+from sec_connector.payloads import payload_hash
 from sec_connector.sample_upload import (
     BANKS, CODE_FILES, SamplePlan, config_digest, execute_sample, validate_sample,
 )
@@ -206,3 +207,70 @@ async def test_exact_readback_rejects_added_property(sample, tmp_path):
     with pytest.raises(RuntimeError, match="Persisted properties"):
         await load_arm(client, entries, journal, sample.schema_path)
     assert len(journal.data["acknowledged"]) == 1 and not journal.data["read_back"]
+
+
+@pytest.mark.parametrize("change", [
+    "none", "default_policy", "unknown", "missing_metadata", "invalid_uuid",
+    "invalid_bool", "changed_submitted", "missing_submitted", "changed_content",
+    "changed_acl", "declared_metadata",
+])
+async def test_service_metadata_is_separate_from_exact_submitted_readback(sample, tmp_path, change):
+    entries = validate_sample(sample)[:1]
+    journal = Journal(tmp_path / "j.json", {})
+    journal.data.update(created=True, schema_complete=True)
+    journal.data["acknowledged"] = {entries[0]["id"]: payload_hash(entries[0]["payload"])}
+    if change == "declared_metadata":
+        sample.schema_path.write_text(json.dumps({
+            "baseType": "microsoft.graph.externalItem",
+            "properties": [{"name": "ows_SiteID", "type": "string"}],
+        }))
+    client = sample_upload.SampleGraphClient(sample_upload.AppConfig())
+    client.config.azure.connection_id = sample.connection_id
+    client.get_connection = AsyncMock(return_value={"id": sample.connection_id})
+    client.get_schema_status = AsyncMock(return_value=client.load_desired_schema(sample.schema_path))
+    client.upload_payload = AsyncMock()
+    client.create_connection = AsyncMock()
+    client.register_schema = AsyncMock()
+    actual = deepcopy(entries[0]["payload"])
+    metadata = {
+        key: True if key == "IsDGBasedSecurityEnabled" else "11111111-2222-3333-4444-555555555555"
+        for key in SERVICE_METADATA_KEYS
+    }
+    actual["properties"].update(metadata)
+    if change == "unknown":
+        actual["properties"]["Unexpected"] = "not approved"
+    elif change == "missing_metadata":
+        del actual["properties"]["ows_WebId"]
+    elif change == "invalid_uuid":
+        actual["properties"]["ows_SiteID"] = "invalid"
+    elif change == "invalid_bool":
+        actual["properties"]["IsDGBasedSecurityEnabled"] = 1
+    elif change == "changed_submitted":
+        actual["properties"]["CIK"] = "wrong"
+    elif change == "missing_submitted":
+        del actual["properties"]["CIK"]
+    elif change == "changed_content":
+        actual["content"]["value"] += "changed"
+    elif change == "changed_acl":
+        actual["acl"] = []
+    client._request = AsyncMock(return_value=actual)
+    if change != "none":
+        with pytest.raises(RuntimeError):
+            await load_arm(
+                client, entries, journal, sample.schema_path,
+                allow_service_metadata=change != "default_policy",
+            )
+        assert not journal.data["read_back"] and not journal.data.get("service_metadata")
+    else:
+        await load_arm(client, entries, journal, sample.schema_path, allow_service_metadata=True)
+        restored = Journal(journal.path, {})
+        assert restored.data["read_back"] == restored.data["acknowledged"]
+        assert restored.data["service_metadata"] == {entries[0]["id"]: metadata}
+        await load_arm(client, entries, restored, sample.schema_path, allow_service_metadata=True)
+        assert client._request.await_count == 1
+        restored.data["service_metadata"]["foreign"] = metadata
+        with pytest.raises(ValueError, match="without verified readback"):
+            await load_arm(client, entries, restored, sample.schema_path, allow_service_metadata=True)
+    client.upload_payload.assert_not_awaited()
+    client.create_connection.assert_not_awaited()
+    client.register_schema.assert_not_awaited()

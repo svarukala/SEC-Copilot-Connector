@@ -19,6 +19,26 @@ from .graph_client import GRAPH_BASE_URL, GraphClient, HTTPResult
 from .payloads import payload_hash, serialize_item
 
 
+SERVICE_METADATA_KEYS = frozenset({
+    "IsDGBasedSecurityEnabled", "ows_SiteID", "ows_WebId", "ows_ListID", "ows_UniqueId",
+})
+
+
+def validate_service_metadata(values: dict) -> None:
+    """Validate only the complete extra property band observed on sample GETs."""
+    if set(values) != SERVICE_METADATA_KEYS:
+        raise RuntimeError("Unexpected service metadata property set")
+    for key, value in values.items():
+        if key == "IsDGBasedSecurityEnabled":
+            valid = isinstance(value, bool)
+        else:
+            valid = isinstance(value, str) and re.fullmatch(
+                r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", value,
+            )
+        if not valid:
+            raise RuntimeError("Unexpected service metadata value type")
+
+
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -213,7 +233,7 @@ async def ensure_absent(client: PilotGraphClient) -> None:
 
 async def load_arm(
     client: PilotGraphClient, entries: list[dict], journal: Journal, schema_path: Path,
-    *, concurrency: int = 1,
+    *, concurrency: int = 1, allow_service_metadata: bool = False,
 ):
     if not 1 <= concurrency <= 5:
         raise ValueError("Pilot concurrency must be between one and five")
@@ -226,6 +246,16 @@ async def load_arm(
             raise ValueError("Journal contains out-of-scope or changed payload hashes")
     if not set(data["read_back"]) <= set(data["acknowledged"]):
         raise ValueError("Journal readback without acknowledgment")
+    metadata_receipts = data.get("service_metadata", {})
+    if metadata_receipts and not allow_service_metadata:
+        raise ValueError("Journal requires explicit service metadata readback policy")
+    if not set(metadata_receipts) <= set(data["read_back"]):
+        raise ValueError("Journal service metadata without verified readback")
+    for values in metadata_receipts.values():
+        validate_service_metadata(values)
+    schema_names = {p["name"] for p in client.load_desired_schema(schema_path)["properties"]}
+    if any(set(values) & schema_names for values in metadata_receipts.values()):
+        raise ValueError("Journal service metadata overlaps declared schema")
     if not data["created"]:
         if data["create_dispatched"]:
             raise RuntimeError("Unknown create acknowledgment; manual reconciliation required")
@@ -280,9 +310,15 @@ async def load_arm(
         actual = await client._request("GET", f"/external/connections/{client.config.azure.connection_id}/items/{item_id}")
         if actual.get("id") != item_id:
             raise RuntimeError(f"Persisted item identity differs for {item_id}")
-        # Only protocol annotations are excluded; all submitted values must agree.
+        metadata = {}
         for field in ("properties", "content"):
             observed = {key: value for key, value in actual.get(field, {}).items() if "@odata." not in key}
+            if field == "properties" and allow_service_metadata:
+                extras = set(observed) - set(payload[field])
+                if extras == SERVICE_METADATA_KEYS and not extras & schema_names:
+                    metadata = {key: observed[key] for key in sorted(extras)}
+                    validate_service_metadata(metadata)
+                    observed = {key: value for key, value in observed.items() if key not in extras}
             if observed != payload[field]:
                 raise RuntimeError(f"Persisted {field} differs for {item_id}")
         acl_keys = ("type", "value", "accessType")
@@ -290,6 +326,8 @@ async def load_arm(
             tuple(acl.get(key) for key in acl_keys) for acl in payload["acl"]
         ]:
             raise RuntimeError(f"Persisted ACL differs for {item_id}")
+        if metadata:
+            data.setdefault("service_metadata", {})[item_id] = metadata
         data["read_back"][item_id] = payload_hash(payload)
         journal.save()
         if len(data["read_back"]) % 100 == 0:

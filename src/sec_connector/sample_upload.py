@@ -168,7 +168,10 @@ async def execute_sample(plan: SamplePlan, state_dir: Path, plan_sha256: str):
                 if journal.data["create_dispatched"]:
                     raise RuntimeError("Unknown create acknowledgment; manual reconciliation required")
                 await ensure_absent(client)
-            await load_arm(client, entries, journal, plan.schema_path, concurrency=5)
+            await load_arm(
+                client, entries, journal, plan.schema_path,
+                concurrency=5, allow_service_metadata=True,
+            )
         journal.data["documents"] = [
             {"ticker": d.ticker, "document_id": d.document_id, "count": d.count,
              "acknowledged": d.count, "read_back": d.count} for d in plan.documents
