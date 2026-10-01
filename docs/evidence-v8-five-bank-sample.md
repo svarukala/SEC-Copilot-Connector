@@ -296,6 +296,39 @@ evidence, model-only causality, measured latency or general success rates.
 No new evaluation, agent modification or live read/write was performed for this
 diagnosis.
 
+### October 1 10:42 EDT follow-up observations
+
+The user supplied **four additional screenshots**, visible to the parent
+session. The parent reports that the first three repeat the original JPM
+linked-note prompt verbatim under **user-reported Auto**. All three show
+**2.40%** with the correct local note: derivatives qualifying for hedge
+accounting, taxable-equivalent amounts where applicable, and Note 5 of the
+2025 Form 10-K. The fourth uses a **separate page-28/table-scoped diagnostic
+prompt** and likewise gives 2.40% and the correct local note.
+
+| Observation group | Reported/visible outcomes |
+|---|---|
+| Original-prompt Auto follow-up repeats | **3 correct of 3** |
+| Original-prompt Auto, including initial 2.47% failure | **3 correct of 4 observed attempts** |
+| Separate page-28/table-scoped diagnostic | **1 correct of 1**, not combined with original-prompt results |
+| Earlier user-labeled "GPT Sol Think" retry | **1 correct of 1**, retained separately |
+
+These are descriptive attempt counts, **not a reliability estimate**. The
+initial Auto failure remains part of the record. Citation panes show JPM
+**8-K, 2026-07-14**; the third original-prompt repeat also shows JPM
+**10-K, 2026-02-13**, consistent with the note's annual-report cross-reference.
+No exact item ID, URL or retrieval trace is visible, so the citations do not
+establish which chunks were retrieved. The fourth screenshot displays reasoning
+steps; that does not establish its underlying model identity.
+
+Fresh chats and matching configuration had been requested, but the screenshots
+do not independently verify chat freshness, connection binding, instruction/
+skill identity or underlying model identity. We made **no connector or
+instruction changes between these runs**. The reason for the variation is
+unestablished: there is no evidence here that indexing settled, a cache warmed,
+the model switched or the agent learned. This update records observations only;
+it adds no investigation, code change, live action or proposed semantic change.
+
 ### Raw-source findings
 
 Scope was the exact cached
