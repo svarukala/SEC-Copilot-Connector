@@ -29,7 +29,8 @@ Transient PUT/GET failures recovered under bounded retry; no unresolved upload
 or readback failure remains.
 
 **Native connection readiness and Graph persistence are not proof of search
-visibility or Copilot answer quality.** No agent was edited or evaluated.
+visibility or Copilot answer quality.** The loader did not edit or evaluate an
+agent. A subsequent user-reported evaluation is recorded separately below.
 Production `secedgar20260909v2` and both earlier PNC pilot connections were not
 mutated. No delete, prune/reset, broad ingest, source download, shared database/
 cache/environment edit, main merge or push was performed.
@@ -223,7 +224,7 @@ verify source visibility, use fresh chats, and keep exact base instructions and
 installed skill content/version fixed. Source-grounded acceptance questions
 belong to a separate evaluation handoff, not runtime instructions.
 
-## Source-verified acceptance handoff (not executed)
+## Source-verified acceptance handoff (not executed by the loader)
 
 These are evaluator prompts and expected answers, **not agent instructions or
 skills to deploy**. Expected values were checked against the selected cached
@@ -265,3 +266,148 @@ exceptions must not inherit the million-dollar unit; USB attributed income must
 not become consolidated net income. Retrieval failure does not prove the
 uploaded connector lacks a disclosure. Previous user-reported PNC success
 remains a promising observation, not measured v8 efficacy or latency.
+
+## October 1 user observation and bounded JPM diagnosis
+
+### Reported evaluation, not independently captured execution
+
+At **2026-10-01 10:29 EDT**, the user reported testing all **seven supplied
+prompts once**, each in a fresh chat: all were accurate except the JPM
+linked-footnote prompt under **Auto**. One retry of the same prompt under the
+user-labeled **"GPT Sol Think"** was reported accurate. This is six reported
+successes and one reported failure in the initial one-pass set, plus one
+successful retry, not a repeated or configuration-controlled benchmark.
+The exact seven prompt texts were not captured in this diagnosis; the six-row
+suggested handoff above must not be mistaken for the complete executed set.
+
+The parent session relayed the following screenshot observations; this diagnosis
+did not independently inspect screenshots or retrieved execution traces:
+
+| Displayed selection | Relayed answer facts |
+|---|---|
+| Auto | Managed 2Q26 net yield **2.47%**; generic managed-basis/FTE note (a) discussing GAAP reclassifications, tax-credit/tax-exempt investments, related income-tax expense and no net-income effect; cites Non-GAAP Financial Measures note (a). |
+| "GPT Sol Think" | **2.40%**; derivatives qualifying for hedge accounting, taxable-equivalent amounts where applicable, and Note 5 of the 2025 Form 10-K. These match the source-verified expected answer. |
+
+Both screenshots displayed **SEC Candidate Agent**. Actual connection binding,
+exact instructions and installed skills, underlying model selected by Auto,
+retrieved passages and any retrieval differences are unverified. Fresh-chat
+usage is user-reported. The screenshots do not establish identical retrieved
+evidence, model-only causality, measured latency or general success rates.
+No new evaluation, agent modification or live read/write was performed for this
+diagnosis.
+
+### Raw-source findings
+
+Scope was the exact cached
+`a2q26erfex992supplement.htm`, accession **0001628280-26-048078**,
+plus a bounded search for the exact `2.47` token in the five already-uploaded
+JPM documents. Source and payload files were read only. The target source hash
+remains `d28c9dcf0f03250bfd1d921ff1f9403adaab8f726877c84765dca6b1c42e1661`;
+its frozen payload-file hash remains
+`47baf257309fb2b959ce780f7fc3a43f8e60926c4142570f8d599575538be2a9`.
+No replay, new corpus, download or semantic change was needed.
+
+In the [selected supplement](https://www.sec.gov/Archives/edgar/data/0000019617/000162828026048078/a2q26erfex992supplement.htm),
+printed **page 28** has two distinct notes labeled **(a)**:
+
+1. The introductory **Non-GAAP Financial Measures (a)** paragraph defines
+   managed basis from reported U.S. GAAP results, reclassifies revenue to an FTE
+   basis, discusses tax-credit/tax-exempt investments and corresponding tax
+   expense, and states the adjustments do not affect net income. This is the
+   source-backed match for the generic explanation relayed from Auto, not proof
+   that this exact passage was retrieved.
+2. After the comparison table, a separate local **(a)** says derivatives
+   qualifying for hedge accounting are included, taxable-equivalent amounts are
+   used where applicable, and refers to Note 5 of the 2025 Form 10-K. The table's
+   **"Net yield on average interest-earning assets - managed basis (a)"** row
+   links to this local note. Its **2Q26** cell is **2.40%**.
+
+The table's actual grouped columns are quarterly **2Q26, 1Q26, 4Q25, 3Q25,
+2Q25**, adjacent quarter-change columns, then **six months ended June 30:
+2026, 2025**, and a change column. The managed net-yield row contains
+**2.40%, 2.50%, 2.54%, 2.45%, 2.43%** for those quarters and
+**2.45%, 2.51%** for the half-years. The unit caption is
+**"in millions, except rates"**; the source explicitly marks yield cells `%`.
+Neither a neighboring period nor a different row in this supplement supplies
+**2.47**: there are **zero exact numeric-token occurrences** in rendered source
+text, **zero literal `2.47` byte substrings** in its cached HTML, and none in its
+141 frozen payloads.
+
+There are three source-text occurrences of **2.40**: the page-28 managed
+net-yield cell above; the **2Q26 NET YIELD ON INTEREST-EARNING ASSETS** row
+on printed page **6**; and the **2Q25 interest-bearing-deposits rate** in that
+page-6 annualized-yields table. Identical numeric text alone is therefore not a
+sufficient row/period match.
+
+The bounded five-JPM-document payload search found one **2.47** occurrence in
+the [2025 annual report](https://www.sec.gov/Archives/edgar/data/0000019617/000162828026008131/jpm-20251231.htm),
+not the requested supplement. Raw HTML confirms it is the **held-to-maturity
+mortgage-backed securities average yield**, **due after one year through five
+years**, at **December 31, 2025**. Its local note (a) defines average yield using
+effective security yields weighted by amortized cost, with additional
+coupon/premium/discount/hedging/prepayment qualifications. It is not a 2Q26
+Firmwide managed net yield. Its existence is an alternate source-value
+possibility, **not attribution of Auto's answer to this item**; other sources
+outside this bounded JPM search and the actual retrieval remain unknown.
+
+### Frozen uploaded-payload findings
+
+The item hashes below were checked against both the persisted acknowledgment
+and exact submitted-field GET-readback hashes in the completed sample journal.
+This confirms the historical uploaded evidence, not what either live answer
+retrieved on October 1. All abbreviated supplement IDs share the prefix
+`0000019617-000162828026048078-3-`.
+
+| Exact item ID or suffix | Ordinal | Frozen content and context |
+|---|---:|---|
+| `29-4` | **139** | **3,957 characters** including issuer/form/section prefix, full quarterly/half-year/change header bands, units, the managed-basis **2Q26 2.40%** row and its **own hedge-accounting (a)**. The generic managed-basis paragraph is **absent**. |
+| `29-2` | **137** | **3,304 characters** containing the introductory generic managed-basis/FTE **(a)** and neighboring explanatory notes. No **2.40** or **2.47**, and no hedge-accounting note. |
+| `29-6` | **141** | **297 characters** containing the original trailing hedge-accounting **(a)** and literal **Page 28** footer. The same note is also explicitly repeated as local context in item 139. |
+| `7-7` | **33** | Earlier page-6 net-yield row with **2Q26 2.40**; this alternative occurrence's item lacks the full quarterly/half-year header band and hedge-accounting note. This is an existing context limitation, not the fully contextualized page-28 answer item. |
+| `7-6` | **32** | Earlier page-6 interest-bearing-deposits row, whose **2Q25** rate is **2.40**; not the requested metric/period. |
+| `0000019617-000162828026008131-1-234-5` | **746** | Separate annual-report maturity/yield item with **2.47%**, correct December 31, 2025 maturity-band header, held-to-maturity/mortgage-backed grouping and its own average-yield note (a). |
+
+Items 137 and 139 both correctly carry source section
+**`Non-GAAP Financial Measures`**, the same document URL and DocumentId
+`13997fdcecaf12d30277e68dc2bed54893ca8400ee1ee14285193814233c5937`.
+Their `Page` metadata is **29** and titles use **Page 29.2 / Page 29.4**:
+these are parser page-segment positions, not printed-page labels. The source
+footer says **Page 28**. This is a concrete citation-navigation limitation;
+do not interpret a metadata/printed-page offset as a different financial period.
+These fields do not identify a unique table or note scope.
+
+**Conclusion:** the target item preserves the correct cell, full period/units
+context and correct local note together. The wrong generic note is a separate,
+valid source passage, **not a qualifier incorrectly appended to that target
+row by packaging**. Source reuse of `(a)`, a shared broad section label, wide
+tables and other less-complete chunks leave genuine retrieval/interpretation
+ambiguity. No new corruption or missing-context defect was established for
+item 139. Existing alternate-item context and printed-page metadata limitations
+are observable, but neither is established as the cause of this answer.
+Auto's **2.47%** is unsupported by the requested supplement; its origin and the
+selection of the generic note cannot be assigned without execution evidence.
+
+### Recommended targeted repeat controls (not run)
+
+Preserve the **exact original user prompt** for the primary comparison; capture
+its literal text first rather than silently substituting the suggested prompt
+above. Confirm and record the selected connection, exact instruction content,
+skill presence/version and user-visible model choice. Run a small balanced set
+of fresh-chat repeats under Auto and the same user-labeled Think choice, varying
+only that choice where the product permits it. Preserve all answers/citations
+and retrieved item IDs/passages when available; an agent display name or source
+URL alone does not establish identical retrieval.
+
+Score value, metric, period, basis, correct **local** note and citation scope
+separately. Specifically look for item **139** versus **137**, earlier
+supplement item **33**, or annual item **746**. If retrieval traces are
+unavailable, record that uncertainty rather than diagnosing a model-only cause.
+
+Keep two follow-ups separate from the original-prompt result: a page/table-scoped
+prompt explicitly asking for the marked net-yield row and its note below the
+page-28 table, and, if supported, an evidence-controlled comparison supplying the
+same exact item-139 passage to each choice without an answer key. The first
+changes retrieval guidance; the second tests interpretation under fixed
+evidence, not end-to-end retrieval. Do not combine either with the unchanged
+prompt's success counts. No automatic instruction change, parser fix or live
+reingestion follows from this one-pass observation.
