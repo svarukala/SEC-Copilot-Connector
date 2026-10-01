@@ -128,6 +128,22 @@ These are sampled filings, not complete coverage. `--save-payloads` also still
 uploads; see [local inspection](docs/operations.md#inspect-content-without-uploading)
 if you need a no-upload option.
 
+The [evidence-packaging pilot](docs/evidence-packaging-pilot.md) is an experimental
+exact-document workflow, not a broad live reprocessing procedure.
+It documents offline results, a separately approved frozen-manifest loader, and
+a controlled A/B evaluation protocol.
+
+Processing version **8** adds source-backed table-header and linked-note context.
+The [five-bank sample report](docs/evidence-v8-five-bank-sample.md) records the
+25-document delivery and qualified user evaluations, not universal answer
+accuracy. Its five added sources retain **17 pre-existing period-context
+diagnostic gaps**; indirect/cross-page notes, oversized context and unavailable
+incorporated annual reports remain explicit limitations. Ordinary `resume`
+replays already prepared payloads unchanged; it does **not** rebuild them with
+version 8. See [recovery and reprocessing](docs/operations.md) before explicitly
+rebuilding selected work. A code upgrade or merge does not authorize live
+reprocessing or deletion.
+
 ## 6. Import your selected companies
 
 After the sample succeeds, run without sampling limits:

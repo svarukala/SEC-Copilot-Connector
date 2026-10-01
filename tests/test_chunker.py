@@ -215,6 +215,26 @@ def test_tables_split_on_complete_rows_with_context():
     assert all(len(chunk) <= 600 for chunk in chunks)
 
 
+def test_whole_section_coalesces_prose_and_tables_above_target_below_max():
+    content = (
+        "## Compensation\n\nFor the year ended 2024.\n\n"
+        "| Metric | Value |\n| --- | --- |\n| CEO | 13500000 |\n\n"
+        "A supporting explanation. " * 2
+    )
+    chunks = split_by_size(content, target_size=100, max_size=800, overlap=20)
+    assert len(content) > 100
+    assert chunks == [content]
+
+
+def test_small_mixed_section_still_honors_byte_budget():
+    content = "A paragraph.\n\n| Label | Value |\n| --- | --- |\n| Fact | " + "\u20ac" * 100 + " |"
+    from sec_connector.chunker import _split_content
+
+    chunks = _split_content(content, target_size=400, max_size=800, overlap=20, max_bytes=150)
+    assert len(chunks) > 1
+    assert all(len(chunk.encode("utf-8")) <= 150 for chunk in chunks)
+
+
 def test_mixed_prose_tables_and_small_pages_no_missing_rows(sample_filing, sample_document):
     header = "| Label | Year |\n| --- | --- |"
     rows = [f"| Unique row {index} | {index} |" for index in range(40)]

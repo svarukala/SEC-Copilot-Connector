@@ -1,6 +1,7 @@
 """Document parser for SEC EDGAR filings - SGML/HTML to Markdown conversion."""
 
 import re
+import hashlib
 from pathlib import Path
 from typing import Optional
 
@@ -12,6 +13,73 @@ from .models import DocumentInfo, FilingMetadata, ParsedDocument
 from .utils import get_logger
 
 logger = get_logger("parser")
+
+
+def _is_bold_block(tag) -> bool:
+    """Require bold styling for every visible text run, not just a leading label."""
+    for text in tag.find_all(string=True):
+        if not text.strip():
+            continue
+        parent = text.parent
+        bold = False
+        while parent is not None:
+            weight = re.search(
+                r"(?:^|;)\s*font-weight\s*:\s*(bold|normal|[1-9]00)\b",
+                parent.get("style", ""), re.IGNORECASE,
+            )
+            if weight:
+                bold = weight.group(1).lower() in {"bold", "600", "700", "800", "900"}
+                break
+            if parent.name in {"b", "strong"}:
+                bold = True
+                break
+            if parent is tag:
+                break
+            parent = parent.parent
+        if not bold:
+            return False
+    return True
+
+
+def _bullet_layout_rows(direct_cells) -> bool:
+    """Only marker + optional empty spacers + one prose cell is a list layout."""
+    found = False
+    for cells in direct_cells:
+        if any(cell.name == "th" or cell.has_attr("colspan") or cell.has_attr("rowspan")
+               or cell.find("table") for cell in cells):
+            return False
+        values = [cell.get_text(" ", strip=True) for cell in cells]
+        populated = [value for value in values if value]
+        if not populated:
+            continue
+        if (len(populated) != 2 or populated[0] not in {"\u2022", "\u220e", "\u25a0", "\u25cf"}
+                or not re.search(r"[A-Za-z]", populated[1])):
+            return False
+        found = True
+    return found
+
+
+def _is_styled_heading(tag, label: str) -> bool:
+    """Do not promote styled sentence fragments, list introductions, or dates."""
+    if re.search(r"[.,:!?;]$", label) or not _is_bold_block(tag):
+        return False
+    if re.search(r":\s*[$\u20ac\u00a3]?\s*\d[\d,.]*\s*$", label):
+        return False
+    date_label = re.sub(
+        r"^(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+",
+        "", label, flags=re.IGNORECASE,
+    )
+    date_label = re.sub(r"^for\s+(?:the\s+)?", "", date_label, flags=re.IGNORECASE)
+    date_label = re.sub(r"\bquarterly\s+period\b", "quarter", date_label, flags=re.IGNORECASE)
+    if _is_period_heading(date_label):
+        return False
+    following = tag.find_next(["p", "div", "table", "h1", "h2", "h3"])
+    if following is not None and following.name in {"p", "div"}:
+        continuation = following.get_text(" ", strip=True)
+        if (not following.find(["p", "div", "table"]) and continuation
+                and continuation[0].islower() and _is_bold_block(following)):
+            return False
+    return True
 
 
 def _is_period_heading(value: str) -> bool:
@@ -27,6 +95,64 @@ def _is_period_heading(value: str) -> bool:
     )
     remainder = re.sub(r"\b(?:[0-2]?\d|3[01])\b", "", remainder)
     return not re.search(r"\w", remainder)
+
+
+def _source_header_end(rows) -> int:
+    """Infer only a leading financial column band, before any value/stub row.
+
+    Span geometry, alignment and a unit caption must agree. Bold text by itself
+    is not evidence: subtotal/value rows terminate the band even when styled.
+    """
+    end = 0
+    units = False
+    grouped = False
+    explicit_end = 0
+    for index, cells in enumerate(rows):
+        visible = [(cell, " ".join(cell.get_text(" ", strip=True).split()))
+                   for cell in cells if cell.get_text(strip=True)]
+        if not visible:
+            continue
+        explicit = all(
+            cell.name == "th" and cell.get("scope") != "row"
+            or cell.find_parent("thead") is not None
+            for cell, _ in visible
+        )
+        if any(cell.get("scope") == "row" or cell.find(
+            lambda tag: tag.name and tag.name.lower().endswith(":nonfraction")
+        ) for cell, _ in visible):
+            break
+        if explicit:
+            end = explicit_end = index + 1
+            continue
+        unit_stub = re.search(r"\bin (?:millions|billions|thousands)\b", visible[0][1], re.I)
+        numeric_labels = [(cell, text) for cell, text in visible if not re.search(r"[A-Za-z]", text)]
+        if numeric_labels and not (
+            grouped and unit_stub and len(numeric_labels) >= 2
+            and all(re.fullmatch(r"(?:19|20)\d{2}", text) and re.search(
+                r"(?:^|;)\s*text-align\s*:\s*center\b", cell.get("style", ""), re.I
+            ) for cell, text in numeric_labels)
+        ):
+            break
+        if any(not re.fullmatch(r"\d+", str(cell.get("colspan", "1")))
+               or int(cell.get("colspan", 1)) < 2 for cell, _ in visible):
+            break
+        styles = [cell.get("style", "") for cell, _ in visible]
+        if not all(re.search(r"(?:^|;)\s*vertical-align\s*:\s*bottom\b", style, re.I)
+                   for style in styles):
+            break
+        aligned = any(re.search(r"(?:^|;)\s*text-align\s*:\s*center\b", style, re.I)
+                      for style in styles)
+        if len(visible) == 1 and end and (units or not aligned):
+            break
+        if not (aligned or (grouped and unit_stub)):
+            spans = [int(cell.get("colspan", 1)) for cell, _ in visible]
+            # A leading dominant caption may have a separate table-number cell.
+            if end or max(spans) < sum(spans) * 0.75:
+                break
+        units = units or bool(unit_stub)
+        grouped = grouped or aligned
+        end = index + 1
+    return end if units and grouped else explicit_end
 
 
 def _parse_dimension_inches(el) -> tuple[Optional[float], Optional[float]]:
@@ -78,6 +204,10 @@ def _is_rotated_text_image(el) -> bool:
 class SECMarkdownConverter(MarkdownConverter):
     """Custom markdown converter for SEC filings."""
 
+    def __init__(self, **options):
+        self.table_header_rows = options.pop("table_header_rows", None)
+        super().__init__(**options)
+
     def convert_table(self, el, text=None, *args, **kwargs):
         """Normalize direct cells into a grid without counting nested descendants."""
         rows = [row for row in el.find_all("tr") if row.find_parent("table") is el]
@@ -89,6 +219,15 @@ class SECMarkdownConverter(MarkdownConverter):
              if cell.find_parent("tr") is row and cell.find_parent("table") is el]
             for row in rows
         ]
+        source_header_end = _source_header_end(direct_cells)
+        if not el.find(["caption", "img"]) and _bullet_layout_rows(direct_cells):
+            items = []
+            for cells in direct_cells:
+                populated = [cell for cell in cells if cell.get_text(" ", strip=True)]
+                if populated:
+                    body = self.convert(populated[1].decode_contents()).strip()
+                    items.append("- " + body.replace("\n", "\n  "))
+            return "\n\n" + "\n".join(items) + "\n\n"
         if el.find("table") or el.get("role") == "presentation" or all(
             len(cells) <= 1 and not any(cell.get("colspan") for cell in cells)
             for cells in direct_cells
@@ -103,8 +242,10 @@ class SECMarkdownConverter(MarkdownConverter):
         grid = {}
         origins = {}
         header_flags = []
+        source_header_flags = []
         title_flags = []
         for row_index, cells in enumerate(direct_cells):
+            source_header_flags.append(row_index < source_header_end)
             column = 0
             header_flags.append(bool(cells) and (
                 all(cell.name == "th" and cell.get("scope") != "row" for cell in cells)
@@ -153,6 +294,7 @@ class SECMarkdownConverter(MarkdownConverter):
         matrix = [matrix[index] for index in populated]
         origin_matrix = [origin_matrix[index] for index in populated]
         header_flags = [header_flags[index] for index in populated]
+        source_header_flags = [source_header_flags[index] for index in populated]
         title_flags = [title_flags[index] for index in populated]
         if not matrix:
             return text or ""
@@ -163,6 +305,7 @@ class SECMarkdownConverter(MarkdownConverter):
             context.append(matrix.pop(0)[0])
             origin_matrix.pop(0)
             header_flags.pop(0)
+            source_header_flags.pop(0)
             title_flags.pop(0)
 
         header_count = 0
@@ -204,7 +347,18 @@ class SECMarkdownConverter(MarkdownConverter):
                     if value:
                         seen[source_cell] = column
             md_rows.append("| " + " | ".join(rendered) + " |")
-        return "\n\n" + "\n\n".join(context + ["\n".join(md_rows)]) + "\n\n"
+        table_markdown = "\n".join(md_rows)
+        source_count = next(
+            (index for index, flag in enumerate(source_header_flags) if not flag),
+            len(source_header_flags),
+        )
+        if self.table_header_rows is not None:
+            key = hashlib.sha256(table_markdown.encode("utf-8")).hexdigest()
+            count = 2 + max(0, source_count - header_count)
+            # Identical Markdown from conflicting HTML structures cannot safely
+            # borrow the more permissive source interpretation.
+            self.table_header_rows[key] = min(self.table_header_rows.get(key, count), count)
+        return "\n\n" + "\n\n".join(context + [table_markdown]) + "\n\n"
 
     def convert_td(self, el, text=None, *args, **kwargs):
         return text or ""
@@ -362,6 +516,7 @@ def html_to_markdown(
     base_url: Optional[str] = None,
     *,
     local_image_dir: Optional[Path] = None,
+    table_header_rows: Optional[dict[str, int]] = None,
 ) -> str:
     """Convert HTML content to Markdown.
 
@@ -397,12 +552,18 @@ def html_to_markdown(
                 r"^(?:ITEM\s+\d+[A-Z]?[.:]\s+\S|PART\s+[IVX]+\b)", label, re.IGNORECASE
             ):
                 tag.name = "h2"
-            elif not tag.find_parent("table") and len(label) <= 180 and re.search(r"[A-Za-z]", label):
+            elif (not tag.find_parent("table") and not tag.find("a")
+                  and 0 < len(label) <= 180 and re.search(r"[A-Za-z]", label)):
+                # Preserve established bold headings; require title-like text
+                # before additionally promoting nested CSS-styled text runs.
                 bold = tag.find(["b", "strong"])
                 if ((bold and bold.get_text(" ", strip=True) == label)
-                    or re.search(r"font-weight\s*:\s*(?:bold|[6-9]00)", style, re.IGNORECASE)):
+                    or re.search(r"font-weight\s*:\s*(?:bold|[6-9]00)", style, re.IGNORECASE)
+                    or _is_styled_heading(tag, label)):
                     tag.name = "h3"
-        if tag.get("style") and tag.name != "img":
+    # Keep descendant styles intact until heading recognition has seen them.
+    for tag in soup.find_all(True):
+        if tag.get("style") and tag.name not in {"img", "td", "th"}:
             del tag["style"]
         if tag.get("class"):
             del tag["class"]
@@ -412,12 +573,15 @@ def html_to_markdown(
             heading_style="atx",
             bullets="-",
             strip=["a"],
+            table_header_rows=table_header_rows,
         )
 
         markdown = converter.convert(str(soup))
     except RecursionError:
         # Fall back to plain text extraction for deeply nested HTML
         logger.warning("HTML too deeply nested, falling back to text extraction")
+        if table_header_rows is not None:
+            table_header_rows.clear()
         markdown = soup.get_text(separator="\n")
 
     markdown = re.sub(r"\n{3,}", "\n\n", markdown)
@@ -556,10 +720,12 @@ def parse_document(
         r"<(?:html|head|body|table|p|div|span|img|br|pre|ul|ol|li|h[1-6]|ix:[\w-]+)(?:\s|/?>)",
         content, re.IGNORECASE,
     )
+    table_header_rows = {}
     if is_html:
         markdown = html_to_markdown(
             content,
             local_image_dir=(local_image_dir or file_path.parent) if ocr_images else None,
+            table_header_rows=table_header_rows,
         )
     else:
         markdown = clean_sec_text(content)
@@ -575,6 +741,7 @@ def parse_document(
         document=document,
         content=markdown,
         content_type="text/markdown",
+        table_header_rows=table_header_rows,
     )
 
 
