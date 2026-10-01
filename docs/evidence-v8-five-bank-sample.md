@@ -1,5 +1,48 @@
 # Version-8 five-bank live sample
 
+## Completed live result
+
+**One new connection was created and all 25 documents / 8,513 items were uploaded
+and read back successfully.** Final item checkpoint:
+**2026-10-01 00:43:00 UTC (2026-09-30 20:43:00 EDT)**.
+The independently checked local receipt confirms the exact frozen item-ID/hash
+sets, every document count and all source/payload/provenance hashes. No writer
+lock remains.
+
+| Issuer | Documents | Desired | PUT acknowledged | GET verified |
+|---|---:|---:|---:|---:|
+| PNC | 5 | 2,064 | 2,064 | 2,064 |
+| WFC | 5 | 1,110 | 1,110 | 1,110 |
+| JPM | 5 | 2,222 | 2,222 | 2,222 |
+| BAC | 5 | 2,162 | 2,162 | 2,162 |
+| USB | 5 | 955 | 955 | 955 |
+| **Total** | **25** | **8,513** | **8,513** | **8,513** |
+
+Final connection GET confirms ID **`secevidencev820260930`**, name
+**SEC evidence pilot v8 - five-bank sample**, native connection state **`ready`**,
+and all **22 schema properties** compatible with the frozen schema. The native
+schema operation completed and was tracked in the dedicated journal. Maximum
+emitted content is **7,998 characters**; maximum serialized request is
+**10,003 bytes**. All 8,513 GETs matched submitted properties/content/ACL, with
+the five extra Graph metadata properties separately retained as described below.
+Transient PUT/GET failures recovered under bounded retry; no unresolved upload
+or readback failure remains.
+
+**Native connection readiness and Graph persistence are not proof of search
+visibility or Copilot answer quality.** No agent was edited or evaluated.
+Production `secedgar20260909v2` and both earlier PNC pilot connections were not
+mutated. No delete, prune/reset, broad ingest, source download, shared database/
+cache/environment edit, main merge or push was performed.
+
+The sanitized [machine-readable result](evidence-v8-five-bank-results.json)
+records counts, limits, revision identities and receipt hashes. Private evidence
+is in the session's `files\sample-v8-25` directory: `plan.json`, `preflight.json`,
+`live-state\sample.json`, `final-receipt.json`, `final-connection-readback.json`,
+the frozen candidate payload sets and source audits. Initial uploader revision:
+`c88dd619b7dbadca4ae6aa427da542886da56b92`; corrected readback revision:
+`d4034c7d3e0ea4bb7a7c1a4099706653e52a8dd4`. The latter did not alter version-8
+processing or any uploaded payload.
+
 ## Approved scope and loader
 
 The user authorized **one new connection and exactly 25 documents: five each for
@@ -58,13 +101,14 @@ period/layout controls, not a latest-only coverage claim.
 
 Private evidence lives under `sample-v8-25`, separate from all frozen v4/v5/v6/v7
 and prior v8 artifacts. Original cache/source/SQLite are read-only; the new plan
-pins exact source bytes and payloads. Receipt and matrix are added after live
-completion; this section alone does not assert a connection exists.
+pins exact source bytes and payloads. Completion evidence is recorded above;
+the matrix below identifies the exact delivered scope.
 
 ### Frozen document matrix
 
-Counts are desired frozen items, not assertions of successful upload. Filing
-dates below are filing metadata, not dates inferred from filenames. Two different
+Each count below now has matching PUT acknowledgments and exact submitted-field
+GET verification in the final receipt. Filing dates are filing metadata, not
+dates inferred from filenames. Two different
 exhibits in one accession remain distinct documents and have distinct sequence
 prefixes/DocumentIds. No document or identical source bytes count twice within
 an issuer.

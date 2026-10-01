@@ -1,0 +1,70 @@
+{
+  "status": "uploaded-and-read-back",
+  "connection_id": "secevidencev820260930",
+  "connection_name": "SEC evidence pilot v8 - five-bank sample",
+  "native_connection_state": "ready",
+  "schema_complete": true,
+  "schema_property_count": 22,
+  "processing_version": 8,
+  "initial_loader_revision": "c88dd619b7dbadca4ae6aa427da542886da56b92",
+  "readback_loader_revision": "d4034c7d3e0ea4bb7a7c1a4099706653e52a8dd4",
+  "created_at": "2026-09-30T23:46:01.852362+00:00",
+  "last_checkpoint_at": "2026-10-01T00:43:00.682251+00:00",
+  "local_receipt_verified_at": "2026-10-01T00:43:12.997645+00:00",
+  "document_count": 25,
+  "desired": 8513,
+  "acknowledged": 8513,
+  "read_back": 8513,
+  "by_ticker": {
+    "PNC": {"documents": 5, "desired": 2064, "acknowledged": 2064, "read_back": 2064},
+    "WFC": {"documents": 5, "desired": 1110, "acknowledged": 1110, "read_back": 1110},
+    "JPM": {"documents": 5, "desired": 2222, "acknowledged": 2222, "read_back": 2222},
+    "BAC": {"documents": 5, "desired": 2162, "acknowledged": 2162, "read_back": 2162},
+    "USB": {"documents": 5, "desired": 955, "acknowledged": 955, "read_back": 955}
+  },
+  "max_content_characters": 7998,
+  "max_serialized_request_bytes": 10003,
+  "readback_policy": "exact-submitted-fields-with-separate-typed-five-property-metadata",
+  "service_metadata_items": 8513,
+  "service_metadata_keys": [
+    "IsDGBasedSecurityEnabled",
+    "ows_SiteID",
+    "ows_WebId",
+    "ows_ListID",
+    "ows_UniqueId"
+  ],
+  "sha256": {
+    "plan": "30d54f640ff6e9fdaae04970d135d61299da19f0e61e79c582e97f20cedc0192",
+    "journal": "5bf828279af414001e98f7899fae9e298d8b0bd05ac0eeaca751f22e3767a0c8",
+    "schema": "1a247dcd4996eca6467751bfbc07d818547a3f35b9bb1834bea47c24b82157eb",
+    "chunking_config": "6fbeee0488364f144edf86fed2f96a337321dbde1126eb86718cc571c1787282",
+    "preflight": "c390e12f0e7a269d63c5389a23f71fe9aeb8464b7917e26eb629f870247cc3f8",
+    "final_receipt": "8b2a1c11be6cc42c47093bc8489c69619e9265bb1ebd951a6638cdfdd3e096ee",
+    "final_connection_readback": "f53bfce932f2a4fee2bb55624345e122c15fe4d71f102701f512e2d7855f4ba8"
+  },
+  "tests": {"passed": 453, "skipped": 0, "loader_tests": 72},
+  "source_audit": {
+    "previous_twenty_v8_payload_sets_unchanged": true,
+    "additional_documents": 5,
+    "additional_period_diagnostic_gaps_before": 23,
+    "additional_period_diagnostic_gaps_after": 17,
+    "additional_new_period_diagnostic_gaps": 0,
+    "additional_explicit_linked_note_gaps": 0,
+    "additional_new_broad_unmarked_note_diagnostic_misses": 3,
+    "additional_manually_reviewed_structural_header_bands": 1
+  },
+  "limitations": [
+    "WFC and USB annual primaries do not contain the full incorporated annual reports; those reports were unavailable in the authorized cache.",
+    "Additional JPM and USB earnings sources retain 11 and 6 pre-existing period co-location diagnostic gaps, respectively; no universally self-contained evidence claim.",
+    "Indirect, cross-page and oversized-context limitations from the v8 source-header report remain.",
+    "Graph-added metadata is recorded separately; its interpretation or a universal service contract is not asserted."
+  ],
+  "search_readiness": "not established",
+  "copilot_efficacy": "not evaluated",
+  "agent_or_skill_changes": false,
+  "existing_connections_mutated": false,
+  "deletion_or_pruning": false,
+  "main_merge_or_push": false,
+  "document_matrix_and_evaluation_handoff": "evidence-v8-five-bank-sample.md",
+  "private_evidence_directory": "sample-v8-25"
+}
