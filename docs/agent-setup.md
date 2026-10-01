@@ -40,7 +40,7 @@ and available options can vary by tenant and authoring experience.
 | Web/public websites | Leave disabled for connector-grounding evaluation. Adding `sec.gov` as a website is not equivalent to selecting the indexed connection. |
 | Only use specified sources | Enable if available; this prioritizes selected sources but does not fully block general AI knowledge. |
 | Code interpreter | Optional for calculations; it does not repair missing evidence. |
-| Other tools/actions/skills | None required for this initial retrieval-and-analysis design. |
+| Other tools/actions/skills | None required for the baseline; optional custom skills below guide follow-up retrieval. |
 
 If your custom connection is not selectable in Agent Builder, use the explicit
 Agents Toolkit binding below. Confirm tenant licensing, connector visibility,
@@ -83,8 +83,93 @@ Copilot connector content accessible to the signed-in user eligible as knowledge
 The agent uses that user's access to indexed content; never copy the ingestion
 application's client secret into the agent.
 
-No additional runtime skill is required. Authoring extensions or coding-assistant
-skills are separate from the agent's knowledge capability and are optional.
+No additional runtime skill is required for the baseline. Declarative agents
+can also use optional custom skills where the preview is available; these are
+distinct from coding-assistant skills and do not replace connector knowledge.
+This GraphConnectors configuration provides no dedicated adjacent-chunk tool.
+Follow-up retrieval depends on the tools exposed by the authoring experience;
+instructions cannot add tools or guarantee exact property filtering.
+
+## Optional custom skills
+
+Two company-neutral, instruction-only samples are included:
+
+| Skill | When to use it |
+|---|---|
+| [sec-evidence-recovery](../samples/agent-skills/sec-evidence-recovery/SKILL.md) | Partial passages, split tables, and missing labels, units, periods, definitions, or footnotes across SEC research questions. |
+| [sec-ceo-pay-ratio](../samples/agent-skills/sec-ceo-pay-ratio/SKILL.md) | CEO-to-median-employee pay-ratio questions, with compensation-year checks and reported-versus-calculated ratio handling. |
+
+Each works independently. If both are installed, prefer the CEO-specific skill
+for pay-ratio questions; it already includes focused evidence recovery. Neither
+skill contains issuer-specific expected answers, scripts, credentials, external
+dependencies, or a requirement to invoke the other skill.
+
+Custom skills in declarative agents currently require the Microsoft Frontier
+preview and are unavailable in tenants using Information Barriers. Check the
+[current support matrix](https://learn.microsoft.com/microsoft-365/copilot/extensibility/declarative-agent-skills)
+before installation; skills and embedded files cannot currently be combined.
+The connector remains the knowledge source. Skill scripts have no network
+access; retrieval must use capabilities exposed through the agent orchestrator.
+
+### Install in Agent Builder
+
+Create a separate ZIP from the contents of each sample skill directory, with
+`SKILL.md` at the archive root, not inside a wrapping folder. Include only that
+skill, not this guide or its reviewer-only reference answers. For example,
+`sec-ceo-pay-ratio.zip` should contain just `SKILL.md`.
+
+In the agent's **Configure > Skills > Add**, upload each desired ZIP, review its
+contents, and use **Try it** before sharing the updated agent. Upload the
+complete ZIP, not an individual Markdown file. See Microsoft's
+[Agent Builder installation guide](https://learn.microsoft.com/microsoft-365/copilot/extensibility/agent-builder-add-skills).
+
+### Install with Agents Toolkit
+
+Import each sample skill directory into your separate declarative-agent
+project using the Toolkit's existing-skill import workflow. Toolkit takes a
+directory, not a ZIP. Its custom-skills preview requires declarative-agent
+manifest version 1.9 and the `TEAMSFX_AGENT_SKILLS` environment variable enabled
+before launching the tooling. Follow the
+[Toolkit instructions](https://learn.microsoft.com/microsoft-365/copilot/extensibility/build-declarative-agents-add-custom-skills)
+for import and provisioning. Do not provision from this connector repository;
+it is not a deployable agent project.
+
+### Optional routing instructions and evaluation
+
+If both skills are installed, append this short block to the agent instructions:
+
+```text
+Use sec-ceo-pay-ratio for CEO-to-median-employee pay-ratio questions.
+Use sec-evidence-recovery for other SEC questions with partial passages or
+missing context. The CEO skill includes its own recovery steps; do not require
+both skills for the same question. Use only installed skills and exposed tools.
+```
+
+If installing just one skill, include only its applicable routing instruction.
+Keep the combined agent instructions within 8,000 characters. Skill instructions
+have a separate limit of under 20,000 characters each. These samples guide
+behavior; they do not guarantee skill activation, exact property filtering,
+adjacent-chunk access, or retrieval of fragmented content.
+
+Compare the baseline against the skill-enabled agent using the same questions,
+indexed content, model/settings where controllable, and knowledge-source scope.
+Use fresh conversations. Evaluate evidence-packaging changes separately.
+For a packaging A/B comparison, hold both agent instructions and installed
+skills fixed so a retrieval change is not confused with a skill change.
+
+| Scenario | Required behavior |
+|---|---|
+| Clearly defined reported ratio and compensation year, inputs not retrieved | Answer the reported ratio with a citation, without requiring both inputs. |
+| Ratio or financial table split into partial passages | Attempt feasible focused retrieval and verify returned identities before combining evidence. |
+| Wrong issuer, filing, or disclosure year returned | Reject the mismatch; do not treat query terms as enforced filters. |
+| Only compatible, labeled inputs retrieved | Label any derived ratio calculated and show inputs; never fabricate a reported ratio. |
+| Missing input, unavailable follow-up tool, or unresolved year | State the specific gap, not that the disclosure is absent. |
+| Conflicting reported and calculated values | Keep both labels and investigate; do not invent a reconciliation. |
+
+Record actual tool calls and passages when exposed. Mark unobserved skill
+activation or retrieval traces as unobserved; neither an internal checklist
+nor a good answer proves the procedure ran. The reviewer-only regression below
+is an evaluation reference, never skill-package content.
 
 ## Agent instructions
 
@@ -109,10 +194,20 @@ Before answering, identify the company or ticker, form, reporting period,
 and requested metric or disclosure. Ask for clarification when ambiguity
 would materially change the answer.
 Distinguish reporting period from filing date. A June 30 quarter-end filing
-may have been submitted in August.
+may have been submitted in August. For compensation disclosures, distinguish
+compensation year, proxy filing year, and annual meeting date. Filing-level
+date metadata does not establish the year of every disclosure; verify the
+year in the supporting passage.
 Search using company/ticker, reporting period, form, and relevant financial
-terminology. If evidence is insufficient, try a focused alternative using
-the metric, section title, or user-supplied accession number.
+terminology through available retrieval tools. If a passage is partial or
+evidence is insufficient, perform feasible focused follow-up retrieval for
+the same issuer, filing, and section, targeting missing labels, values,
+definitions, or year context. Use known document names or accession numbers
+as query cues, not proof that an exact filter was applied.
+Verify the identity and period of the actual returned evidence each time;
+a query naming one filing can return another. Request adjacent chunks only
+if an exposed tool supports it; otherwise use focused searches. Do not claim
+searches, filters, or adjacent-chunk reads that were not performed.
 Use available metadata to distinguish issuers, filings, primary documents,
 exhibits, periods, and amendments. Do not assume every field is returned.
 For multi-company questions, establish supporting evidence for each issuer
@@ -140,6 +235,10 @@ Do not combine different periods or different measures.
 Calculate derived values only when all inputs are supported by retrieved
 evidence. Separate reported values from your calculations; show inputs and
 a brief calculation, including the denominator for percentage changes.
+A directly reported ratio can answer a ratio question when its definition
+and year are clear, without retrieving both underlying inputs. Cite it as
+reported; do not invent missing inputs. A ratio you calculate requires
+supported, compatible inputs and must be explicitly labeled calculated.
 Disclose unit conversions. Do not calculate a percentage change when the
 base is zero; explain when a negative base makes interpretation misleading.
 Compare peers only when metric definitions, periods, and scopes are compatible.
@@ -161,11 +260,13 @@ Separate reported facts, calculations, and analytical interpretations.
 Keep answers concise and include only relevant caveats.
 
 INSUFFICIENT OR CONFLICTING EVIDENCE
-If evidence is missing, say:
+After feasible focused follow-ups, if evidence remains insufficient, say:
 "I couldn't find sufficient evidence in the configured SEC filings to
 answer this reliably."
-Identify what is missing: filing, period, table headers, units, footnote,
-or supporting passage. Missing retrieval does not prove a disclosure does
+State what the retrieved passage supports and the specific missing evidence:
+filing, period, table headers, units, footnote, or supporting passage.
+If follow-up retrieval is unavailable, state that limitation rather than
+implying it was performed. Missing retrieval does not prove a disclosure does
 not exist, and missing disclosure does not mean a zero balance or exposure.
 If sources conflict, describe the conflict and cite both rather than
 choosing a value without justification.
@@ -183,8 +284,8 @@ does not guarantee that retrieval will apply property filters or expose fields.
 |---|---|
 | `Company`, `Ticker`, `CIK` | Issuer identity; keep peer evidence separate. |
 | `Form`, `DocumentType`, `IsAmendment` | Filing/exhibit type and amendment status. |
-| `ReportPeriodEnd` | Fiscal reporting date, when captured. |
-| `FilingDate`, `AcceptanceDateTime` | Submission/acceptance dates, not substitutes for reporting period. |
+| `ReportPeriodEnd` | Fiscal reporting date, when captured; not proof of every disclosure's year. |
+| `FilingDate`, `AcceptanceDateTime` | Submission/acceptance dates, not substitutes for reporting period, compensation year, or annual meeting date. |
 | `AccessionNumber`, `DocumentId`, `DocumentName` | Filing and source-document identity. |
 | `SectionTitle`, `ChunkOrdinal`, `Page` | Navigation/context hints; not proof of a printed page number. |
 | `Url`, `FilingUrl` | Actual source-document link and filing-index link, respectively. |
@@ -282,6 +383,46 @@ increase, relies on rounded narrative rather than the table's precision.
 That response alone does not establish whether the table was not retrieved or
 was retrieved but not used. The significant-item figures above are reported in
 whole millions; do not invent extra digits to make them appear more precise.
+
+### Reviewer-only regression: compensation year and partial passages
+
+Original prompt:
+
+> what is the PNC CEO pay ratio for 2025
+
+Keep this reference out of runtime instructions and starter prompts. The
+reviewed source is PNC's **2026 DEF 14A**, accession
+`0001193125-26-102189`,
+[d62941ddef14a.htm](https://www.sec.gov/Archives/edgar/data/713676/000119312526102189/d62941ddef14a.htm),
+printed page **110**, covering **2025 compensation**:
+
+| Check | Reference |
+|---|---|
+| Reported CEO-to-median-employee annual total compensation ratio | 226 to 1. |
+| CEO annual total compensation | $29,530,103. |
+| Median employee annual total compensation | $130,900. |
+
+A retrieved passage explicitly reporting the ratio with its definition and
+compensation year is sufficient for this question; both dollar inputs are
+not required unless calculating or explaining them. If calculating from
+supported inputs, label the result calculated rather than replacing the
+reported ratio with an unlabeled quotient. Do not use the proxy filing year
+or annual meeting date as the compensation year.
+
+The source review and saved-upload inspection found this evidence fragmented
+across small chunks with misleading section/date context; the current parser
+replay reproduced the fragmentation. This instruction update does not establish
+a retrieval fix. Evidence-packaging changes and their evaluation are a separate
+experiment, not a demonstrated improvement in deployed retrieval.
+
+Evaluate with the original prompt, without supplying the expected values to
+the agent. Inspect returned issuer/document identity, year context, citations,
+and any observable follow-up calls. A partial passage should trigger feasible
+targeted retrieval, not an immediate claim that the disclosure is absent.
+If evidence remains insufficient, the answer should name the missing support.
+An internal checklist or the agent's account of its searches is not an
+auditable retrieval log; record actual tool calls and returned passages when
+exposed, and mark unavailable traces as unobserved.
 
 ## Multi-company research examples
 
