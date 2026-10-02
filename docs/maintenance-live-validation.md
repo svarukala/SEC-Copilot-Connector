@@ -1,6 +1,6 @@
 # Scoped maintenance: live storage validation
 
-**Provisional pending live agent response acceptance.** This report records one
+**Provisional: initial user-reported 3/3 accuracy; varied acceptance pending.** This report records one
 approved production update, not universal filing support, retrieval quality or
 customer acceptance. No tenant identifiers, credentials, private paths, raw
 receipts or reusable production plan are included.
@@ -46,6 +46,19 @@ format-3 scope and unrelated rows. Private recovery evidence retained the comple
 reviewed plan, 1,091 old replayable remote observations and 36 initial absence
 observations. Recovery artifacts and the newer runtime remain retained.
 
+## Initial user-reported agent result
+
+On October 2, 2026 at approximately 12:53 EDT, the user reported trying the
+original prompt, **"what is the PNC CEO pay ratio for 2025"**, three times with
+**Auto**, with accurate answers every time (**3/3, user-reported**).
+This is encouraging initial evidence for that prompt, not universal success.
+
+Raw responses, citations, exact knowledge binding and retrieval traces were not
+independently captured. Fresh production-bound chats had been recommended, but
+those conditions were not independently confirmed for these attempts. Varied
+checks within the same upgraded proxy remain pending; no broader issuer/filing
+accuracy or additional maintenance authorization follows from this report.
+
 ## Validation boundaries
 
 The implementation's full offline suite passed **515 tests**, with four existing
@@ -57,9 +70,10 @@ resumable rollback.
 Live interruption/resume and live rollback were **not exercised**. Their evidence
 is offline failure injection. Readback is not transactional across Graph items,
 and exact storage equality/404 does not prove indexing readiness, retrieval
-quality or Copilot accuracy. No agent configuration was changed and no user
-answer-acceptance result is claimed. No additional live batch is authorized by
-this result.
+quality or Copilot accuracy. No agent configuration was changed. The initial
+user-reported result above is distinct from independently audited response
+evidence and does not complete varied acceptance. No additional live batch is
+authorized by this result.
 
 Use the [provisional operator procedure](maintenance.md) only for its supported
 completed, unsampled, sole-document, OCR-disabled scope. Multi-document and
@@ -81,6 +95,14 @@ compensation year; do not inject expected answers into the prompt.
 > Distinguish the filing date, annual meeting date and compensation year in that
 > disclosure. Does the annual meeting date establish a fiscal report-period end?
 > Cite the source and do not infer an unstated period.
+
+> In the same proxy's CEO pay-ratio methodology, how are healthcare benefits
+> treated for the CEO and median employee? Cite the disclosure and distinguish
+> stated methodology from assumptions.
+
+> Does this proxy disclose the CEO pay ratio for compensation year 2026?
+> Identify the compensation year actually supported by its pay-ratio disclosure,
+> cite it, and do not relabel a prior-year ratio as 2026.
 
 > Summarize the compensation disclosures immediately before and after the CEO pay
 > ratio section. Preserve their stated periods and table/footnote context, and
