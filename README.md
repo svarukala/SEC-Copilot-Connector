@@ -102,8 +102,9 @@ Dates are inclusive; this is not a rolling cutoff or a reporting-period filter.
 The shipped configuration instead starts at **2019-09-09** and uses a
 demonstration connection ID, so review it before running.
 
-Leave OCR disabled for first-time setup. It requires separately installed
-dependencies, a local engine, and local image assets.
+Leave OCR disabled for first-time setup. It requires Pillow, an approved local
+Tesseract native bundle (including DLLs and the English model), and local image
+assets; pytesseract is not required. See [offline OCR deployment](docs/operations.md#content-limitations-and-ocr).
 
 ## 4. Create the connection and schema
 
@@ -152,6 +153,13 @@ database to state format 4. This is separate from processing v8. A
 [single-scope live validation](docs/maintenance-live-validation.md) passed storage
 checks and bounded PNC agent acceptance. The procedure is validated for its
 supported single-document, non-OCR scope, not for all filings.
+Offline-tested extensions support explicitly opted-in, fully prepared
+single-document interrupted delivery and frozen local rotated-image OCR inputs.
+Missing inventory/unprepared work, ambiguous ownership and multi-document
+migration remain unsupported; see the maintenance eligibility matrix. These
+extensions have no live customer acceptance. Real-engine offline parser/chunker
+validation passed for the bounded PNC 2025 director-header case, including the
+full retained document; this does not establish general OCR or Copilot accuracy.
 
 ## 6. Import your selected companies
 

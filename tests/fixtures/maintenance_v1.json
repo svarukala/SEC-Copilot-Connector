@@ -1,0 +1,887 @@
+{
+  "generated_by": "53dd715b7a57ea8637528b54a9b1a12f53532d0f prepare, synthetic FakeGraph only",
+  "path_placeholders": "Only database/source paths are relocated by tests; the format-1 shape is unchanged.",
+  "source_text": "<html><body><h1>Compensation</h1><p>Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025. </p></body></html>",
+  "plan": {
+    "database": "$DATABASE",
+    "desired": {
+      "0000000001-000000000126000001-1-1-1": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\n# Compensation\n\nSynthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-1",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 1,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-10": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for 2025."
+        },
+        "id": "0000000001-000000000126000001-1-1-10",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 10,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-2": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-2",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 2,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-3": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-3",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 3,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-4": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-4",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 4,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-5": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-5",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 5,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-6": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-6",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 6,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-7": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-7",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 7,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-8": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-8",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 8,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-1-9": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Synthetic Company | DEF 14A\n\nosure for 2025. Synthetic compensation disclosure for 2025. Synthetic compensation disclosure for "
+        },
+        "id": "0000000001-000000000126000001-1-1-9",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 9,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      }
+    },
+    "desired_hashes": {
+      "0000000001-000000000126000001-1-1-1": "e717ef6748fc64433129986ff3f9779fbcf3910b6e275c95a349f431a436436f",
+      "0000000001-000000000126000001-1-1-10": "49f4b4eb989532b62b195adb18169d6e3a2a682835233d65bafe8926ca7f3e8a",
+      "0000000001-000000000126000001-1-1-2": "87fb1221f0acc43a6e2b9f58765acd18ffc17e200131a5bc24aa6940cb651579",
+      "0000000001-000000000126000001-1-1-3": "c7522c229a085c1eec684306e72c4bc33dc60f3730b69f74c2f6623ebdcf0df3",
+      "0000000001-000000000126000001-1-1-4": "b1c4d63cf8050e11b9e100f56c8939148783cf4c7fc274c8600a46c2a8ab1af1",
+      "0000000001-000000000126000001-1-1-5": "507f934f9e53c6779aa0aa243643b52d59b853284c910290ea9f1fed2969b881",
+      "0000000001-000000000126000001-1-1-6": "93b8901cb026be8efd4ee233ce16c5df542856a4a717203cc225dc6174705354",
+      "0000000001-000000000126000001-1-1-7": "1b374c27727edb72dd1eb9778605e605989f235bb42e16ff18916a67751ae223",
+      "0000000001-000000000126000001-1-1-8": "a59e1c6d477bc20db64c91e1b3e351cd6fae1849728d77e4499385c065fb309f",
+      "0000000001-000000000126000001-1-1-9": "fec546ab1745a36bb7c3bc0f0da858df0b49ec21a256cc072404f367e3cc447c"
+    },
+    "desired_order": [
+      "0000000001-000000000126000001-1-1-1",
+      "0000000001-000000000126000001-1-1-2",
+      "0000000001-000000000126000001-1-1-3",
+      "0000000001-000000000126000001-1-1-4",
+      "0000000001-000000000126000001-1-1-5",
+      "0000000001-000000000126000001-1-1-6",
+      "0000000001-000000000126000001-1-1-7",
+      "0000000001-000000000126000001-1-1-8",
+      "0000000001-000000000126000001-1-1-9",
+      "0000000001-000000000126000001-1-1-10"
+    ],
+    "fingerprint": "6a29347fc361ac792dedf1ee1775b5aa657d03cff0070a6f50d0f45129b23751",
+    "format": 1,
+    "identity": [
+      "tenant",
+      "testconnection",
+      "app"
+    ],
+    "new": [
+      "0000000001-000000000126000001-1-1-10",
+      "0000000001-000000000126000001-1-1-2",
+      "0000000001-000000000126000001-1-1-3",
+      "0000000001-000000000126000001-1-1-4",
+      "0000000001-000000000126000001-1-1-5",
+      "0000000001-000000000126000001-1-1-6",
+      "0000000001-000000000126000001-1-1-7",
+      "0000000001-000000000126000001-1-1-8",
+      "0000000001-000000000126000001-1-1-9"
+    ],
+    "new_absent": {
+      "0000000001-000000000126000001-1-1-10": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-2": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-3": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-4": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-5": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-6": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-7": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-8": "2026-10-02T18:04:45.441157+00:00",
+      "0000000001-000000000126000001-1-1-9": "2026-10-02T18:04:45.441157+00:00"
+    },
+    "old": {
+      "0000000001-000000000126000001-1-1-1": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Old common content"
+        },
+        "id": "0000000001-000000000126000001-1-1-1",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 1,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 1,
+          "ReportPeriodEnd": "2026-04-22T00:00:00Z",
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      },
+      "0000000001-000000000126000001-1-9999": {
+        "acl": [
+          {
+            "accessType": "grant",
+            "type": "everyone",
+            "value": "everyone"
+          }
+        ],
+        "content": {
+          "type": "text",
+          "value": "Old stale content"
+        },
+        "id": "0000000001-000000000126000001-1-9999",
+        "properties": {
+          "AccessionNumber": "0000000001-26-000001",
+          "CIK": "0000000001",
+          "ChunkOrdinal": 2,
+          "Company": "Synthetic Company",
+          "Description": "DEF 14A filing for Synthetic Company",
+          "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+          "DocumentName": "proxy.htm",
+          "DocumentType": "DEF 14A",
+          "FileExtension": "htm",
+          "FilingDate": "2026-04-01T00:00:00Z",
+          "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+          "Form": "DEF 14A",
+          "IconUrl": "https://www.sec.gov/favicon.ico",
+          "IsAmendment": false,
+          "Page": 9999,
+          "ReportPeriodEnd": "2026-04-22T00:00:00Z",
+          "SectionTitle": "Compensation",
+          "Sequence": 1,
+          "Ticker": "SYN",
+          "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+          "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+        }
+      }
+    },
+    "old_hashes": {
+      "0000000001-000000000126000001-1-1-1": "3a891304b77dcea6c62f377579cae7e306fd9b4a6e637fb13d4a69e02583ff71",
+      "0000000001-000000000126000001-1-9999": "92d04af6ea5cb81657bf4f3366c6fbbed47529caa547e65b703e71bbcd567df1"
+    },
+    "old_local": {
+      "chunks": [
+        {
+          "chunk_id": "0000000001-000000000126000001-1-1-1",
+          "error_message": null,
+          "filename": "proxy.htm",
+          "filing_id": 1,
+          "page_number": 1,
+          "payload": "{\"id\": \"0000000001-000000000126000001-1-1-1\", \"properties\": {\"Title\": \"Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm\", \"Company\": \"Synthetic Company\", \"Ticker\": \"SYN\", \"Form\": \"DEF 14A\", \"FilingDate\": \"2026-04-01T00:00:00Z\", \"Description\": \"DEF 14A filing for Synthetic Company\", \"Url\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm\", \"CIK\": \"0000000001\", \"AccessionNumber\": \"0000000001-26-000001\", \"Sequence\": 1, \"Page\": 1, \"IconUrl\": \"https://www.sec.gov/favicon.ico\", \"FilingUrl\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html\", \"DocumentName\": \"proxy.htm\", \"FileExtension\": \"htm\", \"DocumentType\": \"DEF 14A\", \"DocumentId\": \"f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3\", \"ChunkOrdinal\": 1, \"IsAmendment\": false, \"SectionTitle\": \"Compensation\", \"ReportPeriodEnd\": \"2026-04-22T00:00:00Z\"}, \"content\": {\"type\": \"text\", \"value\": \"Old common content\"}, \"acl\": [{\"type\": \"everyone\", \"value\": \"everyone\", \"accessType\": \"grant\"}]}",
+          "sequence": 1,
+          "state": "uploaded"
+        },
+        {
+          "chunk_id": "0000000001-000000000126000001-1-9999",
+          "error_message": null,
+          "filename": "proxy.htm",
+          "filing_id": 1,
+          "page_number": 9999,
+          "payload": "{\"id\": \"0000000001-000000000126000001-1-9999\", \"properties\": {\"Title\": \"Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm\", \"Company\": \"Synthetic Company\", \"Ticker\": \"SYN\", \"Form\": \"DEF 14A\", \"FilingDate\": \"2026-04-01T00:00:00Z\", \"Description\": \"DEF 14A filing for Synthetic Company\", \"Url\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm\", \"CIK\": \"0000000001\", \"AccessionNumber\": \"0000000001-26-000001\", \"Sequence\": 1, \"Page\": 9999, \"IconUrl\": \"https://www.sec.gov/favicon.ico\", \"FilingUrl\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html\", \"DocumentName\": \"proxy.htm\", \"FileExtension\": \"htm\", \"DocumentType\": \"DEF 14A\", \"DocumentId\": \"f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3\", \"ChunkOrdinal\": 2, \"IsAmendment\": false, \"SectionTitle\": \"Compensation\", \"ReportPeriodEnd\": \"2026-04-22T00:00:00Z\"}, \"content\": {\"type\": \"text\", \"value\": \"Old stale content\"}, \"acl\": [{\"type\": \"everyone\", \"value\": \"everyone\", \"accessType\": \"grant\"}]}",
+          "sequence": 1,
+          "state": "uploaded"
+        }
+      ],
+      "delivered_items": [
+        {
+          "chunk_id": "0000000001-000000000126000001-1-1-1",
+          "error_message": null,
+          "filing_id": 1,
+          "payload_hash": "3a891304b77dcea6c62f377579cae7e306fd9b4a6e637fb13d4a69e02583ff71"
+        },
+        {
+          "chunk_id": "0000000001-000000000126000001-1-9999",
+          "error_message": null,
+          "filing_id": 1,
+          "payload_hash": "92d04af6ea5cb81657bf4f3366c6fbbed47529caa547e65b703e71bbcd567df1"
+        }
+      ],
+      "document_cache": [
+        {
+          "filename": "proxy.htm",
+          "filing_id": 1,
+          "fingerprint": "78cdd0f992a5f7eee9d74cdb27d008b85cbf464ee97d742d1c52eea2a20277ad",
+          "payloads": "[{\"id\": \"0000000001-000000000126000001-1-1-1\", \"properties\": {\"Title\": \"Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm\", \"Company\": \"Synthetic Company\", \"Ticker\": \"SYN\", \"Form\": \"DEF 14A\", \"FilingDate\": \"2026-04-01T00:00:00Z\", \"Description\": \"DEF 14A filing for Synthetic Company\", \"Url\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm\", \"CIK\": \"0000000001\", \"AccessionNumber\": \"0000000001-26-000001\", \"Sequence\": 1, \"Page\": 1, \"IconUrl\": \"https://www.sec.gov/favicon.ico\", \"FilingUrl\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html\", \"DocumentName\": \"proxy.htm\", \"FileExtension\": \"htm\", \"DocumentType\": \"DEF 14A\", \"DocumentId\": \"f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3\", \"ChunkOrdinal\": 1, \"IsAmendment\": false, \"SectionTitle\": \"Compensation\", \"ReportPeriodEnd\": \"2026-04-22T00:00:00Z\"}, \"content\": {\"type\": \"text\", \"value\": \"Old common content\"}, \"acl\": [{\"type\": \"everyone\", \"value\": \"everyone\", \"accessType\": \"grant\"}]}, {\"id\": \"0000000001-000000000126000001-1-9999\", \"properties\": {\"Title\": \"Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm\", \"Company\": \"Synthetic Company\", \"Ticker\": \"SYN\", \"Form\": \"DEF 14A\", \"FilingDate\": \"2026-04-01T00:00:00Z\", \"Description\": \"DEF 14A filing for Synthetic Company\", \"Url\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm\", \"CIK\": \"0000000001\", \"AccessionNumber\": \"0000000001-26-000001\", \"Sequence\": 1, \"Page\": 9999, \"IconUrl\": \"https://www.sec.gov/favicon.ico\", \"FilingUrl\": \"https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html\", \"DocumentName\": \"proxy.htm\", \"FileExtension\": \"htm\", \"DocumentType\": \"DEF 14A\", \"DocumentId\": \"f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3\", \"ChunkOrdinal\": 2, \"IsAmendment\": false, \"SectionTitle\": \"Compensation\", \"ReportPeriodEnd\": \"2026-04-22T00:00:00Z\"}, \"content\": {\"type\": \"text\", \"value\": \"Old stale content\"}, \"acl\": [{\"type\": \"everyone\", \"value\": \"everyone\", \"accessType\": \"grant\"}]}]"
+        }
+      ],
+      "documents": [
+        {
+          "error_message": null,
+          "filename": "proxy.htm",
+          "filing_id": 1,
+          "metadata": "{\"sequence\":1,\"filename\":\"proxy.htm\",\"document_type\":\"DEF 14A\",\"description\":null,\"size\":null}",
+          "state": "parsed"
+        }
+      ],
+      "filing": {
+        "accession_number": "0000000001-26-000001",
+        "cik": "0000000001",
+        "error_message": null,
+        "id": 1,
+        "inventory_complete": 1,
+        "metadata": "{\"cik\":\"0000000001\",\"accession_number\":\"0000000001-26-000001\",\"form\":\"DEF 14A\",\"filing_date\":\"2026-04-01T00:00:00\",\"company_name\":\"Synthetic Company\",\"ticker\":\"SYN\",\"primary_document\":\"proxy.htm\",\"file_number\":null,\"report_period_end\":\"2026-04-22T00:00:00\",\"acceptance_datetime\":null}",
+        "payloads_ready": 1,
+        "processing_options": "{\"chunking\": {\"target_size\": 100, \"max_size\": 180, \"overlap\": 10, \"max_item_bytes\": 31457280}, \"ocr_images\": false, \"filings\": {\"forms\": [\"10-K\", \"10-Q\", \"8-K\", \"DEF 14A\"], \"include_history\": true, \"include_amendments\": true, \"include_exhibits\": true, \"exhibit_types\": [\"EX-99\", \"EX-10\", \"EX-21\"], \"start_date\": null, \"end_date\": null}, \"refresh_downloads\": true, \"icon_url\": \"https://www.sec.gov/favicon.ico\", \"schema_hash\": \"c4ed892f62d06a6cc82cd76370028793c16798f210ccd2edbb49d033cebd3322\", \"processing_version\": 3}",
+        "sample_limit": null,
+        "state": "completed"
+      },
+      "reconciliation_candidates": []
+    },
+    "prepared_at": "2026-10-02T18:04:45.442164+00:00",
+    "provenance": {
+      "dependencies": {
+        "beautifulsoup4": "4.15.0",
+        "lxml": "6.1.2",
+        "markdownify": "1.2.3",
+        "pydantic": "2.13.5"
+      },
+      "modules": {
+        "chunker": "7769df2374d97c522550b8b155a1e85972be5d28efa9180b307c2011fd8b2c2b",
+        "config": "999cf4814963d9916d14e752e4eb0840adb191255cc8b7a4a38646ac8ca60abe",
+        "graph_client": "ff651675de5df02dacc9514c394cce56ad06606b6d1be13ebfb01126d640029f",
+        "maintenance": "b5ddf0bb9e0ab081610dee8ea3533fd8bcffef1f4a4a07567ed13d67f2fa34ff",
+        "models": "dc0a3a6705ab3ba3fc04ddfa68c45515db6a0c3dad3e60f1b825c79592bfe073",
+        "parser": "8baf1722c59ea6e867e6763f7133b8484c6cc11499498a70961ade66e38e1f46",
+        "payloads": "6a926fae84074e014d2f1935e10d9792d67f0306d9a274d94c2a83e63837af93",
+        "pipeline": "c46fbce48fe66d2e0c22a6a9296cc90bdc34076034055b9895651b0473de5eda",
+        "state_manager": "7c91bd3c59194e072e5ade3fffa92223fa43055341a4bede06909ea61e9f2789"
+      },
+      "options": {
+        "chunking": {
+          "max_item_bytes": 31457280,
+          "max_size": 180,
+          "overlap": 10,
+          "target_size": 100
+        },
+        "filings": {
+          "end_date": null,
+          "exhibit_types": [
+            "EX-99",
+            "EX-10",
+            "EX-21"
+          ],
+          "forms": [
+            "10-K",
+            "10-Q",
+            "8-K",
+            "DEF 14A"
+          ],
+          "include_amendments": true,
+          "include_exhibits": true,
+          "include_history": true,
+          "start_date": null
+        },
+        "icon_url": "https://www.sec.gov/favicon.ico",
+        "ocr_images": false,
+        "processing_version": 8,
+        "refresh_downloads": true,
+        "schema_hash": "c4ed892f62d06a6cc82cd76370028793c16798f210ccd2edbb49d033cebd3322"
+      }
+    },
+    "remote": {
+      "0000000001-000000000126000001-1-1-1": {
+        "observed_at": "2026-10-02T18:04:45.441157+00:00",
+        "raw": {
+          "acl": [
+            {
+              "accessType": "grant",
+              "type": "everyone",
+              "value": "everyone"
+            }
+          ],
+          "content": {
+            "type": "text",
+            "value": "Old common content"
+          },
+          "id": "0000000001-000000000126000001-1-1-1",
+          "properties": {
+            "AccessionNumber": "0000000001-26-000001",
+            "CIK": "0000000001",
+            "ChunkOrdinal": 1,
+            "Company": "Synthetic Company",
+            "Description": "DEF 14A filing for Synthetic Company",
+            "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+            "DocumentName": "proxy.htm",
+            "DocumentType": "DEF 14A",
+            "FileExtension": "htm",
+            "FilingDate": "2026-04-01T00:00:00Z",
+            "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+            "Form": "DEF 14A",
+            "IconUrl": "https://www.sec.gov/favicon.ico",
+            "IsAmendment": false,
+            "Page": 1,
+            "ReportPeriodEnd": "2026-04-22T00:00:00Z",
+            "SectionTitle": "Compensation",
+            "Sequence": 1,
+            "Ticker": "SYN",
+            "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+            "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+          }
+        }
+      },
+      "0000000001-000000000126000001-1-9999": {
+        "observed_at": "2026-10-02T18:04:45.441157+00:00",
+        "raw": {
+          "acl": [
+            {
+              "accessType": "grant",
+              "type": "everyone",
+              "value": "everyone"
+            }
+          ],
+          "content": {
+            "type": "text",
+            "value": "Old stale content"
+          },
+          "id": "0000000001-000000000126000001-1-9999",
+          "properties": {
+            "AccessionNumber": "0000000001-26-000001",
+            "CIK": "0000000001",
+            "ChunkOrdinal": 2,
+            "Company": "Synthetic Company",
+            "Description": "DEF 14A filing for Synthetic Company",
+            "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+            "DocumentName": "proxy.htm",
+            "DocumentType": "DEF 14A",
+            "FileExtension": "htm",
+            "FilingDate": "2026-04-01T00:00:00Z",
+            "FilingUrl": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/0000000001-26-000001-index.html",
+            "Form": "DEF 14A",
+            "IconUrl": "https://www.sec.gov/favicon.ico",
+            "IsAmendment": false,
+            "Page": 9999,
+            "ReportPeriodEnd": "2026-04-22T00:00:00Z",
+            "SectionTitle": "Compensation",
+            "Sequence": 1,
+            "Ticker": "SYN",
+            "Title": "Synthetic Company - DEF 14A - 2026-04-01 [SYN] - proxy.htm",
+            "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+          }
+        }
+      }
+    },
+    "schema": {
+      "baseType": "microsoft.graph.externalItem",
+      "properties": [
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "isSearchable": true,
+          "labels": [
+            "title"
+          ],
+          "name": "Title",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "isSearchable": true,
+          "name": "Company",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRefinable": true,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "name": "Ticker",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRefinable": true,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "name": "Form",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "name": "FilingDate",
+          "type": "DateTime"
+        },
+        {
+          "isQueryable": false,
+          "isRetrievable": true,
+          "isSearchable": true,
+          "name": "Description",
+          "type": "String"
+        },
+        {
+          "isQueryable": false,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "labels": [
+            "url"
+          ],
+          "name": "Url",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "name": "CIK",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "name": "AccessionNumber",
+          "type": "String"
+        },
+        {
+          "isQueryable": false,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "name": "Sequence",
+          "type": "Int64"
+        },
+        {
+          "isQueryable": false,
+          "isRetrievable": true,
+          "isSearchable": false,
+          "name": "Page",
+          "type": "Int64"
+        },
+        {
+          "isRetrievable": true,
+          "labels": [
+            "iconUrl"
+          ],
+          "name": "IconUrl",
+          "type": "String"
+        },
+        {
+          "isRetrievable": true,
+          "name": "FilingUrl",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "isSearchable": true,
+          "labels": [
+            "fileName"
+          ],
+          "name": "DocumentName",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "labels": [
+            "fileExtension"
+          ],
+          "name": "FileExtension",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRefinable": true,
+          "isRetrievable": true,
+          "name": "DocumentType",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "name": "DocumentId",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "name": "ChunkOrdinal",
+          "type": "Int64"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "isSearchable": true,
+          "name": "SectionTitle",
+          "type": "String"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "name": "ReportPeriodEnd",
+          "type": "DateTime"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "labels": [
+            "createdDateTime"
+          ],
+          "name": "AcceptanceDateTime",
+          "type": "DateTime"
+        },
+        {
+          "isQueryable": true,
+          "isRetrievable": true,
+          "name": "IsAmendment",
+          "type": "Boolean"
+        }
+      ]
+    },
+    "schema_hash": "612bf931e87d5f10265aa755dab840c14bbaf023a4fe9c9df4d9a7486aca3d12",
+    "scope": {
+      "AccessionNumber": "0000000001-26-000001",
+      "CIK": "0000000001",
+      "DocumentId": "f43262ff9fb3e51350f340b2a03d0818272a2b54340cc9b606d293297929dea3",
+      "DocumentName": "proxy.htm",
+      "Sequence": 1,
+      "Url": "https://www.sec.gov/Archives/edgar/data/0000000001/000000000126000001/proxy.htm"
+    },
+    "source": "$SOURCE",
+    "source_hash": "a2f500459ac1652f283c3b13d3abfab3085500e2c550f56fed50083812f79ecf",
+    "stale": [
+      "0000000001-000000000126000001-1-9999"
+    ]
+  }
+}
