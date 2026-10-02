@@ -148,8 +148,9 @@ For an exact cached document in a completed sole-document filing, the provisiona
 [scoped maintenance workflow](docs/maintenance.md) provides reviewed
 `prepare`/`inspect`/`apply`/`resume`/`rollback` commands. It requires quiescing all
 writers, retains remote/local recovery evidence, and permanently upgrades that
-database to state format 4. This is separate from processing v8 and is not yet a
-live-validated customer runbook.
+database to state format 4. This is separate from processing v8. A
+[single-scope live storage validation](docs/maintenance-live-validation.md) passed;
+the customer procedure remains provisional pending live agent-answer acceptance.
 
 ## 6. Import your selected companies
 

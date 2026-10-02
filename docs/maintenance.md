@@ -1,10 +1,31 @@
 # Scoped in-place maintenance (provisional)
 
-**Offline-tested recovery tooling, not a live-validated customer runbook.**
+**Provisional customer procedure: live agent response acceptance is pending.**
+One approved single-document update has passed live storage verification;
+see the [sanitized validation result](maintenance-live-validation.md).
+Rollback and interrupted-operation recovery are covered by offline failure
+injection, not by a live rollback exercise. This is not validation for all filings.
 Installing or merging this code does not authorize production changes.
 Obtain a separate execution approval after reviewing the frozen plan and backup
 retention. `apply`, maintenance `resume`, and `rollback` perform real Graph
 overwrites/deletions. There is no transaction spanning Graph and SQLite.
+
+## Operator checklist
+
+1. Install the reviewed build containing `maintenance --help`; retain that exact
+   executable/environment through recovery. An older editable checkout or entry
+   point is not made compatible merely by updating another checkout.
+2. Confirm the supported sole-document/OCR-disabled scope below. Stop all
+   local, scheduled and other-machine writers and retain a private recovery area.
+3. Run `prepare`, then `inspect`; review the new plan's exact IDs, content,
+   properties, ACLs and digest. Never reuse another customer's plan or receipts.
+4. Obtain explicit approval for that digest, scoped writes, backup retention and
+   permanent state format 4. Run `apply` with a new recovery directory.
+5. On interruption use the same plan with maintenance `resume`, not normal
+   `resume` or `reset`. Authorize `rollback` separately if reversal is required.
+6. Inspect completed checkpoints and verify the desired/stale sets and local
+   state. Keep the newer runtime and recovery evidence. Allow indexing, then
+   obtain live agent-answer acceptance before authorizing another batch.
 
 ## Supported scope and prerequisites
 
@@ -169,8 +190,9 @@ storage readback/404 does not establish indexing readiness or Copilot accuracy.
 No untracked global IDs are enumerated. Failures/drift can require operator
 investigation rather than automatic completion; the guard intentionally remains.
 
-Before treating this as a customer-final procedure, separately approve and
-validate a controlled live run: confirm property removal on a shared item,
-review the complete verification/retirement receipts, allow indexing, and repeat
-the relevant Copilot prompts with documented bindings and controls. No live
-mutation is implied by the repository's offline tests.
+The recorded live run confirmed property removal and complete storage
+verification/retirement; it does not establish search readiness or answer
+accuracy. Before treating this as a customer-final procedure, allow indexing
+and obtain acceptance of the relevant Copilot prompts with documented bindings
+and controls. Each new customer's scope still needs its own plan, review and
+authorization. No further live mutation is implied by the tests or this report.
