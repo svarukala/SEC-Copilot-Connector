@@ -350,16 +350,26 @@ preserved six markers in columns **2, 5, 6, 7, 8, 13**, but emitted
 **13 `[rotated text]` headers**. This verifies the input and non-OCR symptom;
 it does not measure OCR accuracy or establish a customer fix.
 
-**Real-engine execution remains blocked:** no Tesseract executable was found
-on PATH or in standard installation locations, and the supplied Python
-environment failed to import Pillow. Approval for isolated PyPI OCR wheels,
-the official-documentation-linked UB Mannheim engine, and official extraction
-tooling could not be obtained while the user was unavailable. No engine or
-dependencies were installed; no installer, registry, system PATH or shared
-environment was changed. The private source/image hashes, visual reference,
-empty isolated environment and comparison script are retained. Resume only
-after approved tooling is supplied or acquisition is explicitly approved;
-compare all 13 names and all six marked columns through the actual
+**Real-engine execution remains blocked.** The user subsequently approved
+session-local PyPI Pillow/pytesseract wheels and the official-documentation-linked
+UB Mannheim engine, but not additional extraction binaries. The Tesseract
+5.4.0.20240606 installer was downloaded from the UB Mannheim GitHub release and
+verified against the winget SHA-256
+`c885fff6998e0608ba4bb8ab51436e1c6775c2bafc2559a19b423e18678b60c9`.
+It was **not executed**. Two acquisition requirements remain:
+
+| Requirement | Observed blocker |
+|---|---|
+| Extract engine without installation | No existing `7z`/`7za` was found in PATH/standard locations. Windows `tar` rejects this NSIS archive as an unrecognized format. Additional extraction tooling requires approval or an existing approved extractor. |
+| Install approved OCR wheels in the isolated environment | PyPI metadata is reachable, but `files.pythonhosted.org` wheel retrieval fails TLS negotiation with pip/OpenSSL, PowerShell HTTPS and Windows curl/Schannel. No certificate checks were disabled, mirrors substituted or access controls bypassed. Approved wheel delivery or network remediation is required. |
+
+The supplied connector environment cannot import Pillow; a separate base Python
+installation has Pillow but no pytesseract. No OCR dependencies were installed
+in any environment. No installer, registry, system PATH or shared environment
+was changed. Private source/image hashes, the independent visual reference,
+verified installer, exact requested wheel URLs/hashes, empty isolated environment
+and comparison script are retained. Once both acquisition requirements are
+resolved, compare all 13 names and all six marked columns through the actual
 parser/chunker before claiming bounded acceptance. No code, processing version,
 plan format or recovery contract changed during this follow-up.
 
