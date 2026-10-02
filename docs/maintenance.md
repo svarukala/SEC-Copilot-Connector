@@ -3,8 +3,9 @@
 **Validated for the supported single-document, non-OCR scope**, through one
 approved PNC update with live storage verification and bounded agent acceptance;
 see the [sanitized validation result](maintenance-live-validation.md).
-The prepared-delivery and local rotated-image OCR extensions below have **offline
-coverage only**, not customer/live acceptance. Rollback and interrupted-operation
+The prepared-delivery, local rotated-image OCR and complete multi-document
+extensions below have **offline coverage only**, not customer/live acceptance.
+Rollback and interrupted-operation
 recovery are covered by offline failure injection, not a live rollback exercise.
 This is not validation for all filings or general scanned-document OCR.
 Installing or merging this code does not authorize production changes.
@@ -17,7 +18,7 @@ overwrites/deletions. There is no transaction spanning Graph and SQLite.
 1. Install the reviewed build containing `maintenance --help`; retain that exact
    executable/environment through recovery. An older editable checkout or entry
    point is not made compatible merely by updating another checkout.
-2. Confirm the supported sole-document eligibility and OCR inputs below. Stop all
+2. Confirm the supported exact-inventory eligibility and OCR inputs below. Stop all
    local, scheduled and other-machine writers and retain a private recovery area.
 3. Run `prepare`, then `inspect`; review the new plan's exact IDs, content,
    properties, ACLs and digest. Never reuse another customer's plan or receipts.
@@ -55,24 +56,29 @@ possibly stale `sec-connector` executable on PATH.
 
 ## Supported scope and prerequisites
 
-Maintenance handles exactly one explicitly selected `.htm` or `.txt`
-document that is the **sole persisted document in a completed, unsampled,
-inventory-complete filing**. All old chunks must be acknowledged, the old
+Standard single-document maintenance handles exactly one explicitly selected
+`.htm` or `.txt` document that is the **sole persisted document in a completed,
+unsampled, inventory-complete filing**. The separate multi-document selection
+below handles **every** persisted document in one such filing, with OCR disabled
+in both the captured old settings and the desired configuration.
+All old chunks must be acknowledged, the old
 delivered hashes and cached payloads must agree, and reconciliation must be empty.
 It does not rediscover SEC inventory, download source, provision a connection,
 change schema, enumerate untracked remote items, prune other filings, or deploy
 agents/skills. An explicit `prepare --recover-prepared` permits the bounded
 interrupted-delivery alternative below; it does not waive inventory or ownership
-checks. Multi-document migration is not supported.
+checks. That recovery opt-in remains single-document only.
 
 | Persisted class | Safe route / boundary |
 |---|---|
 | Completed, unsampled, sole parsed document; consistent acknowledged payloads/cache | Standard maintenance, subject to exact source and remote checks. |
+| Completed, unsampled, multiple parsed HTML/text documents; complete inventory including primary; uniform OCR-disabled source/cache provenance | Explicit repeated `--document` selection of the entire persisted inventory. One frozen plan, full-manifest activation, and a filing-wide verification gate. |
 | Complete inventory and fully prepared sole-document manifest; partial acknowledgments or lost PUT ACK | Prefer ordinary `resume` to finish the old generation. Opt-in `--recover-prepared` can instead freeze a replacement if every tracked ID has an exact retained payload, each acknowledged hash agrees, and every remote value matches that payload or is an allowed 404. |
 | All prepared items remotely absent, none acknowledged | Same opt-in, only with a complete nonempty retained manifest/cache and proven local ownership. An empty observed remote baseline is **not** permission to adopt an untracked filing. |
 | Failed download/parse, missing source/cache/payloads, missing or incomplete inventory, no documents | Not reconstructable by maintenance. Restore the captured inputs/settings and investigate ordinary resume under separately approved scope. Do not mark inventory complete manually. |
 | Prior-generation delivered hash differs, acknowledged item missing remotely, unmatched reconciliation ID, foreign remote value or cross-filing collision | Fail closed. Preserve state and receipts; investigate ownership/history. No automatic overwrite, delete, adoption or discard. |
-| Sampled, retiring, multi-document, or running/interrupted run record | Not supported. Resolve the original run/scope separately; do not delete run records or clear guards to force eligibility. |
+| Multi-document subset, incomplete delivery, mixed processing provenance, inherited/desired OCR, missing primary, duplicate sequence, unsupported source type | Not supported. No automatic expansion, adoption, partial upgrade, or OCR-disable workaround. |
+| Sampled, retiring, or running/interrupted run record | Not supported. Resolve the original run/scope separately; do not delete run records or clear guards to force eligibility. |
 
 Ordinary `resume` operates on **all** queued filings at the destination, not this
 one selected document, and can download missing inputs and perform writes/deletes.
@@ -151,7 +157,7 @@ The tool does not change OS permissions, encrypt artifacts, or save credentials.
 
 Illustrative PowerShell forms (replace placeholders with the approved scope):
 Select the exact CIK, accession, filename and sequence from the persisted
-sole-document inventory, not just a ticker/date guess. Use its existing cached
+inventory, not just a ticker/date guess. Use its existing cached
 source bytes; do not substitute a freshly downloaded or manually edited document.
 The source path below is illustrative, not a required cache location.
 All commands use the same config and working directory so relative database/cache
@@ -183,8 +189,69 @@ It freezes source hash, processing configuration/module/dependency versions,
 tenant/app/connection/path, full schema hash, scoped local rows, raw old remote
 responses, replayable normalized old payloads, desired payloads and hashes,
 exact new/stale IDs, and observed 404 timestamps. The output must be a new file.
-New plans use **plan format 2**; SQLite remains format 3 until activation.
-OCR bytes/outputs are included when applicable.
+Single-document plans use **plan format 2**; complete multi-document plans use
+**plan format 3**. SQLite remains state format 3 until activation.
+OCR bytes/outputs are included only in eligible single-document plans.
+
+### Explicit complete multi-document selection
+
+Use a repeated three-value `--document FILENAME SEQUENCE SOURCE` option instead
+of `--filename`/`--sequence`/`--source`. Each tuple refers to one persisted
+document, **not** a chunk, page, form, or filing. Every document must be supplied
+exactly once, including the primary and every exhibit already selected during
+the original ingestion. This does not select additional exhibits from SEC.
+Selection order is normalized by numeric sequence, then filename; sequences
+and filenames must be unique. Chunk ordinals restart at 1 for each document.
+
+```powershell
+.\.venv\Scripts\python.exe -m sec_connector -c .\config\config.yaml maintenance prepare `
+  --cik "<10-digit-CIK>" --accession "<accession>" `
+  --document "annual.htm" 1 "C:\private\cached\annual.htm" `
+  --document "subsidiaries.htm" 2 "C:\private\cached\subsidiaries.htm" `
+  --out "C:\private\multi-document-plan.json"
+```
+
+The names/sequences above are placeholders, not a known filing inventory.
+For four persisted documents, supply four tuples with their actual filenames,
+sequences, and existing source paths. At least two tuples are required. Mixing
+these options with the single-document selector or `--recover-prepared` is an
+error. No glob, ticker/form inference, source download, or inventory repair is
+performed. A sole-document filing with many chunks still uses the original
+single-document selector.
+
+Every old cache fingerprint must reproduce from its own source, exact filing
+and document metadata, and the **same captured filing-wide processing options**.
+Every document must have a nonempty, complete cached manifest whose uploaded
+checkpoints and delivered hashes match. Missing/extra cache, chunk, or delivered
+rows, old pending items, any missing acknowledged remote item, and mixed
+generations fail closed. OCR-enabled multi-document settings are rejected even
+if no rotated image is found; never disable inherited OCR just to pass this
+gate. Historical image provenance is not inferred.
+
+Format-3 plans freeze each document's exact scope, source path/bytes/hash and
+desired cache fingerprint, the entire old local filing snapshot, and distinct
+old remote and desired payload maps. Observed absences remain a separate
+baseline map; they are not fabricated local delivery checkpoints. In this
+completed-only class every old item must be present and verified, so baseline
+absences are exactly the new desired-only IDs.
+
+`inspect` lists per-document scopes, source hashes, and old/desired item counts
+in addition to filing-wide totals. Review the whole plan, not just the counts.
+Apply installs **all** desired document chunks and their individual caches in
+one guarded local transaction. The shared journal covers every document.
+**Every desired item across all documents must be ACKed and exact-GET verified
+before the first stale item from any document can be deleted.** Resume repeats
+this whole-set gate. Rollback restores/verifies the complete old remote set
+before removing any operation-owned new IDs, then restores the complete old
+filing snapshot atomically. Neither direction reparses sources.
+
+Subset upgrades are intentionally excluded: processing options are stored at
+filing level, so stamping new settings onto untouched old-generation documents
+would lose provenance. No unselected document is implicitly modified; an
+incomplete selection fails before activation. Other filings' document rows,
+caches and remote items remain untouched, including unrelated work that occurred
+after the backup. Forward replay requires **all** selected sources unchanged;
+rollback needs none of those source files.
 
 `inspect` requires no authentication and does not acquire a lock or migrate
 state. It reads the frozen plan and, if activated, durable per-ID checkpoints.
@@ -285,26 +352,40 @@ automatic cleanup is performed.
 
 ### Existing plans and version boundaries
 
-Plan format 2 is separate from state format 4 and processing version 8. Neither
-the state schema nor v8 content semantics changed for these extensions. Existing
-format-1 plans remain readable/inspectable and eligible for source-free rollback,
+Plan formats 2 (single-document) and 3 (complete multi-document) are separate
+from state format 4 and processing version 8. Neither the state schema nor v8
+content semantics changed for these extensions. Existing format-1 and format-2
+plans remain readable/inspectable and eligible for source-free rollback,
 with their original payloads, cache/options, digest and recovery evidence.
 **There is no automatic plan migration or digest rewrite.** Forward apply/resume
 still requires the exact code/dependency/config provenance captured at prepare:
-use the retained original runtime to finish a format-1 operation, or separately
+use the retained original runtime to finish an older operation, or separately
 authorize rollback. New code intentionally refuses forward code drift rather
 than silently blessing new processing. Old maintenance executables reject
-format-2 plans; old format-3-only state readers still reject activated format 4.
+unknown plan formats (including new multi-document format 3); old format-3-only
+state readers still reject activated state format 4.
 Never change either version number manually.
 
 The offline extension suite uses synthetic HTML/PNG inputs, fake Graph outcomes,
 and stub image decoding/recognition; it exercises production OCR discovery,
 rotation/upscaling/cleanup and frozen-output replay. A sanitized format-1 fixture
-was generated by the original `53dd715` implementation. The complete suite passed
+was generated by the original `53dd715` implementation. The PR4 baseline passed
 601 tests (four existing private-corpus opt-ins skipped). Pillow, pytesseract and
 Tesseract were **not installed in that validation environment**; no actual-engine
 accuracy or real OCR-corpus validation is claimed. No shared dependencies were
 installed and no customer state/source or tenant was accessed.
+
+The multi-document suite adds synthetic two- and four-document inventories
+(including HTML and text exhibits), per-document lost PUT/DELETE outcomes,
+partial retirement, resumable rollback, checkpoint/transaction failures,
+full-set gates, unrelated-row preservation, exact selection, and provenance
+rejections. It does not use the reported PNC annual sources or any live database,
+cache, SEC endpoint, or Graph tenant. The reported PNC 2023 annual primary plus
+EX-21 and the PNC 2024 four-document annual inventory motivate this boundary;
+their actual eligibility and content quality have **not** been certified here.
+With this extension the full offline suite passed **713 tests**, with four
+existing private-corpus opt-ins skipped. Validation used a worktree-local Python
+environment and explicit `PYTHONPATH` to this source, not an older installed CLI.
 
 ### Future real-engine acceptance case (not run)
 
