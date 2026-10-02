@@ -107,6 +107,12 @@ final summary rather than treating all warning/error lines as failed filings.
 
 ## Resume, refresh, or rebuild
 
+If an in-place maintenance operation is unfinished, **do not use normal resume,
+setup, ingest or reset**. They deliberately refuse guarded state. Use
+[`maintenance inspect`, `maintenance resume`, or `maintenance rollback`](maintenance.md)
+with the same reviewed plan. That provisional workflow is limited to one
+completed, unsampled sole-document filing and is not a broad reprocessing command.
+
 | Intent | Command/behavior |
 |---|---|
 | Recover queued work | `resume` retries unfinished work and replays prepared payloads unchanged. |

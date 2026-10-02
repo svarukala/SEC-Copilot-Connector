@@ -144,6 +144,13 @@ version 8. See [recovery and reprocessing](docs/operations.md) before explicitly
 rebuilding selected work. A code upgrade or merge does not authorize live
 reprocessing or deletion.
 
+For an exact cached document in a completed sole-document filing, the provisional
+[scoped maintenance workflow](docs/maintenance.md) provides reviewed
+`prepare`/`inspect`/`apply`/`resume`/`rollback` commands. It requires quiescing all
+writers, retains remote/local recovery evidence, and permanently upgrades that
+database to state format 4. This is separate from processing v8 and is not yet a
+live-validated customer runbook.
+
 ## 6. Import your selected companies
 
 After the sample succeeds, run without sampling limits:

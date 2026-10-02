@@ -11,7 +11,7 @@ import aiohttp
 from .chunker import chunk_with_limit
 from .config import AppConfig, ChunkingConfig, ensure_directories
 from .graph_client import GraphClient
-from .models import ChunkState, FilingMetadata, FilingState
+from .models import ChunkState, DocumentInfo, FilingMetadata, FilingState
 from .parser import parse_document
 from .sec_client import SECClient
 from .state_manager import StateManager, scoped_database_path
@@ -19,6 +19,18 @@ from .utils import console, get_logger
 
 logger = get_logger("pipeline")
 PROCESSING_VERSION = 8
+
+
+def document_fingerprint(
+    source_hash: str, filing: FilingMetadata, document: DocumentInfo,
+    options: dict, remaining: Optional[int] = None,
+) -> str:
+    """Use the same cache identity for ingestion and scoped maintenance."""
+    return hashlib.sha256(json.dumps({
+        "source": source_hash, "filing": filing.model_dump(mode="json"),
+        "document": document.model_dump(mode="json"), "options": options,
+        "remaining": remaining,
+    }, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 class IngestionPipeline:
@@ -113,7 +125,6 @@ class IngestionPipeline:
             raise ValueError("At least one nonempty ticker is required")
         if (max_filings is not None and max_filings <= 0) or (max_pages is not None and max_pages <= 0):
             raise ValueError("Filing and page limits must be positive")
-        ensure_directories(self.config)
         if self.test_mode:
             tickers = tickers[:1]
             max_filings = max_filings or self.config.test_mode.max_filings
@@ -132,6 +143,7 @@ class IngestionPipeline:
             SECClient(self.config) as sec,
             GraphClient(self.config) as graph,
         ):
+            ensure_directories(self.config)
             run_id = await state.start_run(
                 {"tickers": tickers, "max_filings": max_filings, "max_pages": max_pages,
                  "prune": self.config.sync.prune_missing_filings, "reprocess": reprocess,
@@ -248,11 +260,9 @@ class IngestionPipeline:
                 )
                 await state.update_document(filing_id, document.filename, "downloaded")
                 digest = hashlib.sha256(await asyncio.to_thread(path.read_bytes)).hexdigest()
-                fingerprint = hashlib.sha256(json.dumps({
-                    "source": digest, "filing": filing.model_dump(mode="json"),
-                    "document": document.model_dump(mode="json"), "options": record.processing_options,
-                    "remaining": remaining,
-                }, sort_keys=True).encode("utf-8")).hexdigest()
+                fingerprint = document_fingerprint(
+                    digest, filing, document, record.processing_options, remaining,
+                )
                 payloads = await state.cached_payloads(filing_id, document.filename, fingerprint)
                 if payloads is None:
                     parsed = await asyncio.to_thread(
@@ -365,7 +375,6 @@ class IngestionPipeline:
             stats["errors"] += 1
 
     async def resume(self) -> dict:
-        ensure_directories(self.config)
         stats = self._stats()
         stats["filings_resumed"] = 0
         async with (
@@ -373,6 +382,7 @@ class IngestionPipeline:
             SECClient(self.config) as sec,
             GraphClient(self.config) as graph,
         ):
+            ensure_directories(self.config)
             start_date = self.config.filings.start_date
             end_date = self.config.filings.end_date
             run_id = await state.start_run({
