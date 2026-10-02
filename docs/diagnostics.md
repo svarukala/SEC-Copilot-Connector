@@ -195,7 +195,8 @@ The selected code root is operator-supplied. Dependency versions and hashed
 necessarily that selected tree, nor the interpreter that produced historical
 payloads. OCR package versions are included, but the external OCR engine is
 never invoked and its version is not verified. Raw provenance URLs are omitted.
-Code hashes include the optional `ocr_engine.py`, maintenance modules, state,
+Code hashes include the optional `ocr_engine.py`, `maintenance.py`,
+`maintenance_ocr.py`, state,
 source client, CLI, and sample/pilot upload modules as well as parsing and
 payload-generation modules. Missing modules are explicitly `null`, so older
 code trees remain inspectable without requiring the newer OCR/maintenance files.
