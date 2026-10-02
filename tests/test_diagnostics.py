@@ -144,6 +144,44 @@ class DiagnosticsTests(unittest.TestCase):
                         diag.read_local(self.args, self.runtime)
                 path.unlink()
 
+    def test_committed_wal_data_rejected_before_evidence_or_authentication(self):
+        with closing(sqlite3.connect(self.args.db)) as writer:
+            self.assertEqual(writer.execute("PRAGMA journal_mode=WAL").fetchone()[0], "wal")
+            writer.execute("PRAGMA wal_autocheckpoint=0")
+            writer.execute("UPDATE filings SET state='failed' WHERE id=0")
+            writer.commit()
+            self.assertGreater(Path(str(self.args.db) + "-wal").stat().st_size, 0)
+            self.assertEqual(writer.execute("SELECT state FROM filings WHERE id=0").fetchone()[0], "failed")
+            # Demonstrate the stale view immutable mode would expose if the guard
+            # were removed: the committed failure exists only in the WAL.
+            with closing(sqlite3.connect(self.args.db.as_uri() + "?mode=ro&immutable=1", uri=True)) as stale:
+                self.assertEqual(stale.execute("SELECT state FROM filings WHERE id=0").fetchone()[0], "completed")
+            before = {path.name: path.read_bytes() for path in self.args.db.parent.iterdir()}
+            with patch.object(diag.sqlite3, "connect", side_effect=AssertionError("must not open")), \
+                    patch.object(diag, "authenticate", side_effect=AssertionError("must not authenticate")):
+                self.assertEqual(self.cli(["--graph", "--config", str(self.args.config)]), 2)
+            report = diag.load_json(self.args.out)
+            self.assertEqual(report["status"], "incomplete")
+            self.assertEqual(report["error"], "journal_present_stop_writer_and_use_operator_managed_snapshot")
+            self.assertNotIn("local", report)
+            self.assertNotIn("graph", report)
+            self.assertEqual(before, {path.name: path.read_bytes() for path in self.args.db.parent.iterdir()})
+
+    def test_journal_appearing_during_read_discards_local_evidence(self):
+        inspect = diag.inspect_document
+        journal = Path(str(self.args.db) + "-journal")
+
+        def inspect_with_journal(*args):
+            result = inspect(*args)
+            journal.write_bytes(b"synthetic concurrent journal")
+            return result
+
+        with patch.object(diag, "inspect_document", side_effect=inspect_with_journal):
+            self.assertEqual(self.cli(), 2)
+        report = diag.load_json(self.args.out)
+        self.assertEqual(report["error"], "journal_present_stop_writer_and_use_operator_managed_snapshot")
+        self.assertNotIn("local", report)
+
     def test_versions_and_schema_rejected_without_migration(self):
         for version in (1, 2, 5, 999):
             self.mutate("UPDATE destination SET version=?", (version,))
