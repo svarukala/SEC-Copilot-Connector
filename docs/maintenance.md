@@ -306,6 +306,23 @@ Tesseract were **not installed in that validation environment**; no actual-engin
 accuracy or real OCR-corpus validation is claimed. No shared dependencies were
 installed and no customer state/source or tenant was accessed.
 
+### Future real-engine acceptance case (not run)
+
+The coordinating customer-worksheet review reported an OCR-dependent case in
+PNC's 2025 proxy, `d889589ddef14a.htm`, accession `0001193125-25-052937`, printed
+page 25, **Transactions with directors in 2024**. The charity row has six
+markers, while all 13 director-name headers are narrow rotated JPEGs with
+`alt="LOGO"` and remain `[rotated text]` with v8/OCR disabled. A separately
+authorized pilot should verify the actual engine's director-name recognition,
+column ordering, and association of the six markers with the correct names.
+Neither provenance capture nor synthetic tests establish that result; this
+source was not accessed or processed for this extension.
+
+Do not conflate that case with the reported PNC 2023 10-K, printed page 36,
+**9.64% CAGR** disclosure: the coordinating review identified it as an HTML
+table below `Picture2.jpg`, not an OCR/image-extraction gap. These reported
+acceptance targets do not authorize source downloads or customer/tenant writes.
+
 ## Limits and live release gate
 
 Graph reads are serial observations, not a transactional snapshot. Search can
