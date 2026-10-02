@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "purpose": "Evaluator-only public facts; never install as agent instructions, skills or knowledge.",
+  "sources": [
+    {
+      "id": "pnc-proxy-2025",
+      "cik": "0000713676",
+      "accession": "0001193125-25-052937",
+      "filename": "d889589ddef14a.htm",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000713676/000119312525052937/d889589ddef14a.htm",
+      "sha256": "a78e444a6885c182f38288900af321092d2323edfadc96a16e1b9f010cba5d00"
+    },
+    {
+      "id": "pnc-proxy-2024",
+      "cik": "0000713676",
+      "accession": "0001193125-24-066850",
+      "filename": "d540496ddef14a.htm",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000713676/000119312524066850/d540496ddef14a.htm",
+      "sha256": "dac1bb830c61028c1116163cab70d7c950e81f19870671dc10f625554d5b9186"
+    },
+    {
+      "id": "pnc-annual-fy2023",
+      "cik": "0000713676",
+      "accession": "0000713676-24-000028",
+      "filename": "pnc-20231231.htm",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000713676/000071367624000028/pnc-20231231.htm",
+      "sha256": "22923e7767866d9930b1b968aba1b00c41816ee25b1aad351e1f6a49e99298dc"
+    },
+    {
+      "id": "pnc-annual-fy2024",
+      "cik": "0000713676",
+      "accession": "0000713676-25-000027",
+      "filename": "pnc-20241231.htm",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000713676/000071367625000027/pnc-20241231.htm",
+      "sha256": "bb8d0ed726177cb72b99317a099ac88c91f3901eb64e78bacf0ff47d59d959f9"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "incentive",
+      "source": "pnc-proxy-2025",
+      "table_index": 376,
+      "printed_page": 72,
+      "headers": ["William S. Demchak"],
+      "rows": [
+        ["Incentive compensation target for 2024", "$", "18,700,000", "$", "6,000,000", "$", "7,800,000", "$", "3,400,000", "$", "3,800,000", "$", "9,626,923"],
+        ["Incentive compensation awarded for 2024 performance", "$", "23,700,000", "$", "6,800,000", "$", "8,225,000", "$", "5,400,000", "$", "5,300,000", "n/a"]
+      ]
+    },
+    {
+      "id": "market-cap",
+      "source": "pnc-proxy-2025",
+      "table_index": 398,
+      "headers": ["Peer Market Capitalization", "(in billions)"],
+      "context": ["assets and market capitalization for PNC and our peer group measured as of December 31, 2024"],
+      "printed_page": 78,
+      "rows": [
+        ["Fifth Third Bancorp", "FITB", "USB", "$", "678.3", "COF", "$", "39.1", "PNC", "$", "76.4"]
+      ]
+    },
+    {
+      "id": "hr-2025",
+      "source": "pnc-proxy-2025",
+      "table_index": 370,
+      "headers": ["2024 results", "2023 results"],
+      "printed_page": 71,
+      "rows": [
+        ["Net interest income (in millions)", "$13,499", "$13,100", "$13,916", "+3.04%", "-3.00%"],
+        ["Noninterest income (in millions)", "$8,056", "$7,932", "$7,574", "+1.56%", "+6.36%"],
+        ["Diluted EPS*", "$13.24", "$12.36", "$12.85", "+7.12%", "+3.04%"],
+        ["Diluted EPS (excluding FDIC special assessment)* (1)", "$13.46", "$12.36", "$13.86", "+8.90%", "-2.89%"],
+        ["ROE*", "10.94%", "10.19%", "11.66%", "+7.36%", "-6.17%"],
+        ["ROE (excluding FDIC special assessment)* (1)", "11.10%", "10.19%", "12.49%", "+8.93%", "-11.13%"],
+        ["ROA*", "1.02%", "0.96%", "1.02%", "+6.25%", "0.00%"],
+        ["Risk-adjusted efficiency ratio* (2)", "67.57%", "68.76%", "68.51%", "+1.73%", "+1.37%"],
+        ["Risk-adjusted efficiency ratio (excluding FDIC special assessment)* (1)(2)", "67.05%", "68.76%", "66.11%", "+2.49%", "-1.42%"],
+        ["Net income (in millions)", "$5,953", "$5,647"],
+        ["Tangible book value per share** (non-GAAP)", "$95.33", "$85.08"],
+        ["Annual total shareholder return", "29.4%", "2.7%"],
+        ["CET1 ratio", "10.5%", "9.9%"]
+      ],
+      "context": ["These metrics include HR Committee-approved adjustments and are non-GAAP financial measures."]
+    },
+    {
+      "id": "hr-broader-scope",
+      "source": "pnc-proxy-2025",
+      "printed_page": 66,
+      "context": [
+        "Capital, Risk and Expense Management",
+        "Loans to deposits ratio",
+        "Net charge-offs to average loans",
+        "Business Growth",
+        "Average loan balances",
+        "Assets under administration",
+        "Mortgage origination value",
+        "talent recruitment, development, retention and employee engagement trends"
+      ]
+    },
+    {
+      "id": "hr-2024",
+      "source": "pnc-proxy-2024",
+      "table_index": 351,
+      "headers": ["2023 results", "2022 results"],
+      "rows": [
+        ["Net interest income (in millions)", "$13,916", "$14,480", "$13,014", "-3.89%", "+6.93%"],
+        ["Noninterest income (in millions)*", "$7,574", "$8,207", "$8,133", "-7.71%", "-6.87%"],
+        ["Diluted EPS*", "$12.85", "$15.76", "$13.80", "-18.46%", "-6.88%"],
+        ["Diluted EPS (excluding FDIC special assessment)* (2)", "$13.86", "$15.76", "$13.80", "-12.06%", "+0.43%"],
+        ["Diluted EPS (excluding noncore noninterest expense adjustments)** (non-GAAP) (2)", "$14.10", "$15.76", "$13.85", "-10.53%", "+1.81%"],
+        ["ROE*", "11.66%", "14.04%", "12.59%", "-16.95%", "-7.39%"],
+        ["ROE (excluding FDIC special assessment)* (2)", "12.49%", "14.04%", "12.59%", "-11.04%", "-0.79%"],
+        ["ROA*", "1.02%", "1.17%", "1.11%", "-12.82%", "-8.11%"],
+        ["Risk-adjusted efficiency ratio*", "68.51%", "64.04%", "64.81%", "-6.98%", "(1)", "-5.71%", "(1)"],
+        ["Risk-adjusted efficiency ratio (excluding noncore noninterest expense)* (3)", "65.41%", "64.04%", "64.81%", "-2.14%", "(1)", "-0.93%", "(1)"],
+        ["Net income (in millions)", "$5,647", "$6,113"],
+        ["Tangible book value per share** (non-GAAP)", "$85.08", "$72.12"],
+        ["Annual total shareholder return", "2.7%", "-18.6%"],
+        ["CET1 Ratio", "9.9%", "9.1%"]
+      ]
+    },
+    {
+      "id": "cagr",
+      "source": "pnc-annual-fy2023",
+      "table_index": 13,
+      "printed_page": 36,
+      "headers": ["5-Year Compound Growth Rate"],
+      "rows": [
+        ["PNC", "$", "100", "$", "140.89", "$", "137.04", "$", "189.42", "$", "154.26", "$", "158.41", "9.64", "%"]
+      ],
+      "context": ["Total Return = Price change plus reinvestment of dividends"],
+      "image_count": 0
+    },
+    {
+      "id": "age-fy2023",
+      "source": "pnc-annual-fy2023",
+      "table_index": 11,
+      "headers": ["Name", "Age", "Position with PNC"],
+      "rows": [
+        ["William S. Demchak", "61", "Chairman and Chief Executive Officer (b)", "2002"]
+      ]
+    },
+    {
+      "id": "age-fy2024",
+      "source": "pnc-annual-fy2024",
+      "table_index": 10,
+      "headers": ["Name", "Age", "Position with PNC"],
+      "rows": [
+        ["William S. Demchak", "62", "Chairman and Chief Executive Officer (b)", "2002"]
+      ]
+    },
+    {
+      "id": "charity",
+      "source": "pnc-proxy-2025",
+      "table_index": 128,
+      "printed_page": 25,
+      "headers": ["Personal or Family Relationships"],
+      "rendered_row_prefix": ["Personal or Family Relationships"],
+      "rows": [
+        ["Charitable Contributions (3)", "\u2022", "\u2022", "\u2022", "\u2022", "\u2022", "\u2022"]
+      ],
+      "image_count": 13,
+      "context": [
+        "We made charitable contributions during 2024 to charitable organizations where our directors or their immediate family members serve as directors, trustees or executive officers",
+        "Does not include matching gifts provided to charities personally supported by the director"
+      ],
+      "visual_reference": {
+        "method": "Independent visual reading by the OCR workstream before OCR; all 13 rotated JPEG headers and source-grid positions reviewed.",
+        "provenance_url": "https://github.com/svarukala/SEC-Copilot-Connector/blob/9695edf039de7321ad55f082c9aec243ed59262e/docs/maintenance.md",
+        "marked_columns": [2, 5, 6, 7, 8, 13],
+        "marked_headers": [
+          {"column": 2, "name": "Debra A. Cafaro", "filename": "g889589g99h35.jpg", "sha256": "9466a84d923a83c97ee168b0d60c32a93f09ba47b6634950ffbd63d4eee8450d"},
+          {"column": 5, "name": "William S. Demchak", "filename": "g889589g91c52.jpg", "sha256": "e183ec9638ef67bfdd312e7e103e3887fadd264ac5258815b9cfa5c7f17e55ac"},
+          {"column": 6, "name": "Andrew T. Feldstein", "filename": "g889589g12n61.jpg", "sha256": "47bff834d425d3b98638556c411cb535af7ec215bdb83abf64bc6130bb8ead03"},
+          {"column": 7, "name": "Richard J. Harshman", "filename": "g889589g88o39.jpg", "sha256": "32f54f89c57de92f5bf1f74bce1973fd799102e4c145778f98d83227bb4f7641"},
+          {"column": 8, "name": "Daniel R. Hesse", "filename": "g889589g98q63.jpg", "sha256": "05fa8c9a5afd687a188865af098b3ab1b4b5a3f467daa87a232d5eb1631cdbca"},
+          {"column": 13, "name": "Bryan Salesky", "filename": "g889589g51r63.jpg", "sha256": "6b6052eb6ba9ad9a8ac9972539e540aa831e9453441f607441972fe1ea30aec0"}
+        ]
+      },
+      "unverified": ["Actual OCR recovery and payload marker-to-name attribution are not evaluated by this HTML-only run. Generic LOGO alt text is not a name; names elsewhere in the filing do not establish this column mapping."]
+    }
+  ],
+  "cases": [
+    {
+      "id": "incentive-above-target",
+      "prompt": "According to PNC's 2025 proxy, how did William S. Demchak's incentive compensation awarded for 2024 compare with his target? Give both amounts and calculate the percentage above target.",
+      "evidence": ["incentive"],
+      "required": {
+        "target": "$18.7 million",
+        "award": "$23.7 million",
+        "calculation": "($23.7m - $18.7m) / $18.7m * 100 = 26.7% above target, rounded to one decimal",
+        "period-and-basis": "2024 performance in the 2025 proxy; not total compensation or Summary Compensation Table pay"
+      }
+    },
+    {
+      "id": "market-cap-date",
+      "prompt": "What market capitalization does PNC's 2025 proxy report for PNC in its compensation peer comparison, and as of what date?",
+      "evidence": ["market-cap"],
+      "required": {
+        "amount": "$76.4 billion",
+        "date": "December 31, 2024",
+        "column-attribution": "PNC ticker within the independently ranked market-capitalization block, not Fifth Third in the leftmost company column"
+      }
+    },
+    {
+      "id": "hr-numeric-comparison",
+      "prompt": "Using PNC's 2025 proxy, explain the HR Committee's broader performance evaluation and compare all disclosed 2024 results with 2023 in its performance table, including other key measures and adjustments. Do not limit the answer to PSU metrics.",
+      "evidence": ["hr-2025", "hr-broader-scope"],
+      "required": {
+        "financial-rows": "All nine financial rows: 2024 and 2023 values and reported year-over-year changes from hr-2025. Budget is a separate column.",
+        "other-key-rows": "All four other key rows with both years' numeric values: net income, tangible book value per share, annual TSR, CET1.",
+        "broader-scope": "Financial performance; capital/risk/expense; business growth; multi-horizon TSR; strategy, risk, talent and succession.",
+        "basis": "Preserve HR adjustments, non-GAAP labels and FDIC exclusions; do not recast reported efficiency improvement as ordinary signed growth."
+      }
+    },
+    {
+      "id": "hr-year-selection",
+      "prompt": "Compare the financial measures selected in PNC's 2024 and 2025 proxies. Which extra or differently adjusted rows appear, and how do their reporting years differ?",
+      "evidence": ["hr-2024", "hr-2025"],
+      "required": {
+        "years": "2024 proxy compares 2023/2022; 2025 proxy compares 2024/2023.",
+        "selection": "2024 has ten financial rows including separate noncore-adjusted EPS; 2025 has nine, omitting that extra EPS row.",
+        "efficiency-basis": "2024 noncore-noninterest-expense-adjusted efficiency versus 2025 FDIC-special-assessment-adjusted efficiency; not interchangeable.",
+        "other-key": "Both tables separately include four other key measures. A selected nine-metric list alone is not a full numeric performance answer."
+      }
+    },
+    {
+      "id": "annual-cagr",
+      "prompt": "What five-year compound annual total-return growth rate is reported for PNC in the fiscal 2023 annual report's stock-performance comparison? Include the period and return definition.",
+      "evidence": ["cagr"],
+      "required": {
+        "rate": "9.64%",
+        "period": "December 2018 to December 2023",
+        "basis": "Total return includes price change and reinvestment of dividends; reported HTML-table value, not the unrelated servicing-rights discount rate."
+      }
+    },
+    {
+      "id": "annual-age-period",
+      "prompt": "What age does PNC report for William S. Demchak in the fiscal 2023 annual report, compared with fiscal 2024? Distinguish fiscal year from filing year.",
+      "evidence": ["age-fy2023", "age-fy2024"],
+      "required": {
+        "fy2023": "61 in fiscal 2023 annual, accession filed in 2024",
+        "fy2024": "62 in fiscal 2024 annual, accession filed in 2025",
+        "ambiguity": "An unspecified '2024 annual filing' is ambiguous; do not silently substitute one fiscal year for the other."
+      }
+    },
+    {
+      "id": "charity-scope-and-gap",
+      "prompt": "In PNC's 2025 proxy director-relationship table, how many charitable-contribution markers appear, what do they mean, and can the available evidence identify the directors?",
+      "evidence": ["charity"],
+      "required": {
+        "count": "Six markers on printed page 25.",
+        "scope": "PNC contributions during 2024 to organizations linked to directors or immediate family; not evidence of personal donations by six directors.",
+        "exclusion": "Footnote (3) continues on the next page and excludes matching gifts to charities personally supported by directors.",
+        "names": "Independent visual reference identifies columns 2,5,6,7,8,13: Debra A. Cafaro; William S. Demchak; Andrew T. Feldstein; Richard J. Harshman; Daniel R. Hesse; Bryan Salesky. Full credit needs retrieved marker-to-name evidence, not just names elsewhere. Honest abstention on missing image attribution is partial completeness, not fabrication."
+      }
+    }
+  ]
+}
