@@ -14,6 +14,10 @@ The reusable configuration below is company-neutral. PNC, WFC, JPM, BAC, and USB
 appear later only as illustrative public-filing examples, not required tickers
 or a claim that those filings are present in your tenant.
 
+For evaluator-only question manifests, source/payload checks and controlled-run
+receipts, see [Evidence evaluation](evidence-evaluation.md). Do not copy its
+expected answers into the agent configuration or skill packages.
+
 ## Agent name and description
 
 **Name:** SEC Filings Analyst

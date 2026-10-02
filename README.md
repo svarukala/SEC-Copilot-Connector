@@ -28,6 +28,10 @@ tickers.
 > Upload acknowledgment does not guarantee immediate search visibility or
 > accurate Copilot answers.
 
+For the tested scope, format limitations and repeatable offline/source-grounded
+rubric, see [Evidence evaluation](docs/evidence-evaluation.md). HTML/text support
+does not imply general image, PDF or scanned-document support.
+
 ## 1. Prepare your environment
 
 You need Git, Python 3.10+ (3.11 or 3.12 recommended), outbound HTTPS access to SEC
