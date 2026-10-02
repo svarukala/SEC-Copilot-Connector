@@ -14,6 +14,8 @@ import zlib
 import pytest
 
 from sec_connector import maintenance as m, maintenance_ocr as ocr, parser
+from sec_connector import ocr_engine
+from sec_connector.config import OCRConfig
 from sec_connector.models import DocumentInfo, FilingMetadata
 from sec_connector.pipeline import IngestionPipeline, document_fingerprint
 from sec_connector.payloads import serialize_item
@@ -249,16 +251,16 @@ def fake_ocr(monkeypatch):
             self.size = size
             return self
 
-    def recognize(image, config):
-        calls.append(("ocr", config))
+    def recognize(image, settings):
+        calls.append(("ocr", "--psm 7"))
         return labels[image.raw]
 
     monkeypatch.setitem(sys.modules, "PIL", SimpleNamespace(
         Image=SimpleNamespace(open=Image, Resampling=SimpleNamespace(LANCZOS="LANCZOS")),
     ))
-    monkeypatch.setitem(sys.modules, "pytesseract", SimpleNamespace(image_to_string=recognize))
-    engine = {"engine_version": "offline-stub", "language": "eng", "config": "--psm 7"}
-    monkeypatch.setattr(ocr, "runtime", lambda: deepcopy(engine))
+    monkeypatch.setattr(parser, "image_to_text", recognize)
+    engine = {"backend": ocr_engine.BACKEND, "engine_version": "offline-stub", "language": "eng", "config": "--psm 7"}
+    monkeypatch.setattr(ocr, "runtime", lambda *args: deepcopy(engine))
     return calls, engine
 
 
@@ -348,7 +350,7 @@ async def test_ocr_drift_fails_before_mutation(with_ocr, fake_ocr, monkeypatch, 
     elif drift == "settings":
         engine["config"] = "--psm 6"
     elif drift == "engine":
-        def unavailable():
+        def unavailable(*args):
             raise RuntimeError("OCR engine unavailable")
         monkeypatch.setattr(ocr, "runtime", unavailable)
     else:
@@ -530,8 +532,8 @@ async def test_ocr_asset_change_during_recognition_rejects_plan(prepared, fake_o
     asset.write_bytes(png_bytes((255, 255, 255)))
     bind_source(prepared, '<img src="year.png" width="12" height="90">')
     original = ocr.ocr_asset_text
-    def changed(stream):
-        text = original(stream)
+    def changed(stream, settings):
+        text = original(stream, settings)
         asset.write_bytes(png_bytes((0, 0, 0)))
         return text
     monkeypatch.setattr(ocr, "ocr_asset_text", changed)
@@ -561,56 +563,110 @@ def test_runtime_inventory_fails_closed(tmp_path, monkeypatch, problem):
     executable.write_bytes(b"synthetic executable, never executed")
     model = tmp_path / "eng.traineddata"
     model.write_bytes(b"synthetic language data")
-    monkeypatch.setitem(sys.modules, "PIL", SimpleNamespace(__version__="stub-pillow"))
-    monkeypatch.setitem(sys.modules, "pytesseract", SimpleNamespace(
-        pytesseract=SimpleNamespace(tesseract_cmd=str(executable)),
-    ))
-    monkeypatch.setattr(ocr, "version", lambda _: "stub-pytesseract")
-    monkeypatch.setattr(ocr.shutil, "which", lambda _: None if problem == "executable" else str(executable))
+    monkeypatch.setitem(sys.modules, "PIL", SimpleNamespace(__version__="stub-pillow", __file__=str(tmp_path / "__init__.py")))
+    monkeypatch.setattr(ocr_engine.shutil, "which", lambda _: None if problem == "executable" else str(executable))
     def probe(args, **kwargs):
         assert args[1] in {"--version", "--list-langs"}
         if problem == "probe_error":
-            raise ocr.subprocess.CalledProcessError(1, args)
+            raise OSError("probe failed")
         text = f'List of available languages in "{tmp_path}" (1):\neng'
         if problem == "language":
             text = text.replace("\neng", "\nosd")
         if problem == "empty_output":
             text = ""
-        return SimpleNamespace(stdout=text if args[1] == "--list-langs" else "tesseract stub", stderr="")
-    monkeypatch.setattr(ocr.subprocess, "run", probe)
+        return SimpleNamespace(stdout=(text if args[1] == "--list-langs" else "tesseract stub").encode(), stderr=b"", returncode=0)
+    monkeypatch.setattr(ocr_engine.subprocess, "run", probe)
     if problem == "language_file":
         model.unlink()
-    with pytest.raises((RuntimeError, FileNotFoundError, ocr.subprocess.CalledProcessError)):
-        ocr.runtime()
+    with pytest.raises((RuntimeError, FileNotFoundError)):
+        ocr.runtime(OCRConfig(tessdata_dir=str(tmp_path)))
 
 
 def test_runtime_inventory_freezes_model_and_engine_bytes(tmp_path, monkeypatch):
+    monkeypatch.setattr(ocr.platform, "system", lambda: "Windows")
     executable = tmp_path / "tesseract.exe"
     executable.write_bytes(b"synthetic executable")
     model = tmp_path / "eng.traineddata"
     model.write_bytes(b"synthetic language data")
-    monkeypatch.setitem(sys.modules, "PIL", SimpleNamespace(__version__="stub-pillow"))
-    monkeypatch.setitem(sys.modules, "pytesseract", SimpleNamespace(
-        pytesseract=SimpleNamespace(tesseract_cmd=str(executable)),
-    ))
-    monkeypatch.setattr(ocr, "version", lambda _: "stub-pytesseract")
-    monkeypatch.setattr(ocr.shutil, "which", lambda _: str(executable))
-    monkeypatch.setattr(ocr.subprocess, "run", lambda args, **kwargs: SimpleNamespace(
+    (tmp_path / "runtime.dll").write_bytes(b"runtime")
+    monkeypatch.setitem(sys.modules, "PIL", SimpleNamespace(__version__="stub-pillow", __file__=str(tmp_path / "__init__.py")))
+    monkeypatch.setattr(ocr_engine.shutil, "which", lambda _: str(executable))
+    monkeypatch.setattr(ocr_engine.subprocess, "run", lambda args, **kwargs: SimpleNamespace(
         stdout=(f'List of available languages in "{tmp_path}" (1):\neng'
-                if args[1] == "--list-langs" else "tesseract stub"), stderr="",
+                if args[1] == "--list-langs" else "tesseract stub").encode(), stderr=b"", returncode=0,
     ))
-    first = ocr.runtime()
+    first = ocr.runtime(OCRConfig(tessdata_dir=str(tmp_path)))
     assert first["config"] == "--psm 7" and first["language"] == "eng"
     assert first["executable_hash"] == ocr.digest(executable.read_bytes())
     model.write_bytes(b"changed model")
-    assert ocr.runtime()["language_hash"] != first["language_hash"]
+    assert ocr.runtime(OCRConfig(tessdata_dir=str(tmp_path)))["language_hash"] != first["language_hash"]
+    (tmp_path / "runtime.dll").write_bytes(b"changed runtime")
+    assert ocr.runtime(OCRConfig(tessdata_dir=str(tmp_path)))["runtime_dlls"] != first["runtime_dlls"]
+    (tmp_path / "__init__.py").write_text("changed Pillow preprocessing")
+    assert ocr.runtime(OCRConfig(tessdata_dir=str(tmp_path)))["pillow_files"] != first["pillow_files"]
+    executable.write_bytes(b"changed executable")
+    assert ocr.runtime(OCRConfig(tessdata_dir=str(tmp_path)))["executable_hash"] != first["executable_hash"]
 
 
 async def test_ocr_recognition_failure_is_not_a_successful_plan(prepared, fake_ocr, monkeypatch):
     prepared[0].processing.ocr_images = True
     (prepared[4] / "year.png").write_bytes(png_bytes((255, 255, 255)))
     bind_source(prepared, '<img src="year.png" width="12" height="90">')
-    monkeypatch.setattr(ocr, "ocr_asset_text", lambda _: "")
+    monkeypatch.setattr(ocr, "ocr_asset_text", lambda *args: "")
     with pytest.raises(RuntimeError, match="no usable text"):
         await reprepare(prepared)
     assert not (prepared[4] / "extended.json").exists()
+
+
+@pytest.mark.parametrize("interrupted", [False, True])
+async def test_genuine_pre_cli_format2_source_free_rollback(prepared, monkeypatch, interrupted):
+    fixture = json.loads((Path(__file__).parent / "fixtures" / "maintenance_v2_pytesseract.json").read_text())
+    config, graph, original, _, root = prepared
+    config.processing.ocr_images = True
+    bind_source(prepared, fixture["source_text"])
+    plan = fixture["plan"]
+    assert plan["format"] == 2 and "ocr_engine" not in plan["provenance"]["modules"]
+    assert "ocr_backend" not in plan["provenance"]["options"]
+    assert "pytesseract" in plan["ocr"]["runtime"]["dependencies"]
+    assert local(prepared) == plan["old_local"]
+    plan["source"], plan["database"] = original["source"], original["database"]
+    plan["ocr"]["root"] = str(root)
+    plan["ocr"]["assets"][0]["path"] = str(root / "header.png")
+    plan["provenance"]["options"]["maintenance_ocr_bundle_hash"] = m.sha(plan["ocr"])
+    digest = m.sha(plan)
+    path = root / "legacy-ocr.json"
+    m.write_new(path, plan)
+    frozen = path.read_bytes()
+    case = config, graph, plan, digest, root
+    assert m.load_plan(path, digest) == plan
+    assert m.inspect(plan, digest)["plan_format"] == 2
+    with pytest.raises(ValueError, match="retain the original plan and runtime"):
+        await run(case)
+    assert not graph.events and not (root / "recovery").exists()
+    # Recreate the existing format-2 journal boundary, not a forward runtime migration.
+    binding = m.check_binding
+    with monkeypatch.context() as old_runtime:
+        old_runtime.setattr(m, "check_binding", lambda p, c: binding(p, c, forward=False))
+        async with IngestionPipeline(config)._state() as state:
+            phase, data = await m.activate(state, graph, plan, digest, root / "recovery")
+            if interrupted:
+                graph.fail = ("after_put", plan["desired_order"][0])
+                with pytest.raises(RuntimeError):
+                    await m.put_verified(state, graph, plan, digest, phase, data, plan["desired_order"][0])
+    Path(plan["source"]).unlink()
+    monkeypatch.setattr(ocr, "runtime", lambda *a: pytest.fail("Legacy rollback needs no engine"))
+    monkeypatch.setattr(ocr, "ocr_asset_text", lambda *a: pytest.fail("Legacy rollback needs no images"))
+    await run(case, "rollback")
+    assert graph.items == plan["old"]
+    assert local(case) == plan["old_local"]
+    assert path.read_bytes() == frozen and m.sha(plan) == digest
+    with closing(m.read_only(Path(plan["database"]))) as db:
+        assert db.execute("SELECT version FROM destination").fetchone()[0] == 4
+
+
+@pytest.mark.parametrize("field", ["backend", "runtime_dlls", "pillow_files", "environment"])
+async def test_cli_runtime_identity_drift_blocks_forward(with_ocr, fake_ocr, field):
+    fake_ocr[1][field] = "changed runtime evidence"
+    with pytest.raises(ValueError, match="backend|runtime"):
+        await run(with_ocr)
+    assert not any(event[0] in {"put", "delete"} for event in with_ocr[1].events)

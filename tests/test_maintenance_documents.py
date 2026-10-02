@@ -13,6 +13,7 @@ import pytest
 from sec_connector import maintenance as m
 from sec_connector.chunker import chunk_with_limit
 from sec_connector.cli import main
+from sec_connector.config import OCRConfig
 from sec_connector.models import ChunkState, DocumentInfo, FilingMetadata, FilingState
 from sec_connector.parser import parse_document
 from sec_connector.pipeline import IngestionPipeline, document_fingerprint
@@ -414,6 +415,68 @@ async def test_later_document_changes_block_rollback(multi):
     with pytest.raises(ValueError, match="Local maintenance scope drift"):
         await run(multi, "rollback")
     assert not any(e[0] in {"put", "delete"} for e in graph.events)
+
+
+async def test_non_ocr_multidocument_capture_ignores_backend_settings(multi, monkeypatch):
+    config, _, plan, _, _ = multi
+    options = deepcopy(plan["provenance"]["options"])
+    assert set(options) == {
+        "chunking", "ocr_images", "filings", "refresh_downloads", "icon_url",
+        "schema_hash", "processing_version",
+    }
+    assert options["processing_version"] == 8
+    config.processing.ocr = OCRConfig(
+        executable="unavailable-engine", tessdata_dir="missing-models", timeout_seconds=1,
+    )
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Non-OCR format3 must not resolve/capture/validate an OCR runtime")
+
+    monkeypatch.setattr(m, "captured_settings", forbidden)
+    monkeypatch.setattr(m.maintenance_ocr, "Capture", forbidden)
+    monkeypatch.setattr(m.maintenance_ocr, "validate", forbidden)
+    monkeypatch.setattr(m.maintenance_ocr, "runtime", forbidden)
+    rebuilt = await reprepare(multi)
+    assert rebuilt[2]["provenance"]["options"] == options
+    assert rebuilt[2]["documents"] == plan["documents"]
+    assert rebuilt[2]["desired"] == plan["desired"]
+    assert "ocr" not in rebuilt[2] and "source" not in rebuilt[2]
+    assert await run(rebuilt) == "completed"
+    assert await run(rebuilt, "rollback") == "rolled_back"
+    assert local(rebuilt) == plan["old_local"]
+
+
+@pytest.mark.parametrize("interrupted", [False, True])
+async def test_pre_backend_format3_drift_and_source_free_rollback(multi, monkeypatch, interrupted):
+    config, graph, original, _, root = multi
+    # Simulate the retained pre-backend runtime at prepare/activation, never
+    # rewrite the digest or provenance of an activated operation.
+    inherited = deepcopy(original["provenance"])
+    inherited["modules"].pop("ocr_engine")
+    inherited["modules"]["maintenance"] = "pre-backend-maintenance-module"
+    with monkeypatch.context() as patch:
+        patch.setattr(m, "provenance", lambda _: deepcopy(inherited))
+        case = await reprepare(multi)
+        plan, digest = case[2:4]
+        frozen = (root / "second-multi.json").read_bytes()
+        if interrupted:
+            graph.fail = ("after_put", ids_for(plan, 2)[0])
+            with pytest.raises(RuntimeError):
+                await run(case)
+        else:
+            await run(case)
+    graph.events.clear()
+    assert m.inspect(plan, digest)["plan_format"] == 3
+    with pytest.raises(ValueError, match="retain the original plan and runtime"):
+        await run(case, "resume")
+    assert not graph.events
+    for entry in plan["documents"]:
+        Path(entry["source"]).unlink()
+    other = remote_unrelated(case)
+    assert await run(case, "rollback") == "rolled_back"
+    assert local(case) == plan["old_local"] and graph.items == {**other, **plan["old"]}
+    assert (root / "second-multi.json").read_bytes() == frozen
+    assert m.load_plan(root / "second-multi.json", digest) == plan
 
 
 @pytest.mark.parametrize("problem", [

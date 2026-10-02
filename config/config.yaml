@@ -31,6 +31,10 @@ processing:
   concurrent_downloads: 5
   batch_size: 20
   ocr_images: false  # Enable explicitly after installing OCR prerequisites
+  ocr:
+    executable: tesseract  # Prefer an approved absolute native executable path
+    tessdata_dir: null  # Defaults to the executable's adjacent tessdata directory
+    timeout_seconds: 60
 
 sync:
   refresh_downloads: true

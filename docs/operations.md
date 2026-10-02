@@ -260,15 +260,51 @@ also leave gaps.
 
 OCR is opt-in for local image assets, not an automatic PDF/image ingestion service:
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install ".[ocr]"
-# Install Tesseract separately, put it on PATH, and supply the referenced local assets.
-.\.venv\Scripts\sec-connector.exe -c .\config\config.yaml ingest -t AAPL --ocr --no-prune
+```yaml
+processing:
+  ocr_images: true
+  ocr:
+    executable: 'C:\ApprovedTools\Tesseract\tesseract.exe'
+    tessdata_dir: 'C:\ApprovedTools\Tesseract\tessdata'
+    timeout_seconds: 60
 ```
 
-The parser downloads neither OCR models nor images. Missing OCR prerequisites or
-referenced assets fail explicitly. An in-flight filing needs explicit reprocessing
-to change its captured OCR choice.
+The backend is **direct Tesseract + Pillow**, not pytesseract. Pillow retains the
+existing clockwise rotation and integer LANCZOS enlargement; unprocessed rotated
+JPEGs did not pass the bounded acceptance case. The native deployment needs its
+approved runtime DLLs (including Leptonica/image-codec dependencies) and
+`eng.traineddata`, not just `tesseract.exe`. Omit `tessdata_dir` only when the
+model lives in the executable's adjacent `tessdata` folder. Use absolute paths.
+Recognition is fixed to English/PSM 7, with a positive per-call timeout up to 300 seconds
+(default 60), argument arrays/no shell, isolated temporary PNG cleanup and an
+explicit environment. Nonzero exit, stderr diagnostics even with exit zero,
+missing model/engine, empty text and timeout fail rather than silently skipping.
+
+**Offline customer distribution:** deliver the connector and all Python
+dependencies, including a compatible approved Pillow wheel, through the
+customer's approved wheelhouse/package feed. A private source-code Git repository
+does not itself supply Python packages or native OCR dependencies. For example,
+with an already approved complete wheelhouse containing the connector wheel:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install --no-index --find-links C:\ApprovedWheelhouse "sec-connector[ocr]"
+```
+
+Provision and integrity-check the native bundle separately under the customer's
+software policy; preserve its license notices and runtime/model hashes. Do not
+substitute mirrors or disable TLS controls when package hosts are blocked.
+No installation or model/image downloading happens at runtime. Frozen maintenance
+OCR currently supports a bundled Windows engine; arbitrary Linux/macOS shared
+library provenance is not certified. Ordinary OCR can use a separately provisioned
+engine on other platforms, but has not received this real-engine acceptance.
+
+Unprepared legacy OCR generations require their original runtime or explicit
+scoped reprocessing; they are not silently assigned the new backend. Already
+prepared payloads replay without OCR. New OCR generations bypass the HTML-only
+parse cache because it cannot certify changing image/model bytes. Non-OCR cache
+identity and processing v8 outputs are unchanged. See
+[maintenance compatibility](maintenance.md#existing-plans-and-version-boundaries)
+before upgrading an in-flight maintenance operation.
 
 ## Troubleshooting
 

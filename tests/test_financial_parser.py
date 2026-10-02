@@ -421,10 +421,7 @@ def test_local_ocr_uses_only_predownloaded_asset(tmp_path, filing, document, mon
         return Image()
 
     monkeypatch.setitem(sys.modules, "PIL", SimpleNamespace(Image=SimpleNamespace(open=image_open)))
-    monkeypatch.setitem(
-        sys.modules, "pytesseract",
-        SimpleNamespace(image_to_string=lambda image, config: label),
-    )
+    monkeypatch.setattr("sec_connector.parser.image_to_text", lambda image, settings: label)
     assert parse_document(path, filing, document, ocr_images=True).content == label
     assert opened == [tmp_path / "header.jpg"]
 
@@ -432,7 +429,7 @@ def test_local_ocr_uses_only_predownloaded_asset(tmp_path, filing, document, mon
 def test_requested_ocr_missing_dependencies_fails(tmp_path, monkeypatch):
     (tmp_path / "header.jpg").write_bytes(b"synthetic")
     monkeypatch.setitem(sys.modules, "PIL", None)
-    with pytest.raises(RuntimeError, match="Pillow, pytesseract"):
+    with pytest.raises(RuntimeError, match="Pillow"):
         html_to_markdown(
             '<img src="header.jpg" width="12" height="90">', local_image_dir=tmp_path,
         )

@@ -16,6 +16,7 @@ from .parser import parse_document
 from .sec_client import SECClient
 from .state_manager import StateManager, scoped_database_path
 from .utils import console, get_logger
+from .ocr_engine import captured_options, captured_settings
 
 logger = get_logger("pipeline")
 PROCESSING_VERSION = 8
@@ -105,7 +106,7 @@ class IngestionPipeline:
         }
 
     def _processing_options(self) -> dict:
-        return {
+        options = {
             "chunking": self.config.chunking.model_dump(),
             "ocr_images": self.config.processing.ocr_images,
             "filings": self.config.filings.model_dump(mode="json"),
@@ -116,6 +117,9 @@ class IngestionPipeline:
             ).hexdigest(),
             "processing_version": PROCESSING_VERSION,
         }
+        if self.config.processing.ocr_images:
+            options["ocr_backend"] = captured_options(self.config.processing.ocr)
+        return options
 
     async def ingest(
         self, tickers: list[str], max_filings: Optional[int] = None,
@@ -228,6 +232,7 @@ class IngestionPipeline:
             raise RuntimeError("Restore the pending filing's captured schema before preparing more documents")
         chunking = ChunkingConfig.model_validate(record.processing_options["chunking"])
         ocr_images = record.processing_options["ocr_images"]
+        ocr_settings = captured_settings(record.processing_options.get("ocr_backend", {})) if ocr_images else None
         if chunking != self.config.chunking or ocr_images != self.config.processing.ocr_images:
             logger.warning(
                 "Filing %s resumes with captured chunking/OCR settings, not the current configuration",
@@ -263,10 +268,15 @@ class IngestionPipeline:
                 fingerprint = document_fingerprint(
                     digest, filing, document, record.processing_options, remaining,
                 )
-                payloads = await state.cached_payloads(filing_id, document.filename, fingerprint)
+                # HTML-only cache keys cannot certify image/model bytes. Prepared manifests
+                # still replay above, but a new OCR generation must recognize current assets.
+                payloads = None if ocr_images else await state.cached_payloads(
+                    filing_id, document.filename, fingerprint,
+                )
                 if payloads is None:
                     parsed = await asyncio.to_thread(
                         parse_document, path, filing, document, ocr_images=ocr_images,
+                        **({"ocr_settings": ocr_settings} if ocr_images else {}),
                     )
                     if parsed is None:
                         raise ValueError(f"Document did not produce usable content: {document.filename}")

@@ -2,19 +2,17 @@
 
 import base64
 import hashlib
-from importlib.metadata import version
 from io import BytesIO
-import os
 from pathlib import Path, PureWindowsPath
 import platform
-import re
-import shutil
 import stat
-import subprocess
 import sys
+import tempfile
 from urllib.parse import unquote, urlsplit
 
 from .parser import ocr_asset_text
+from .config import OCRConfig
+from . import ocr_engine
 
 
 def digest(raw: bytes) -> str:
@@ -48,46 +46,54 @@ def asset_path(root: Path, src: str) -> Path:
     return asset
 
 
-def runtime() -> dict:
+def runtime(settings: OCRConfig | None = None) -> dict:
     """Identify the actual default-English engine/model, never run recognition."""
     try:
         import PIL
-        import pytesseract
     except ImportError as exc:
-        raise RuntimeError("Maintenance OCR requires installed Pillow, pytesseract and Tesseract") from exc
-    executable = shutil.which(pytesseract.pytesseract.tesseract_cmd)
-    if executable is None:
-        raise RuntimeError("Maintenance OCR requires an available local Tesseract executable")
-    executable = Path(executable).resolve()
-
-    def info(arg):
-        result = subprocess.run(
-            [str(executable), arg], capture_output=True, text=True, check=True, timeout=15,
+        raise RuntimeError("Maintenance OCR requires installed Pillow and Tesseract") from exc
+    settings = settings or OCRConfig()
+    executable, directory = ocr_engine.resolve(settings)
+    regular_file(executable)
+    model = regular_file(directory / "eng.traineddata")
+    with tempfile.TemporaryDirectory(prefix="sec-ocr-probe-") as temporary:
+        engine = ocr_engine.run(executable, directory, ["--version"], settings, temporary)
+        languages = ocr_engine.run(
+            executable, directory, ["--list-langs", "--tessdata-dir", str(directory)], settings, temporary,
         )
-        return (result.stdout + result.stderr).strip()
-
-    engine = info("--version")
-    languages = info("--list-langs")
-    match = re.search(r'List of available languages in "([^"]+)"', languages)
-    if match is None or "eng" not in languages.splitlines():
-        raise RuntimeError("Cannot bind Tesseract's default eng language data; no OCR plan was prepared")
-    model = regular_file(Path(match.group(1)) / "eng.traineddata")
+    engine = (engine.stdout + engine.stderr).decode("utf-8", errors="strict").strip()
+    languages = (languages.stdout + languages.stderr).decode("utf-8", errors="strict").strip()
+    if "eng" not in languages.splitlines():
+        raise RuntimeError("Cannot bind Tesseract's English language data; no OCR plan was prepared")
+    if platform.system() != "Windows":
+        raise RuntimeError("Maintenance OCR runtime capture currently requires a bundled Windows engine")
+    libraries = {p.name: digest(regular_file(p).read_bytes()) for p in sorted(executable.parent.glob("*.dll"))}
+    if not libraries:
+        raise RuntimeError("Maintenance OCR requires an approved engine bundle including its runtime DLLs")
     return {
+        "backend": ocr_engine.BACKEND, "settings": settings.model_dump(),
         "python": sys.version, "platform": platform.platform(),
-        "dependencies": {"Pillow": PIL.__version__, "pytesseract": version("pytesseract")},
+        "dependencies": {"Pillow": PIL.__version__},
+        "pillow_files": {
+            str(p.relative_to(Path(PIL.__file__).parent)): digest(regular_file(p).read_bytes())
+            for p in sorted(Path(PIL.__file__).parent.rglob("*"))
+            if p.suffix.lower() in {".py", ".pyd", ".dll"}
+        },
         "executable": str(executable), "executable_hash": digest(executable.read_bytes()),
+        "runtime_dlls": libraries,
         "engine_version": engine, "languages": languages,
         "language": "eng", "language_file": str(model), "language_hash": digest(model.read_bytes()),
         "config": "--psm 7", "rotation": -90, "minimum_height": 100,
         "upscale_minimum": 3, "resampling": "LANCZOS",
-        "environment": {key: os.environ.get(key) for key in ("TESSDATA_PREFIX", "OMP_THREAD_LIMIT")},
+        "environment": ocr_engine.environment(executable, directory, "<private-per-call-directory>"),
     }
 
 
 class Capture:
     """Called at the production parser's image replacement point, in source order."""
 
-    def __init__(self, source: Path):
+    def __init__(self, source: Path, settings: OCRConfig | None = None):
+        self.settings = settings or OCRConfig()
         self.bundle = {"root": str(source.parent), "runtime": None, "assets": []}
 
     def resolve(self, src: str, resolved: Path) -> str:
@@ -96,8 +102,8 @@ class Capture:
             raise ValueError("OCR asset resolution differs from the production parser")
         raw = asset.read_bytes()
         if self.bundle["runtime"] is None:
-            self.bundle["runtime"] = runtime()
-        text = ocr_asset_text(BytesIO(raw))
+            self.bundle["runtime"] = runtime(self.settings)
+        text = ocr_asset_text(BytesIO(raw), self.settings)
         if not isinstance(text, str) or not text.strip():
             raise ValueError("OCR returned no usable text")
         self.bundle["assets"].append({
@@ -107,7 +113,7 @@ class Capture:
         return text
 
 
-def validate(bundle: dict, source: Path, *, forward: bool) -> None:
+def validate(bundle: dict, source: Path, *, forward: bool, settings: OCRConfig | None = None) -> None:
     if bundle["root"] != str(source.parent):
         raise ValueError("OCR bundle root mismatch")
     if bool(bundle["assets"]) != (bundle["runtime"] is not None):
@@ -120,5 +126,8 @@ def validate(bundle: dict, source: Path, *, forward: bool) -> None:
             asset = asset_path(source.parent, entry["src"])
             if str(asset) != entry["path"] or digest(asset.read_bytes()) != entry["sha256"]:
                 raise ValueError("OCR asset drift")
-    if forward and bundle["runtime"] is not None and runtime() != bundle["runtime"]:
-        raise ValueError("OCR runtime/language/settings drift; retain the prepared runtime")
+    if forward and bundle["runtime"] is not None:
+        if bundle["runtime"].get("backend") != ocr_engine.BACKEND:
+            raise ValueError("Legacy or unknown OCR backend; retain the prepared runtime for forward recovery")
+        if runtime(settings) != bundle["runtime"]:
+            raise ValueError("OCR runtime/language/settings drift; retain the prepared runtime")
