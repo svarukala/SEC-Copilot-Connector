@@ -28,6 +28,10 @@ tickers.
 > Upload acknowledgment does not guarantee immediate search visibility or
 > accurate Copilot answers.
 
+For baseline investigation without ingestion or repairs, use the standalone
+[read-only diagnostics and report comparison](docs/diagnostics.md). Offline
+mode needs only the Python standard library; optional Graph checks are GET-only.
+
 ## 1. Prepare your environment
 
 You need Git, Python 3.10+ (3.11 or 3.12 recommended), outbound HTTPS access to SEC

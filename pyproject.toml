@@ -40,6 +40,7 @@ dev = [
 
 [project.scripts]
 sec-connector = "sec_connector.cli:main"
+sec-diagnostics = "sec_connector.diagnostics:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/sec_connector"]
