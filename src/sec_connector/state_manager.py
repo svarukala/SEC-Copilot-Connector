@@ -3,6 +3,8 @@
 import hashlib
 import json
 import os
+import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import BinaryIO, Optional
 
@@ -10,6 +12,35 @@ import aiosqlite
 
 from .models import ChunkRecord, ChunkState, DocumentInfo, FilingMetadata, FilingRecord, FilingState
 from .payloads import payload_hash
+
+
+def check_state_access(db_path: Path, identity: tuple[str, str], *, maintenance: bool = False) -> None:
+    """Reject incompatible or guarded state without opening it for writing."""
+    if not db_path.exists():
+        if maintenance:
+            raise RuntimeError("Maintenance requires an existing destination database")
+        return
+    with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as db:
+        tables = {r[0] for r in db.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
+        )}
+        if "destination" not in tables:
+            if tables or maintenance:
+                raise RuntimeError("Unscoped legacy state; automatic destination adoption is unsafe")
+            return
+        rows = db.execute("SELECT tenant_id, connection_id, version FROM destination").fetchall()
+        row = rows[0] if len(rows) == 1 else None
+        versions = (3, 4) if maintenance else (1, 2, 3, 4)
+        if not row or row[:2] != identity or row[2] not in versions:
+            raise RuntimeError("State destination or format does not match this connector")
+        if row[2] == 4:
+            active = db.execute(
+                "SELECT digest FROM maintenance_operations WHERE phase NOT IN ('completed', 'rolled_back')"
+            ).fetchall()
+            if active and not maintenance:
+                raise RuntimeError(
+                    "Unfinished maintenance: use maintenance inspect/resume/rollback, not normal commands"
+                )
 
 
 def scoped_database_path(base: Path, tenant_id: str, connection_id: str) -> Path:
@@ -24,13 +55,14 @@ def scoped_database_path(base: Path, tenant_id: str, connection_id: str) -> Path
 class StateManager:
     """Own one destination's state and an OS-released exclusive run lock."""
 
-    def __init__(self, db_path: Path, tenant_id: str, connection_id: str):
+    def __init__(self, db_path: Path, tenant_id: str, connection_id: str, *, maintenance: bool = False):
         if not tenant_id.strip() or not connection_id.strip():
             raise ValueError("A state destination requires both tenant_id and connection_id")
         self.db_path = db_path
         self.identity = (tenant_id.lower(), connection_id)
         self._db: Optional[aiosqlite.Connection] = None
         self._lock: Optional[BinaryIO] = None
+        self.maintenance = maintenance
 
     def _acquire_lock(self) -> None:
         lock = self.db_path.with_suffix(self.db_path.suffix + ".lock").open("a+b")
@@ -51,6 +83,7 @@ class StateManager:
         self._lock = lock
 
     async def __aenter__(self) -> "StateManager":
+        check_state_access(self.db_path, self.identity, maintenance=self.maintenance)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._acquire_lock()
         try:
@@ -74,6 +107,9 @@ class StateManager:
                 self._lock = None
 
     async def _init_schema(self) -> None:
+        check_state_access(self.db_path, self.identity, maintenance=self.maintenance)
+        if self.maintenance:
+            return
         cursor = await self._db.execute(
             "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
         )
@@ -87,7 +123,7 @@ class StateManager:
         if "destination" in tables:
             cursor = await self._db.execute("SELECT tenant_id, connection_id, version FROM destination")
             row = await cursor.fetchone()
-            if not row or (row["tenant_id"], row["connection_id"]) != self.identity or row["version"] not in (1, 2, 3):
+            if not row or (row["tenant_id"], row["connection_id"]) != self.identity or row["version"] not in (1, 2, 3, 4):
                 raise RuntimeError("State destination or format does not match this connector")
             version = row["version"]
 

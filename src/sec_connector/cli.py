@@ -1,6 +1,7 @@
 """Click-based CLI for SEC Connector."""
 
 import asyncio
+import json
 import re
 import sys
 from pathlib import Path
@@ -13,6 +14,7 @@ from rich.table import Table
 from .config import load_config, ensure_directories
 from .pipeline import IngestionPipeline
 from .utils import setup_logging
+from .state_manager import check_state_access, scoped_database_path
 
 console = Console()
 
@@ -74,9 +76,14 @@ def main(ctx, config: Optional[str], connection_id: Optional[str], verbose: bool
     ctx.obj["verbose"] = verbose
     ctx.obj["connection_id_override"] = connection_id
 
-    ensure_directories(ctx.obj["config"])
-    log_dir = Path(ctx.obj["config"].paths.logs)
-    setup_logging(log_dir, verbose)
+
+def initialize_logging(config, verbose):
+    check_state_access(
+        scoped_database_path(Path(config.paths.database), config.azure.tenant_id, config.azure.connection_id),
+        (config.azure.tenant_id.lower(), config.azure.connection_id),
+    )
+    ensure_directories(config)
+    setup_logging(Path(config.paths.logs), verbose)
 
 
 def apply_connection_config(config, connection_id: Optional[str] = None, connection_name: Optional[str] = None) -> None:
@@ -124,6 +131,7 @@ def setup(ctx, connection_id: Optional[str], connection_name: Optional[str]):
     pipeline = IngestionPipeline(config)
 
     try:
+        initialize_logging(config, ctx.obj["verbose"])
         run_async(pipeline.setup())
     except Exception as e:
         console.print(f"[bold red]Setup failed: {e}[/]")
@@ -184,6 +192,7 @@ def ingest(ctx, tickers: str, connection_id: Optional[str], connection_name: Opt
     pipeline = IngestionPipeline(config, test_mode=test, save_payloads=save_payloads)
 
     try:
+        initialize_logging(config, ctx.obj["verbose"])
         stats = run_async(pipeline.ingest(
             tickers=ticker_list,
             max_filings=max_filings,
@@ -229,6 +238,7 @@ def resume(ctx, connection_id: Optional[str], connection_name: Optional[str], sa
     pipeline = IngestionPipeline(config, save_payloads=save_payloads)
 
     try:
+        initialize_logging(config, ctx.obj["verbose"])
         stats = run_async(pipeline.resume())
 
         console.print("\n[bold]Resume Results:[/]")
@@ -262,6 +272,7 @@ def status(ctx, connection_id: Optional[str]):
     pipeline = IngestionPipeline(config)
 
     try:
+        initialize_logging(config, ctx.obj["verbose"])
         stats = run_async(pipeline.status())
 
         console.print("\n[bold]Processing Status:[/]")
@@ -316,6 +327,7 @@ def reset(ctx, connection_id: Optional[str]):
     pipeline = IngestionPipeline(config)
 
     try:
+        initialize_logging(config, ctx.obj["verbose"])
         run_async(pipeline.reset())
     except Exception as e:
         console.print(f"[bold red]Reset failed: {e}[/]")
@@ -351,6 +363,97 @@ def _print_stats(stats: dict) -> None:
         console.print("\n[yellow]Some errors occurred. Check logs for details.[/]")
     else:
         console.print("\n[green]Run finished without processing errors. Sampled filings are not full coverage.[/]")
+
+
+@main.group()
+def maintenance():
+    """Provisional exact-document upgrades; quiesce ALL writers before applying.
+
+    Prepare/inspect do not mutate Graph or source state. Apply promotes SQLite
+    format 3 to 4 permanently (separate from processing version 8). Old clients
+    cannot reopen it, even after rollback. Normal resume is not maintenance
+    recovery. See docs/maintenance.md before authorizing any live writes.
+    """
+
+
+def maintenance_config(ctx):
+    config = ctx.obj["config"]
+    override = ctx.obj.get("connection_id_override")
+    if override:
+        config.azure.connection_id = override
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9]{2,31}", config.azure.connection_id):
+        raise click.ClickException("Maintenance requires an exact alphanumeric connection ID")
+    return config
+
+
+@maintenance.command("prepare")
+@click.option("--cik", required=True)
+@click.option("--accession", required=True)
+@click.option("--filename", required=True)
+@click.option("--sequence", type=click.IntRange(min=1), required=True)
+@click.option("--source", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+@click.option("--out", type=click.Path(dir_okay=False, path_type=Path), required=True)
+@click.pass_context
+def maintenance_prepare(ctx, cik, accession, filename, sequence, source, out):
+    """Freeze a new private plan from one completed cached document; GET only."""
+    from .maintenance import MaintenanceGraphClient, prepare
+    config = maintenance_config(ctx)
+    require_graph_credentials(config)
+
+    async def run():
+        async with MaintenanceGraphClient(config) as graph:
+            return await prepare(config, graph, cik=cik, accession=accession, filename=filename,
+                                 sequence=sequence, source=source, output=out)
+    try:
+        click.echo(f"Reviewed plan digest: {run_async(run())}")
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
+@maintenance.command("inspect")
+@click.option("--plan", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+@click.option("--plan-digest", required=True)
+def maintenance_inspect(plan, plan_digest):
+    """Read frozen scope/checkpoints without authentication, locks or migration."""
+    from .maintenance import inspect, load_plan
+    try:
+        click.echo(json.dumps(inspect(load_plan(plan, plan_digest), plan_digest), indent=2))
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
+def register_maintenance_action(action):
+    @maintenance.command(action)
+    @click.option("--plan", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+    @click.option("--plan-digest", required=True, help="Digest printed by prepare; review before authorizing.")
+    @click.option("--maintenance-ack", is_flag=True, required=True,
+                  help="All local/scheduled/other-machine writers are quiesced; authorize scoped Graph writes.")
+    @click.option("--recovery-dir", type=click.Path(file_okay=False, path_type=Path),
+                  help="Required new private directory for apply; retained for all recovery.")
+    @click.pass_context
+    def command(ctx, plan, plan_digest, maintenance_ack, recovery_dir):
+        from .maintenance import MaintenanceGraphClient, execute, load_plan
+        config = maintenance_config(ctx)
+        require_graph_credentials(config)
+
+        async def run():
+            frozen = load_plan(plan, plan_digest)
+            async with MaintenanceGraphClient(config) as graph:
+                return await execute(config, graph, frozen, plan_digest, action,
+                                     acknowledged=maintenance_ack, recovery=recovery_dir)
+        try:
+            click.echo(run_async(run()))
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
+    command.help = {
+        "apply": "Authorize a reviewed plan, capture recovery, then overwrite/verify/retire exact IDs.",
+        "resume": "Continue the same guarded forward operation; never reparse or use normal resume.",
+        "rollback": "Restore and verify old Graph items FIRST, then remove owned new IDs and restore scoped rows. Repeat to resume rollback.",
+    }[action]
+
+
+for _action in ("apply", "resume", "rollback"):
+    register_maintenance_action(_action)
 
 
 if __name__ == "__main__":
