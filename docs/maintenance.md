@@ -387,7 +387,7 @@ With this extension the full offline suite passed **713 tests**, with four
 existing private-corpus opt-ins skipped. Validation used a worktree-local Python
 environment and explicit `PYTHONPATH` to this source, not an older installed CLI.
 
-### Future real-engine acceptance case (not run)
+### Real-engine acceptance case (blocked; source independently checked)
 
 The coordinating customer-worksheet review reported an OCR-dependent case in
 PNC's 2025 proxy, `d889589ddef14a.htm`, accession `0001193125-25-052937`, printed
@@ -396,8 +396,63 @@ markers, while all 13 director-name headers are narrow rotated JPEGs with
 `alt="LOGO"` and remain `[rotated text]` with v8/OCR disabled. A separately
 authorized pilot should verify the actual engine's director-name recognition,
 column ordering, and association of the six markers with the correct names.
-Neither provenance capture nor synthetic tests establish that result; this
-source was not accessed or processed for this extension.
+Neither provenance capture nor synthetic tests establish that result.
+
+A subsequent, explicitly authorized read-only check on October 2, 2026 copied
+the exact cached HTML into private session artifacts and downloaded **only its
+13 referenced JPEGs** from the public SEC archive, using an identifying
+User-Agent and one request per second. The original source's SHA-256 was
+`a78e444a6885c182f38288900af321092d2323edfadc96a16e1b9f010cba5d00`;
+its bytes and modification time were unchanged. Images and source content were
+not committed to the repository.
+
+Independent visual reading of a clockwise-rotated contact sheet, **before any
+OCR execution**, established the following image/header order. The HTML
+rowspan-aware source grid independently established the marked columns:
+
+| Director column | Visible source header | Charity marker |
+|---|---|---|
+| 1 | Joseph Alvarado | No |
+| 2 | Debra A. Cafaro | Yes |
+| 3 | Marjorie Rodgers Cheshire | No |
+| 4 | Douglas A. Dachille | No |
+| 5 | William S. Demchak | Yes |
+| 6 | Andrew T. Feldstein | Yes |
+| 7 | Richard J. Harshman | Yes |
+| 8 | Daniel R. Hesse | Yes |
+| 9 | Renu Khator | No |
+| 10 | Linda R. Medler | No |
+| 11 | Robert A. Niblock | No |
+| 12 | Martin Pfinsgraff | No |
+| 13 | Bryan Salesky | Yes |
+
+The current parser/chunker, run without OCR on the exact table excerpt,
+preserved six markers in columns **2, 5, 6, 7, 8, 13**, but emitted
+**13 `[rotated text]` headers**. This verifies the input and non-OCR symptom;
+it does not measure OCR accuracy or establish a customer fix.
+
+**Real-engine execution remains blocked.** The user subsequently approved
+session-local PyPI Pillow/pytesseract wheels and the official-documentation-linked
+UB Mannheim engine, but not additional extraction binaries. The Tesseract
+5.4.0.20240606 installer was downloaded from the UB Mannheim GitHub release and
+verified against the winget SHA-256
+`c885fff6998e0608ba4bb8ab51436e1c6775c2bafc2559a19b423e18678b60c9`.
+It was **not executed**. Two acquisition requirements remain:
+
+| Requirement | Observed blocker |
+|---|---|
+| Extract engine without installation | No existing `7z`/`7za` was found in PATH/standard locations. Windows `tar` rejects this NSIS archive as an unrecognized format. Additional extraction tooling requires approval or an existing approved extractor. |
+| Install approved OCR wheels in the isolated environment | PyPI metadata is reachable, but `files.pythonhosted.org` wheel retrieval fails TLS negotiation with pip/OpenSSL, PowerShell HTTPS and Windows curl/Schannel. No certificate checks were disabled, mirrors substituted or access controls bypassed. Approved wheel delivery or network remediation is required. |
+
+The supplied connector environment cannot import Pillow; a separate base Python
+installation has Pillow but no pytesseract. No OCR dependencies were installed
+in any environment. No installer, registry, system PATH or shared environment
+was changed. Private source/image hashes, the independent visual reference,
+verified installer, exact requested wheel URLs/hashes, empty isolated environment
+and comparison script are retained. Once both acquisition requirements are
+resolved, compare all 13 names and all six marked columns through the actual
+parser/chunker before claiming bounded acceptance. No code, processing version,
+plan format or recovery contract changed during this follow-up.
 
 Do not conflate that case with the reported PNC 2023 10-K, printed page 36,
 **9.64% CAGR** disclosure: the coordinating review identified it as an HTML
