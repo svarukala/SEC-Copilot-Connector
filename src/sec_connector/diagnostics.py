@@ -61,10 +61,14 @@ class DiagnosticError(Exception):
     """Only fixed, non-sensitive error codes belong in this exception."""
 
 
-def digest(value):
-    return hashlib.sha256(json.dumps(
+def canonical(value):
+    return json.dumps(
         value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
-    ).encode("utf-8")).hexdigest()
+    )
+
+
+def digest(value):
+    return hashlib.sha256(canonical(value).encode("utf-8")).hexdigest()
 
 
 def payload_digest(payload):
@@ -150,7 +154,9 @@ def normalize_schema(schema):
 def runtime_info(root, schema):
     files = {}
     for name in ("parser.py", "chunker.py", "models.py", "graph_client.py", "payloads.py",
-                 "pipeline.py", "config.py", "utils.py"):
+                 "pipeline.py", "config.py", "utils.py", "ocr_engine.py", "maintenance.py",
+                 "maintenance_documents.py", "state_manager.py", "sec_client.py", "cli.py",
+                 "sample_upload.py", "pilot_upload.py"):
         path = root / name
         files[name] = file_digest(path) if path.is_file() else None
     if not files["pipeline.py"]:
@@ -452,10 +458,11 @@ def compare_remote(expected, actual):
     if not isinstance(props, dict) or not isinstance(acl, list) or any(not isinstance(a, dict) for a in acl):
         raise DiagnosticError("invalid_remote_item")
     return {
-        "id_matches": actual.get("id") == expected["id"],
-        "content_matches": actual.get("content") == expected["content"],
-        "expected_properties_match": all(k in props and props[k] == v for k, v in expected["properties"].items()),
-        "acl_matches": sorted(acl, key=digest) == sorted(expected["acl"], key=digest),
+        "id_matches": canonical(actual.get("id")) == canonical(expected["id"]),
+        "content_matches": canonical(actual.get("content")) == canonical(expected["content"]),
+        "expected_properties_match": all(
+            k in props and canonical(props[k]) == canonical(v) for k, v in expected["properties"].items()),
+        "acl_matches": canonical(sorted(acl, key=digest)) == canonical(sorted(expected["acl"], key=digest)),
         "extra_property_names": sorted(set(props) - set(expected["properties"])),
         "extra_top_level_names": sorted(set(actual) - {"id", "content", "properties", "acl"}
                                        - {key for key in actual if key.startswith("@odata.")}),
@@ -498,9 +505,9 @@ def remote_report(args, selected, tenant, schema):
                 output["status"] = "incomplete"
                 return output
             receipt["normalized_sha256"] = digest(actual)
-            receipt["matches_selected_schema"] = actual == desired
+            receipt["matches_selected_schema"] = canonical(actual) == canonical(desired)
             receipt["extra_property_names"] = sorted(set(actual["properties"]) - set(desired["properties"]))
-            if actual != desired:
+            if not receipt["matches_selected_schema"]:
                 output["issues"].append("remote_schema_drift")
     for item_id in ids:
         receipt = graph_get(base + "/items/" + urllib.parse.quote(item_id, safe=""), token)
@@ -619,7 +626,7 @@ def complete_report(report):
 
 def compare_reports(before, after):
     left, right = report_projections(before), report_projections(after)
-    categories = {name: {"changed": left[name] != right[name],
+    categories = {name: {"changed": canonical(left[name]) != canonical(right[name]),
                          "before_sha256": digest(left[name]), "after_sha256": digest(right[name])}
                   for name in left}
     incomplete = not all(complete_report(report) for report in (before, after))

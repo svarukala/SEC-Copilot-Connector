@@ -145,6 +145,8 @@ omitted false flags, and OData metadata. Refinability and unknown definition
 fields participate in drift detection. Extra remote properties are explicit
 findings, not silently ignored. Item comparisons normalize ACL entry order,
 but preserve content, property values, and property-array order exactly.
+Canonical JSON comparisons distinguish booleans from numbers and integers from
+floating-point values, including nested fields (`true`, `1`, and `1.0` differ).
 
 ## Offline report comparison
 
@@ -193,6 +195,12 @@ The selected code root is operator-supplied. Dependency versions and hashed
 necessarily that selected tree, nor the interpreter that produced historical
 payloads. OCR package versions are included, but the external OCR engine is
 never invoked and its version is not verified. Raw provenance URLs are omitted.
+Code hashes include the optional `ocr_engine.py`, maintenance modules, state,
+source client, CLI, and sample/pilot upload modules as well as parsing and
+payload-generation modules. Missing modules are explicitly `null`, so older
+code trees remain inspectable without requiring the newer OCR/maintenance files.
+An added hash field can produce a runtime difference against an earlier report;
+this is expanded diagnostic coverage, not proof the installed code changed.
 
 `[rotated text]` counts and remaining Markdown image references identify possible
 unresolved image content. An image reference can be intentional; this diagnostic

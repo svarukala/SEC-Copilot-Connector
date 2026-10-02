@@ -304,6 +304,44 @@ class DiagnosticsTests(unittest.TestCase):
             self.assertEqual(self.cli(), 2)
         self.assertNotIn("SECRET_SENTINEL", self.args.out.read_text())
 
+    def test_optional_runtime_modules_detect_backend_and_maintenance_drift(self):
+        root = self.root / "synthetic-code"
+        root.mkdir()
+        for source in self.args.code_root.glob("*.py"):
+            (root / source.name).write_bytes(source.read_bytes())
+        backend = root / "ocr_engine.py"
+        backend.write_text('OCR_ARGS = ["--psm", "7"]\n', encoding="utf-8")
+        before = diag.runtime_info(root, self.schema)
+        backend.write_text('OCR_ARGS = ["--psm", "6"]\n', encoding="utf-8")
+        after = diag.runtime_info(root, self.schema)
+        self.assertNotEqual(before, after)
+        self.assertNotEqual(before["code_sha256"]["ocr_engine.py"], after["code_sha256"]["ocr_engine.py"])
+        report = self.collect()
+        changed = copy.deepcopy(report)
+        report["runtime"], changed["runtime"] = before, after
+        self.assertTrue(diag.compare_reports(report, changed)["categories"]["runtime"]["changed"])
+        for name in ("maintenance.py", "maintenance_documents.py"):
+            module = root / name
+            module.write_text("PLAN_FORMAT = 3\n", encoding="utf-8")
+            before = diag.runtime_info(root, self.schema)
+            module.write_text("PLAN_FORMAT = 4\n", encoding="utf-8")
+            after = diag.runtime_info(root, self.schema)
+            self.assertNotEqual(before["code_sha256"][name], after["code_sha256"][name])
+
+    def test_older_runtime_tree_reports_missing_optional_modules(self):
+        root = self.root / "old-code"
+        root.mkdir()
+        (root / "pipeline.py").write_text("PROCESSING_VERSION = 3\n", encoding="utf-8")
+        runtime = diag.runtime_info(root, self.schema)
+        self.assertEqual(runtime["processing_version"], 3)
+        for name in ("ocr_engine.py", "maintenance.py", "maintenance_documents.py"):
+            self.assertIn(name, runtime["code_sha256"])
+            self.assertIsNone(runtime["code_sha256"][name])
+        with patch.object(diag.urllib.request, "build_opener", side_effect=AssertionError("network")):
+            local, _, _ = diag.read_local(self.args, runtime)
+        self.assertEqual(len(local["documents"]), 2)
+        self.assertFalse(local["documents"][0]["stored_version_matches_runtime"])
+
     def test_output_rejected_before_any_input_or_auth(self):
         for out in (self.args.db, self.args.config, self.args.schema,
                     self.args.downloads / "new.json", self.args.db.parent / "new.json"):
@@ -376,6 +414,40 @@ class DiagnosticsTests(unittest.TestCase):
         self.assertTrue(result["expected_properties_match"])
         self.assertEqual(result["extra_property_names"], ["serviceAdded"])
         actual["content"]["value"] = "different"
+        self.assertFalse(diag.compare_remote(expected, actual)["content_matches"])
+
+    def test_remote_property_type_drift_is_reported(self):
+        for expected, actual in (
+            (1, True), (0, False), (1, 1.0), ("1", 1),
+            ({"nested": [1, {"flag": False}]}, {"nested": [True, {"flag": 0}]}),
+            ([{"count": 1}], [{"count": 1.0}]),
+        ):
+            with self.subTest(expected=expected, actual=actual):
+                payload = copy.deepcopy(self.payload)
+                payload["properties"]["ChunkOrdinal"] = expected
+                receipts = self.receipts()
+                receipts[2]["data"] = copy.deepcopy(payload)
+                receipts[2]["data"]["properties"]["ChunkOrdinal"] = actual
+                report = self.remote(receipts, {"example0": payload})
+                self.assertFalse(report["items"][0]["expected_properties_match"])
+                self.assertIn("remote_item_drift", report["issues"])
+
+    def test_canonical_remote_content_acl_and_object_order(self):
+        expected = copy.deepcopy(self.payload)
+        expected["properties"]["nested"] = {"b": [1, True, None], "a": {"count": 2}}
+        expected["acl"].append({"type": "group", "value": "group", "accessType": "grant"})
+        actual = copy.deepcopy(expected)
+        actual["properties"]["nested"] = {"a": {"count": 2}, "b": [1, True, None]}
+        actual["acl"].reverse()
+        result = diag.compare_remote(expected, actual)
+        self.assertTrue(result["expected_properties_match"])
+        self.assertTrue(result["acl_matches"])
+        # Unknown nested fields must retain types too; only ACL entry order is irrelevant.
+        expected["acl"][0]["extension"] = {"count": 1}
+        actual["acl"][1]["extension"] = {"count": True}
+        self.assertFalse(diag.compare_remote(expected, actual)["acl_matches"])
+        expected["content"]["extension"] = {"value": 1}
+        actual["content"]["extension"] = {"value": True}
         self.assertFalse(diag.compare_remote(expected, actual)["content_matches"])
 
     def remote(self, receipts, selected=None):
@@ -576,6 +648,11 @@ assert not any(name.startswith(('sec_connector', 'msal', 'yaml', 'aiohttp')) for
         payload = copy.deepcopy(self.payload)
         payload["content"]["value"] += " \u00e9 \u20ac"
         self.assertEqual(namespace["payload_hash"](payload), diag.payload_digest(payload))
+        namespace = pure_functions("maintenance.py", ("canonical", "same_payload"), {"json": json})
+        for expected, actual in ((1, True), (0, False), (1, 1.0), ({"a": [1]}, {"a": [True]}),
+                                 ({"a": 1, "b": [True]}, {"b": [True], "a": 1})):
+            self.assertEqual(namespace["same_payload"](actual, expected),
+                             diag.canonical(actual) == diag.canonical(expected))
         namespace = pure_functions("pipeline.py", ("document_fingerprint",),
                                    {"json": json, "hashlib": hashlib})
         with closing(sqlite3.connect(self.args.db)) as db:
