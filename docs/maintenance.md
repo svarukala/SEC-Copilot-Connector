@@ -306,7 +306,7 @@ Tesseract were **not installed in that validation environment**; no actual-engin
 accuracy or real OCR-corpus validation is claimed. No shared dependencies were
 installed and no customer state/source or tenant was accessed.
 
-### Real-engine acceptance case (blocked; source independently checked)
+### Real-engine acceptance case (CLI passed; wrapper validation blocked)
 
 The coordinating customer-worksheet review reported an OCR-dependent case in
 PNC's 2025 proxy, `d889589ddef14a.htm`, accession `0001193125-25-052937`, printed
@@ -350,28 +350,60 @@ preserved six markers in columns **2, 5, 6, 7, 8, 13**, but emitted
 **13 `[rotated text]` headers**. This verifies the input and non-OCR symptom;
 it does not measure OCR accuracy or establish a customer fix.
 
-**Real-engine execution remains blocked.** The user subsequently approved
-session-local PyPI Pillow/pytesseract wheels and the official-documentation-linked
-UB Mannheim engine, but not additional extraction binaries. The Tesseract
-5.4.0.20240606 installer was downloaded from the UB Mannheim GitHub release and
-verified against the winget SHA-256
-`c885fff6998e0608ba4bb8ab51436e1c6775c2bafc2559a19b423e18678b60c9`.
-It was **not executed**. Two acquisition requirements remain:
+After separate authorization for official private extraction tooling, a
+**preliminary real Tesseract CLI comparison passed**. This is deliberately
+distinct from parser/pytesseract end-to-end acceptance:
 
-| Requirement | Observed blocker |
+| Preliminary check | Result |
 |---|---|
-| Extract engine without installation | No existing `7z`/`7za` was found in PATH/standard locations. Windows `tar` rejects this NSIS archive as an unrecognized format. Additional extraction tooling requires approval or an existing approved extractor. |
-| Install approved OCR wheels in the isolated environment | PyPI metadata is reachable, but `files.pythonhosted.org` wheel retrieval fails TLS negotiation with pip/OpenSSL, PowerShell HTTPS and Windows curl/Schannel. No certificate checks were disabled, mirrors substituted or access controls bypassed. Approved wheel delivery or network remediation is required. |
+| Independent source-image reference | All 13 names/order visually recorded before OCR. |
+| Raw CLI names, including punctuation | **13/13 exact**, without name substitutions or correction rules. |
+| Second independent CLI invocation per image | **13/13 stable**; 26 successful invocations total. |
+| Existing production text cleanup | Still **13/13 exact**; raw text already matched. |
+| Recognized names mapped through the original rowspan-aware HTML grid | All **six** charity names match source columns **2, 5, 6, 7, 8, 13**. |
+| Actual parser/pytesseract/chunker OCR execution | **Not run**; the wrapper dependency is still unavailable. |
 
-The supplied connector environment cannot import Pillow; a separate base Python
-installation has Pillow but no pytesseract. No OCR dependencies were installed
-in any environment. No installer, registry, system PATH or shared environment
-was changed. Private source/image hashes, the independent visual reference,
-verified installer, exact requested wheel URLs/hashes, empty isolated environment
-and comparison script are retained. Once both acquisition requirements are
-resolved, compare all 13 names and all six marked columns through the actual
-parser/chunker before claiming bounded acceptance. No code, processing version,
-plan format or recovery contract changed during this follow-up.
+The comparison used existing base Python **3.12.10**, Pillow **12.3.0** and
+privately extracted Tesseract **5.4.0.20240606** / Leptonica **1.84.1**, with the
+bundled default English model and `--psm 7`. It reproduced the v8 Pillow
+`rotate(-90, expand=True)` and integer upscaling/LANCZOS steps on private image
+copies. All source JPEGs were 41 pixels wide; after rotation, scaling by three
+produced 123-pixel-high PNG inputs. The command was
+`tesseract.exe <private-preprocessed.png> stdout --psm 7`.
+It did not replace pytesseract with a fake module or run an alternative OCR path
+inside production ingestion.
+
+Tool acquisition and identity were retained:
+
+| Artifact | Source / SHA-256 |
+|---|---|
+| Tesseract installer (never executed) | [UB Mannheim release](https://github.com/UB-Mannheim/tesseract/releases/tag/v5.4.0.20240606); winget-verified `c885fff6998e0608ba4bb8ab51436e1c6775c2bafc2559a19b423e18678b60c9` |
+| 7-Zip 26.03 x64 MSI (never installed) | [Official release](https://github.com/ip7z/7zip/releases/tag/26.03), linked by 7-zip.org; release-digest-verified `c0680064d698a62dd4a5a47f403db356a6531a5473e4c4b1d090ea2590513926` |
+| Extracted `tesseract.exe` | `babb405f4366b480d02cd8ff2bac8d497170f6c1711ce6f3d5d8bf0fb7fa6ed9` |
+| Bundled `eng.traineddata` | `7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2` |
+
+The MSI's cabinet was read through read-only Windows Installer APIs and expanded
+with the OS utility; the extracted 7-Zip executable then unpacked only the
+Tesseract executable, runtime DLLs and English model into a private folder.
+Neither installer was executed. No registry, system PATH, shared environment,
+original source/cache or tenant state changed.
+
+**Remaining acceptance blocker:** approved PyPI wheel retrieval from
+`files.pythonhosted.org` fails TLS negotiation with pip/OpenSSL, PowerShell HTTPS
+and Windows curl/Schannel. Metadata is reachable; exact wheel URLs/hashes are
+retained. No certificate checks were disabled, mirrors substituted or access
+controls bypassed. The supplied connector environment lacks Pillow, and the
+existing base Python has Pillow but no pytesseract. No Python packages were
+installed. Approved wrapper-wheel delivery or network remediation is needed.
+
+Private evidence retains original/preprocessed image hashes, the pre-OCR visual
+reference, raw stdout/stderr for both runs, engine/model/DLL hashes, and the
+reproducer. Once the wrapper is available, run the **actual parser/chunker**
+against all 13 names and all six marked columns before claiming end-to-end
+acceptance. This preliminary table-only CLI result does not establish
+whole-filing coverage, frozen-plan execution, Graph/indexing or customer-answer
+acceptance. No concrete OCR-path bug was observed in this comparison; no code,
+processing version, plan format or recovery contract changed.
 
 Do not conflate that case with the reported PNC 2023 10-K, printed page 36,
 **9.64% CAGR** disclosure: the coordinating review identified it as an HTML
