@@ -27,6 +27,30 @@ overwrites/deletions. There is no transaction spanning Graph and SQLite.
    state. Keep the newer runtime and recovery evidence. Allow indexing, then
    obtain live agent-answer acceptance before authorizing another batch.
 
+## Install or update before preparing a plan
+
+Obtain the reviewed `main` release from the
+[repository](https://github.com/svarukala/SEC-Copilot-Connector) using your
+organization's approved source-control process. Preserve your existing
+configuration, environment credentials, destination database and cached downloads;
+do not replace them with sample settings. Stop all writers before updating.
+From the updated repository root, use your intended Python environment and
+approved package repository configuration, as in [operations](operations.md):
+
+```powershell
+# Configure pip to use your organization's approved package source first.
+.\.venv\Scripts\python.exe -m pip install --only-binary=:all: .
+.\.venv\Scripts\python.exe -m sec_connector maintenance --help
+```
+
+These are customer installation instructions, not a request to reinstall a
+shared environment during recovery. Retain the same installed build and
+dependencies from prepare through completion/recovery. Do not update code or
+dependencies in an unfinished operation. If using an editable checkout or
+`PYTHONPATH`, confirm it resolves to the intended reviewed source, not an older
+checkout. Use `python -m sec_connector` from that environment rather than a
+possibly stale `sec-connector` executable on PATH.
+
 ## Supported scope and prerequisites
 
 This first release handles exactly one explicitly selected `.htm` or `.txt`
@@ -38,7 +62,8 @@ change schema, enumerate untracked remote items, prune other filings, or deploy
 agents/skills. Incomplete/in-flight/multi-document filings and OCR (old or new)
 are rejected, not silently downgraded. Local-image/OCR provenance is not supported.
 
-Use the existing destination-bound format-3 database, cached source and approved
+Use the existing destination-bound format-3 (or already upgraded format-4)
+database, cached source and approved
 configuration. The supplied source must reproduce the **old cache fingerprint**.
 Both old and desired payloads must use the connector's existing everyone/grant
 ACL, exact CIK/accession/filename/sequence/derived DocumentId and bounded item IDs.
@@ -64,15 +89,23 @@ state; the database backup also contains unrelated filings. Never commit them.
 The tool does not change OS permissions, encrypt artifacts, or save credentials.
 
 Illustrative PowerShell forms (replace placeholders with the approved scope):
+Select the exact CIK, accession, filename and sequence from the persisted
+sole-document inventory, not just a ticker/date guess. Use its existing cached
+source bytes; do not substitute a freshly downloaded or manually edited document.
+The source path below is illustrative, not a required cache location.
+All commands use the same config and working directory so relative database/cache
+paths resolve consistently. Confirm `azure.connection_id` is the intended
+populated connection; if overriding it, use the same exact top-level `-n` value
+for every command. Do not run setup/reset to adopt or recreate the connection.
 
 ```powershell
-sec-connector -c .\config\config.yaml maintenance prepare `
+.\.venv\Scripts\python.exe -m sec_connector -c .\config\config.yaml maintenance prepare `
   --cik "<10-digit-CIK>" --accession "<accession>" `
   --filename "<filename.htm>" --sequence 1 `
   --source "C:\private\cached\<filename.htm>" --out "C:\private\upgrade-plan.json"
 
 # Copy the digest printed by prepare; do not regenerate it after editing a plan.
-sec-connector -c .\config\config.yaml maintenance inspect `
+.\.venv\Scripts\python.exe -m sec_connector -c .\config\config.yaml maintenance inspect `
   --plan "C:\private\upgrade-plan.json" --plan-digest "<reviewed-digest>"
 ```
 
@@ -96,7 +129,7 @@ mechanism. Apply refreshes observations rather than trusting an old preflight.
 ## Apply after explicit approval
 
 ```powershell
-sec-connector -c .\config\config.yaml maintenance apply `
+.\.venv\Scripts\python.exe -m sec_connector -c .\config\config.yaml maintenance apply `
   --plan "C:\private\upgrade-plan.json" --plan-digest "<reviewed-digest>" `
   --recovery-dir "C:\private\new-unique-recovery-directory" --maintenance-ack
 ```
@@ -146,11 +179,11 @@ Unrelated filings are not reset or rewritten.
 
 ```powershell
 # Continue the same frozen operation, not ordinary "sec-connector resume".
-sec-connector -c .\config\config.yaml maintenance resume `
+.\.venv\Scripts\python.exe -m sec_connector -c .\config\config.yaml maintenance resume `
   --plan "C:\private\upgrade-plan.json" --plan-digest "<reviewed-digest>" --maintenance-ack
 
 # Separately authorize reversal. Repeat this same command to resume a rollback.
-sec-connector -c .\config\config.yaml maintenance rollback `
+.\.venv\Scripts\python.exe -m sec_connector -c .\config\config.yaml maintenance rollback `
   --plan "C:\private\upgrade-plan.json" --plan-digest "<reviewed-digest>" --maintenance-ack
 ```
 
