@@ -17,6 +17,7 @@ from .chunker import chunk_with_limit
 from .graph_client import GRAPH_BASE_URL, GraphClient, HTTPResult
 from .models import DocumentInfo, FilingMetadata
 from . import maintenance_ocr
+from .ocr_engine import captured_settings
 from .parser import parse_document
 from .payloads import payload_hash, serialize_item
 from .pilot_upload import SERVICE_METADATA_KEYS, validate_service_metadata, validate_token_identity
@@ -124,7 +125,7 @@ def ownership(db, item_ids, filing_id):
 def provenance(config) -> dict:
     options = IngestionPipeline(config)._processing_options()
     modules = ("parser", "chunker", "models", "payloads", "pipeline", "graph_client",
-               "config", "state_manager", "maintenance", "maintenance_ocr")
+               "config", "state_manager", "maintenance", "maintenance_ocr", "ocr_engine")
     return {
         "options": options,
         "modules": {name: file_hash(Path(__file__).with_name(name + ".py")) for name in modules},
@@ -274,6 +275,7 @@ def check_binding(plan, config, *, forward=True):
         current = provenance(config)
         if plan["format"] == 1:
             current["modules"].pop("maintenance_ocr", None)
+            current["modules"].pop("ocr_engine", None)
         elif plan["ocr"]["assets"]:
             current["options"]["maintenance_ocr_bundle_hash"] = sha(plan["ocr"])
         if plan["provenance"] != current:
@@ -289,8 +291,9 @@ def check_binding(plan, config, *, forward=True):
         source = Path(plan["source"])
         if hashlib.sha256(base64.b64decode(plan["source_bytes"], validate=True)).hexdigest() != plan["source_hash"]:
             raise ValueError("Frozen source hash mismatch")
-        maintenance_ocr.validate(plan["ocr"], source, forward=forward)
         options = plan["provenance"]["options"]
+        settings = captured_settings(options.get("ocr_backend", {})) if forward and options["ocr_images"] else None
+        maintenance_ocr.validate(plan["ocr"], source, forward=forward, settings=settings)
         if plan["ocr"]["assets"] and (
             options["ocr_images"] is not True or options.get("maintenance_ocr_bundle_hash") != sha(plan["ocr"])
         ):
@@ -378,14 +381,14 @@ async def prepare(config, graph, *, cik, accession, filename, sequence, source: 
     if (len(cache) != 1 or cache[0]["filename"] != filename
             or cache[0]["fingerprint"] != document_fingerprint(source_hash, filing, document, old_options)):
         raise ValueError("Source does not match the persisted document cache provenance")
-    capture = maintenance_ocr.Capture(source)
+    capture = maintenance_ocr.Capture(source, config.processing.ocr)
     parsed = parse_document(
         source, filing, document, ocr_images=frozen["options"]["ocr_images"],
         ocr_resolver=capture.resolve,
     )
     if parsed is None:
         raise ValueError("Source produced no usable content")
-    maintenance_ocr.validate(capture.bundle, source, forward=True)
+    maintenance_ocr.validate(capture.bundle, source, forward=True, settings=config.processing.ocr)
     if capture.bundle["assets"]:
         frozen["options"]["maintenance_ocr_bundle_hash"] = sha(capture.bundle)
     payloads = [graph.build_payload(c, icon_url=frozen["options"]["icon_url"])
