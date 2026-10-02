@@ -155,7 +155,7 @@ def runtime_info(root, schema):
     files = {}
     for name in ("parser.py", "chunker.py", "models.py", "graph_client.py", "payloads.py",
                  "pipeline.py", "config.py", "utils.py", "ocr_engine.py", "maintenance.py",
-                 "maintenance_documents.py", "state_manager.py", "sec_client.py", "cli.py",
+                 "maintenance_ocr.py", "state_manager.py", "sec_client.py", "cli.py",
                  "sample_upload.py", "pilot_upload.py"):
         path = root / name
         files[name] = file_digest(path) if path.is_file() else None
