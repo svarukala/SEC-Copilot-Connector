@@ -90,9 +90,11 @@ user/coordinating-review acceptance above is separate from storage verification
 and is not a universal accuracy claim. No additional live batch is authorized
 by this result.
 
-Use the [operator procedure](maintenance.md) only for its supported
-completed, unsampled, sole-document, OCR-disabled scope. Multi-document and
-in-flight filings are not supported by this command. Format 4 remains after
+This live evidence covers only the completed, unsampled, sole-document,
+OCR-disabled scope. The [operator procedure](maintenance.md) now also describes
+offline-tested prepared-delivery and local rotated-image OCR extensions; those
+are **not** validated by this PNC run. Multi-document and unprepared/incomplete
+inventory remain unsupported. Format 4 remains after
 rollback; older connector executables cannot reopen the database. A database or
 Git restore alone is not a Graph rollback.
 

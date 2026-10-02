@@ -644,12 +644,10 @@ async def test_old_code_rejects_format4_before_mutation(prepared, tmp_path):
     assert Path(plan["database"]).read_bytes() == before
 
 
-@pytest.mark.parametrize("problem", ["multidoc", "sample", "inflight", "inventory", "ocr", "ownership", "source", "cache"])
+@pytest.mark.parametrize("problem", ["multidoc", "sample", "inflight", "inventory", "ownership", "source", "cache"])
 async def test_prepare_rejects_unsupported_state(prepared, problem):
     config, graph, plan, _, root = prepared
-    if problem == "ocr":
-        config.processing.ocr_images = True
-    elif problem == "source":
+    if problem == "source":
         Path(plan["source"]).write_text("changed source")
     else:
         with sqlite3.connect(plan["database"]) as db:

@@ -3,8 +3,10 @@
 **Validated for the supported single-document, non-OCR scope**, through one
 approved PNC update with live storage verification and bounded agent acceptance;
 see the [sanitized validation result](maintenance-live-validation.md).
-Rollback and interrupted-operation recovery are covered by offline failure
-injection, not by a live rollback exercise. This is not validation for all filings.
+The prepared-delivery and local rotated-image OCR extensions below have **offline
+coverage only**, not customer/live acceptance. Rollback and interrupted-operation
+recovery are covered by offline failure injection, not a live rollback exercise.
+This is not validation for all filings or general scanned-document OCR.
 Installing or merging this code does not authorize production changes.
 Obtain a separate execution approval after reviewing the frozen plan and backup
 retention. `apply`, maintenance `resume`, and `rollback` perform real Graph
@@ -15,7 +17,7 @@ overwrites/deletions. There is no transaction spanning Graph and SQLite.
 1. Install the reviewed build containing `maintenance --help`; retain that exact
    executable/environment through recovery. An older editable checkout or entry
    point is not made compatible merely by updating another checkout.
-2. Confirm the supported sole-document/OCR-disabled scope below. Stop all
+2. Confirm the supported sole-document eligibility and OCR inputs below. Stop all
    local, scheduled and other-machine writers and retain a private recovery area.
 3. Run `prepare`, then `inspect`; review the new plan's exact IDs, content,
    properties, ACLs and digest. Never reuse another customer's plan or receipts.
@@ -53,14 +55,40 @@ possibly stale `sec-connector` executable on PATH.
 
 ## Supported scope and prerequisites
 
-This first release handles exactly one explicitly selected `.htm` or `.txt`
+Maintenance handles exactly one explicitly selected `.htm` or `.txt`
 document that is the **sole persisted document in a completed, unsampled,
 inventory-complete filing**. All old chunks must be acknowledged, the old
 delivered hashes and cached payloads must agree, and reconciliation must be empty.
 It does not rediscover SEC inventory, download source, provision a connection,
 change schema, enumerate untracked remote items, prune other filings, or deploy
-agents/skills. Incomplete/in-flight/multi-document filings and OCR (old or new)
-are rejected, not silently downgraded. Local-image/OCR provenance is not supported.
+agents/skills. An explicit `prepare --recover-prepared` permits the bounded
+interrupted-delivery alternative below; it does not waive inventory or ownership
+checks. Multi-document migration is not supported.
+
+| Persisted class | Safe route / boundary |
+|---|---|
+| Completed, unsampled, sole parsed document; consistent acknowledged payloads/cache | Standard maintenance, subject to exact source and remote checks. |
+| Complete inventory and fully prepared sole-document manifest; partial acknowledgments or lost PUT ACK | Prefer ordinary `resume` to finish the old generation. Opt-in `--recover-prepared` can instead freeze a replacement if every tracked ID has an exact retained payload, each acknowledged hash agrees, and every remote value matches that payload or is an allowed 404. |
+| All prepared items remotely absent, none acknowledged | Same opt-in, only with a complete nonempty retained manifest/cache and proven local ownership. An empty observed remote baseline is **not** permission to adopt an untracked filing. |
+| Failed download/parse, missing source/cache/payloads, missing or incomplete inventory, no documents | Not reconstructable by maintenance. Restore the captured inputs/settings and investigate ordinary resume under separately approved scope. Do not mark inventory complete manually. |
+| Prior-generation delivered hash differs, acknowledged item missing remotely, unmatched reconciliation ID, foreign remote value or cross-filing collision | Fail closed. Preserve state and receipts; investigate ownership/history. No automatic overwrite, delete, adoption or discard. |
+| Sampled, retiring, multi-document, or running/interrupted run record | Not supported. Resolve the original run/scope separately; do not delete run records or clear guards to force eligibility. |
+
+Ordinary `resume` operates on **all** queued filings at the destination, not this
+one selected document, and can download missing inputs and perform writes/deletes.
+Use it only after reviewing that scope, captured processing version/schema,
+ownership and authorization. It replays already prepared payloads without
+upgrading them; after successful completion, prepare a separate maintenance plan.
+It is not an ownership-repair tool for ambiguous or foreign remote data.
+
+For opt-in prepared delivery, the plan separates the original **local prepared
+manifest** from the **actually observed remote baseline**. A pending item matching
+its retained payload is a verified potentially delivered item, not a fabricated
+local ACK. A pending 404 stays an explicit absence. Known old-only absent IDs are
+never deleted and must stay absent through completion/recovery. An acknowledged
+404 is disagreement, not an eligible absence. Rollback restores only the observed
+remote set and the exact original incomplete local checkpoints; it does not
+upload previously absent pending items or mark the old filing completed.
 
 Use the existing destination-bound format-3 (or already upgraded format-4)
 database, cached source and approved
@@ -69,6 +97,39 @@ Both old and desired payloads must use the connector's existing everyone/grant
 ACL, exact CIK/accession/filename/sequence/derived DocumentId and bounded item IDs.
 Foreign/local cross-filing IDs, occupied desired-only IDs, remote/local old
 payload differences, and incompatible schemas block preparation/application.
+
+### Local rotated-image OCR
+
+Set `processing.ocr_images: true` in the reviewed configuration when OCR is
+required. Captured old OCR-enabled settings must not be silently switched off.
+Eligibility follows the production v8 parser: selected SGML document, hidden
+content removal, then visible narrow/tall `<img>` elements in source order.
+Ordinary images, hidden images and other SGML documents are not OCR inputs.
+An inherited `ocr_images: true` with no applicable images needs no OCR engine.
+This is **not** PDF OCR, arbitrary scanned-page OCR, remote image retrieval, or
+automatic language selection.
+
+Supply the existing HTML/text and predownloaded referenced images under its
+parent directory (the approved bundle root). No images or language models are
+downloaded. Missing assets, absolute/remote/data URLs, traversal, URL query or
+fragment ambiguity, and symlinks/junctions/reparse points fail closed. Keep the
+bundle and runtime unchanged until forward recovery finishes.
+
+Format-2 plans retain source bytes, each actually consumed image's bytes/hash,
+original reference and exact resolved path, cleaned OCR text, and desired payloads.
+They bind Python/platform and dependency versions, the resolved Tesseract binary
+and default `eng.traineddata` hashes, engine/language inventory, relevant
+environment settings, and the existing `--psm 7`, rotation/upscaling settings.
+An unavailable engine or unidentifiable default English model blocks preparation
+when OCR inputs exist. Recovery checks provenance but **never reruns recognition**.
+No provenance fields are added to Graph properties/content.
+
+Older cache fingerprints bind source HTML and settings, **not historical image
+bytes**. Plans label that historical OCR provenance unknown; only exact stored
+old payloads plus matching remote receipts justify rollback. Current reviewed
+assets cannot retroactively certify old images or OCR accuracy. The desired
+cache/options include a bundle hash so ordinary source-only refresh cannot
+mistakenly reuse this OCR cache. Ordinary ingestion's OCR behavior is unchanged.
 
 Stop normal ingestion and scheduled jobs. Quiesce **all** other-machine and
 out-of-band writers and keep them stopped throughout maintenance or rollback.
@@ -109,6 +170,11 @@ for every command. Do not run setup/reset to adopt or recreate the connection.
   --plan "C:\private\upgrade-plan.json" --plan-digest "<reviewed-digest>"
 ```
 
+Only for the eligible fully prepared interrupted-delivery class, add
+`--recover-prepared` to the same exact-scope `prepare` command. It remains GET-only
+and does not run ordinary resume automatically. Review actual remote old/absent
+sets as well as local checkpoint counts; those counts can legitimately differ.
+
 `prepare` opens SQLite with `mode=ro`, without StateManager initialization,
 migration or acquiring the destination lock. It uses production
 `parse_document -> chunk_with_limit -> GraphClient.build_payload`, and the
@@ -117,6 +183,8 @@ It freezes source hash, processing configuration/module/dependency versions,
 tenant/app/connection/path, full schema hash, scoped local rows, raw old remote
 responses, replayable normalized old payloads, desired payloads and hashes,
 exact new/stale IDs, and observed 404 timestamps. The output must be a new file.
+New plans use **plan format 2**; SQLite remains format 3 until activation.
+OCR bytes/outputs are included when applicable.
 
 `inspect` requires no authentication and does not acquire a lock or migrate
 state. It reads the frozen plan and, if activated, durable per-ID checkpoints.
@@ -214,6 +282,29 @@ Do not overwrite the entire destination database from its backup as an automatic
 rollback step: it could erase unrelated work. **Git rollback or SQLite restore
 alone does not restore Graph.** Backups and operation history are retained; no
 automatic cleanup is performed.
+
+### Existing plans and version boundaries
+
+Plan format 2 is separate from state format 4 and processing version 8. Neither
+the state schema nor v8 content semantics changed for these extensions. Existing
+format-1 plans remain readable/inspectable and eligible for source-free rollback,
+with their original payloads, cache/options, digest and recovery evidence.
+**There is no automatic plan migration or digest rewrite.** Forward apply/resume
+still requires the exact code/dependency/config provenance captured at prepare:
+use the retained original runtime to finish a format-1 operation, or separately
+authorize rollback. New code intentionally refuses forward code drift rather
+than silently blessing new processing. Old maintenance executables reject
+format-2 plans; old format-3-only state readers still reject activated format 4.
+Never change either version number manually.
+
+The offline extension suite uses synthetic HTML/PNG inputs, fake Graph outcomes,
+and stub image decoding/recognition; it exercises production OCR discovery,
+rotation/upscaling/cleanup and frozen-output replay. A sanitized format-1 fixture
+was generated by the original `53dd715` implementation. The complete suite passed
+601 tests (four existing private-corpus opt-ins skipped). Pillow, pytesseract and
+Tesseract were **not installed in that validation environment**; no actual-engine
+accuracy or real OCR-corpus validation is claimed. No shared dependencies were
+installed and no customer state/source or tenant was accessed.
 
 ## Limits and live release gate
 

@@ -393,9 +393,11 @@ def maintenance_config(ctx):
 @click.option("--sequence", type=click.IntRange(min=1), required=True)
 @click.option("--source", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
 @click.option("--out", type=click.Path(dir_okay=False, path_type=Path), required=True)
+@click.option("--recover-prepared", is_flag=True,
+              help="Opt in to replacing a complete sole-document interrupted manifest; prefer finishing ordinary resume.")
 @click.pass_context
-def maintenance_prepare(ctx, cik, accession, filename, sequence, source, out):
-    """Freeze a new private plan from one completed cached document; GET only."""
+def maintenance_prepare(ctx, cik, accession, filename, sequence, source, out, recover_prepared):
+    """Freeze one cached document and supported local OCR inputs; GET only."""
     from .maintenance import MaintenanceGraphClient, prepare
     config = maintenance_config(ctx)
     require_graph_credentials(config)
@@ -403,7 +405,8 @@ def maintenance_prepare(ctx, cik, accession, filename, sequence, source, out):
     async def run():
         async with MaintenanceGraphClient(config) as graph:
             return await prepare(config, graph, cik=cik, accession=accession, filename=filename,
-                                 sequence=sequence, source=source, output=out)
+                                 sequence=sequence, source=source, output=out,
+                                 recover_prepared=recover_prepared)
     try:
         click.echo(f"Reviewed plan digest: {run_async(run())}")
     except Exception as exc:

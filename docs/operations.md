@@ -110,8 +110,11 @@ final summary rather than treating all warning/error lines as failed filings.
 If an in-place maintenance operation is unfinished, **do not use normal resume,
 setup, ingest or reset**. They deliberately refuse guarded state. Use
 [`maintenance inspect`, `maintenance resume`, or `maintenance rollback`](maintenance.md)
-with the same reviewed plan. That validated, scoped workflow is limited to one
-completed, unsampled sole-document filing and is not a broad reprocessing command.
+with the same reviewed plan. The live-validated scope is one completed, unsampled,
+sole-document, non-OCR filing. Offline-tested opt-ins cover fully prepared
+interrupted single-document delivery and frozen local rotated-image OCR; consult
+the eligibility matrix before preparing a new plan. This is not a broad
+reprocessing command or a way to infer missing inventory/ownership.
 
 | Intent | Command/behavior |
 |---|---|
