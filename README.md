@@ -154,9 +154,12 @@ database to state format 4. This is separate from processing v8. A
 checks and bounded PNC agent acceptance. The procedure is validated for its
 supported single-document, non-OCR scope, not for all filings.
 Offline-tested extensions support explicitly opted-in, fully prepared
-single-document interrupted delivery and frozen local rotated-image OCR inputs.
-Missing inventory/unprepared work, ambiguous ownership and multi-document
-migration remain unsupported; see the maintenance eligibility matrix. These
+single-document interrupted delivery, frozen local rotated-image OCR inputs,
+and explicit complete multi-document inventories in completed, unsampled,
+OCR-disabled filings. Multi-document plans use format 3; state format 4 and
+processing v8 remain separate and unchanged. Missing inventory/unprepared work,
+ambiguous ownership, multi-document subsets, mixed provenance and multi-document
+OCR remain unsupported; see the maintenance eligibility matrix. These
 extensions have no live customer acceptance. Real-engine offline parser/chunker
 validation passed for the bounded PNC 2025 director-header case, including the
 full retained document; this does not establish general OCR or Copilot accuracy.

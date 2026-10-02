@@ -389,21 +389,34 @@ def maintenance_config(ctx):
 @maintenance.command("prepare")
 @click.option("--cik", required=True)
 @click.option("--accession", required=True)
-@click.option("--filename", required=True)
-@click.option("--sequence", type=click.IntRange(min=1), required=True)
-@click.option("--source", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+@click.option("--filename")
+@click.option("--sequence", type=click.IntRange(min=1))
+@click.option("--source", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--document", "documents", multiple=True,
+              type=(str, click.IntRange(min=1), click.Path(exists=True, dir_okay=False, path_type=Path)),
+              help="Repeat FILENAME SEQUENCE SOURCE for EVERY persisted document in a completed non-OCR filing.")
 @click.option("--out", type=click.Path(dir_okay=False, path_type=Path), required=True)
 @click.option("--recover-prepared", is_flag=True,
               help="Opt in to replacing a complete sole-document interrupted manifest; prefer finishing ordinary resume.")
 @click.pass_context
-def maintenance_prepare(ctx, cik, accession, filename, sequence, source, out, recover_prepared):
-    """Freeze one cached document and supported local OCR inputs; GET only."""
-    from .maintenance import MaintenanceGraphClient, prepare
+def maintenance_prepare(ctx, cik, accession, filename, sequence, source, documents, out, recover_prepared):
+    """Freeze exact cached scope: one document or an explicit full inventory; GET only."""
+    from .maintenance import MaintenanceGraphClient, prepare, prepare_documents
+    if documents:
+        if any(value is not None for value in (filename, sequence, source)) or recover_prepared:
+            raise click.UsageError("--document cannot be combined with single-document options or --recover-prepared")
+        if len(documents) < 2:
+            raise click.UsageError("--document requires at least two documents; use single-document options otherwise")
+    elif any(value is None for value in (filename, sequence, source)):
+        raise click.UsageError("Supply --filename, --sequence and --source, or repeat --document for the full inventory")
     config = maintenance_config(ctx)
     require_graph_credentials(config)
 
     async def run():
         async with MaintenanceGraphClient(config) as graph:
+            if documents:
+                return await prepare_documents(config, graph, cik=cik, accession=accession,
+                                               selections=documents, output=out)
             return await prepare(config, graph, cik=cik, accession=accession, filename=filename,
                                  sequence=sequence, source=source, output=out,
                                  recover_prepared=recover_prepared)

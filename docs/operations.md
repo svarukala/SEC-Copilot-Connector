@@ -112,7 +112,10 @@ setup, ingest or reset**. They deliberately refuse guarded state. Use
 [`maintenance inspect`, `maintenance resume`, or `maintenance rollback`](maintenance.md)
 with the same reviewed plan. The live-validated scope is one completed, unsampled,
 sole-document, non-OCR filing. Offline-tested opt-ins cover fully prepared
-interrupted single-document delivery and frozen local rotated-image OCR; consult
+interrupted single-document delivery, frozen local rotated-image OCR, and
+completed OCR-disabled multi-document filings selected as an exact full
+inventory with repeated `--document` tuples. Subsets, incomplete multi-document
+delivery, mixed provenance and multi-document OCR are rejected; consult
 the eligibility matrix before preparing a new plan. This is not a broad
 reprocessing command or a way to infer missing inventory/ownership.
 
