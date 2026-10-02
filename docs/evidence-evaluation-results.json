@@ -1,0 +1,901 @@
+{
+  "kind": "offline_evidence_availability",
+  "timestamp": "2026-10-02T20:19:06.627533+00:00",
+  "manifest_sha256": "4d49837fe83dc1d73c7b91d9199d3c2f55e07dff9e29a01fe85387e338a9ee3c",
+  "code_sha256": {
+    "parser": "8baf1722c59ea6e867e6763f7133b8484c6cc11499498a70961ade66e38e1f46",
+    "chunker": "7769df2374d97c522550b8b155a1e85972be5d28efa9180b307c2011fd8b2c2b"
+  },
+  "runner_sha256": "532b766bae49c0d59679ffcb955938b0c51cef96f118e0acf59ab73244e63936",
+  "dependencies": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.3",
+    "markdownify": "1.2.3"
+  },
+  "ocr": false,
+  "agent_evaluation": "not_run",
+  "content_probe": {
+    "target_size": 4000,
+    "max_size": 8000,
+    "overlap": 200,
+    "max_bytes": 31457280
+  },
+  "content_probe_limit": "No filing metadata prefix or page/section orchestration; not an ingestion/payload replay.",
+  "sources": [
+    {
+      "id": "pnc-proxy-2025",
+      "sha256": "a78e444a6885c182f38288900af321092d2323edfadc96a16e1b9f010cba5d00",
+      "bytes": 3643178,
+      "content_probe_chunks": 868,
+      "payloads": null
+    },
+    {
+      "id": "pnc-proxy-2024",
+      "sha256": "dac1bb830c61028c1116163cab70d7c950e81f19870671dc10f625554d5b9186",
+      "bytes": 3596910,
+      "content_probe_chunks": 697,
+      "payloads": null
+    },
+    {
+      "id": "pnc-annual-fy2023",
+      "sha256": "22923e7767866d9930b1b968aba1b00c41816ee25b1aad351e1f6a49e99298dc",
+      "bytes": 8808342,
+      "content_probe_chunks": 504,
+      "payloads": null
+    },
+    {
+      "id": "pnc-annual-fy2024",
+      "sha256": "bb8d0ed726177cb72b99317a099ac88c91f3901eb64e78bacf0ff47d59d959f9",
+      "bytes": 9005220,
+      "content_probe_chunks": 518,
+      "payloads": null
+    }
+  ],
+  "evidence": [
+    {
+      "id": "incentive",
+      "source": {
+        "context_present": [],
+        "rows_present": [
+          true,
+          true
+        ],
+        "headers_present": [
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [
+          true,
+          true
+        ],
+        "row_headers_together": [
+          true,
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true,
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true,
+          true
+        ],
+        "row_headers_together": [
+          true,
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true,
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            509
+          ],
+          [
+            113,
+            509
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    },
+    {
+      "id": "market-cap",
+      "source": {
+        "context_present": [
+          true
+        ],
+        "rows_present": [
+          true
+        ],
+        "headers_present": [
+          true,
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [
+          true
+        ],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [
+          true
+        ],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            545
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    },
+    {
+      "id": "hr-2025",
+      "source": {
+        "context_present": [
+          true
+        ],
+        "rows_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "headers_present": [
+          true,
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "row_headers_together": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "context_present": [
+          true
+        ],
+        "row_context_together": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "row_headers_together": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "context_present": [
+          true
+        ],
+        "row_context_together": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "matching_content_indexes": [
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ],
+          [
+            501
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    },
+    {
+      "id": "hr-broader-scope",
+      "source": {
+        "context_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [],
+        "row_headers_together": [],
+        "context_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "row_context_together": [],
+        "matching_content_indexes": []
+      },
+      "content_probe": {
+        "rows_present": [],
+        "row_headers_together": [],
+        "context_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "row_context_together": [],
+        "matching_content_indexes": []
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    },
+    {
+      "id": "charity",
+      "source": {
+        "context_present": [
+          true,
+          true
+        ],
+        "rows_present": [
+          true
+        ],
+        "headers_present": [
+          true
+        ],
+        "image_count_matches": true,
+        "referenced_asset_order": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [
+          true,
+          true
+        ],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [
+          true,
+          true
+        ],
+        "row_context_together": [
+          false
+        ],
+        "matching_content_indexes": [
+          [
+            182
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [
+        "Actual OCR recovery and payload marker-to-name attribution are not evaluated by this HTML-only run. Generic LOGO alt text is not a name; names elsewhere in the filing do not establish this column mapping."
+      ],
+      "image_header_recovery": "not_evaluated"
+    },
+    {
+      "id": "hr-2024",
+      "source": {
+        "context_present": [],
+        "rows_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "headers_present": [
+          true,
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "row_headers_together": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ],
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "row_headers_together": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ],
+          [
+            298
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    },
+    {
+      "id": "cagr",
+      "source": {
+        "context_present": [
+          true
+        ],
+        "rows_present": [
+          true
+        ],
+        "headers_present": [
+          true
+        ],
+        "image_count_matches": true
+      },
+      "parsed": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [
+          true
+        ],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [
+          true
+        ],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            84
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    },
+    {
+      "id": "age-fy2023",
+      "source": {
+        "context_present": [],
+        "rows_present": [
+          true
+        ],
+        "headers_present": [
+          true,
+          true,
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            79
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    },
+    {
+      "id": "age-fy2024",
+      "source": {
+        "context_present": [],
+        "rows_present": [
+          true
+        ],
+        "headers_present": [
+          true,
+          true,
+          true
+        ]
+      },
+      "parsed": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            0
+          ]
+        ]
+      },
+      "content_probe": {
+        "rows_present": [
+          true
+        ],
+        "row_headers_together": [
+          true
+        ],
+        "context_present": [],
+        "row_context_together": [
+          true
+        ],
+        "matching_content_indexes": [
+          [
+            79
+          ]
+        ]
+      },
+      "payload": {
+        "status": "not_run"
+      },
+      "unverified": [],
+      "image_header_recovery": "not_applicable"
+    }
+  ]
+}
