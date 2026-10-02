@@ -1,7 +1,7 @@
-# Scoped in-place maintenance (provisional)
+# Scoped in-place maintenance
 
-**Provisional customer procedure: live agent response acceptance is pending.**
-One approved single-document update has passed live storage verification;
+**Validated for the supported single-document, non-OCR scope**, through one
+approved PNC update with live storage verification and bounded agent acceptance;
 see the [sanitized validation result](maintenance-live-validation.md).
 Rollback and interrupted-operation recovery are covered by offline failure
 injection, not by a live rollback exercise. This is not validation for all filings.
@@ -191,8 +191,9 @@ No untracked global IDs are enumerated. Failures/drift can require operator
 investigation rather than automatic completion; the guard intentionally remains.
 
 The recorded live run confirmed property removal and complete storage
-verification/retirement; it does not establish search readiness or answer
-accuracy. Before treating this as a customer-final procedure, allow indexing
-and obtain acceptance of the relevant Copilot prompts with documented bindings
-and controls. Each new customer's scope still needs its own plan, review and
-authorization. No further live mutation is implied by the tests or this report.
+verification/retirement. The first PNC-only update also passed its bounded agent
+acceptance set; storage checks alone did not establish that result. For each
+new scope, allow indexing and obtain acceptance of the relevant Copilot prompts
+with documented bindings and controls. Each customer's scope still needs its
+own plan, review and authorization. This is not an all-filings procedure; no
+further live mutation is implied by the tests or this report.
