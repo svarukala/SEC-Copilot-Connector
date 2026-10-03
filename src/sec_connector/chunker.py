@@ -338,7 +338,7 @@ def _split_content(
             notes = (table_notes[key] if table_notes is not None and key in table_notes
                      else _table_notes(following, block))
             if table_notes and key in table_notes and notes:
-                nearby = [p for p in nearby if p.startswith("#") or _unit_label(p)]
+                nearby = [p for p in nearby if not re.match(r"^(?:[-*+]|\d+\.)\s", p)]
             context = "\n\n".join(nearby)
             # Do not let optional neighboring prose make otherwise valid rows
             # indivisible. It remains present in its own prose block.

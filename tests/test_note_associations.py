@@ -167,3 +167,54 @@ def test_unspaced_alphabetic_definition_and_grouped_markers(tmp_path):
     )
     assert all("First basis." in c.content and "Second basis." in c.content
                for c in chunks if "| Product" in c.content)
+
+
+@pytest.mark.parametrize("caption", [
+    "Amounts in euros; continuing operations only.",
+    "Unaudited; excluding discontinued operations.",
+    "Dollars per share, except ratios.",
+])
+@pytest.mark.parametrize("count", [2, 28])
+def test_bound_notes_preserve_adjacent_financial_caption(tmp_path, caption, count):
+    _, chunks, _ = process(tmp_path, f"<p>{caption}</p>" + table(count=count) + note())
+    rows = [c for c in chunks if "| Product" in c.content]
+    assert rows and all(caption in c.content for c in rows)
+    assert all("Net of obsolete inventory." in c.content for c in rows)
+
+
+@pytest.mark.parametrize("marker", ["*", "**", "***", "\u2020", "\u2021"])
+@pytest.mark.parametrize("bracketed", [True, False])
+def test_bracketed_and_bare_symbol_definitions_are_distinct(tmp_path, marker, bracketed):
+    own, other = (f"[{marker}]", marker) if bracketed else (marker, f"[{marker}]")
+    _, chunks, _ = process(
+        tmp_path, table(marker=own, count=20)
+        + note(other, "Other marker basis.") + note(own, "Applicable basis."),
+    )
+    rows = [c for c in chunks if "| Product" in c.content]
+    assert rows and all("Applicable basis." in c.content for c in rows)
+    assert all("Other marker basis." not in c.content for c in rows)
+
+
+@pytest.mark.parametrize("first,second", [
+    ("(a)", "(b)"), ("[a]", "[b]"), ("*", "**"), ("\u2020", "\u2021"), ("[*]", "*"),
+])
+def test_line_separated_definitions_do_not_transfer_other_basis(tmp_path, first, second):
+    _, chunks, _ = process(
+        tmp_path, table(marker=first, count=20)
+        + f"<p>{first} Applicable basis.<br>{second} Other products only.</p>",
+    )
+    rows = [c for c in chunks if "| Product" in c.content]
+    assert rows and all("Applicable basis." in c.content for c in rows)
+    assert all("Other products only." not in c.content for c in rows)
+    assert any("Other products only." in c.content for c in chunks)
+
+
+def test_line_wrapped_note_keeps_continuation_and_rejects_duplicate_definitions(tmp_path, caplog):
+    source = table(count=40) + "<p>(a) Applicable basis.<br>Excludes obsolete inventory.<br>(b) Other basis.</p>"
+    _, chunks, _ = process(tmp_path, source)
+    rows = [c for c in chunks if "| Product" in c.content]
+    assert rows and all("Excludes obsolete inventory." in c.content for c in rows)
+    assert all("Other basis." not in c.content for c in rows)
+    _, chunks, _ = process(tmp_path, source.replace("(b)", "(a)"))
+    assert "Duplicate table note markers" in caplog.text
+    assert all("Applicable basis." not in c.content for c in chunks if "| Product" in c.content)

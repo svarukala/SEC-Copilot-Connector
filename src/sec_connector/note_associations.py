@@ -33,9 +33,10 @@ def linked_marker(marker: str, rows: str) -> bool:
             )
             if re.fullmatch(SYMBOL, marker):
                 # Escaped Markdown symbols are literal; bare emphasis is not.
-                literal = re.sub(r"\d\s+(?:\\\*)+\s+\d", "", cell)
+                literal = re.sub(rf"\[(?:{SYMBOL})\]", "", cell)
+                literal = re.sub(r"\d\s+(?:\\\*)+\s+\d", "", literal)
                 symbols = re.findall(r"(?:\\\*)+|[\u2020\u2021]+", literal)
-                bare = re.findall(r"(?<![\\*\w])\*{1,3}(?=\s*$)", cell)
+                bare = re.findall(r"(?<![\\*\w])\*{1,3}(?=\s*$)", literal)
                 if marker not in [canonical_marker(s) for s in symbols + bare]:
                     continue
             elif marker not in canonical_marker(cell) and not grouped:
@@ -56,9 +57,16 @@ def unique_notes(notes: list[tuple[str, str]]) -> list[tuple[str, str]]:
     return [(marker, note) for marker, note in notes if marker not in ambiguous]
 
 
+def _note_paragraphs(text: str) -> list[str]:
+    return [part.strip() for part in re.split(
+        rf"\n\s*\n|\n(?=[ \t]*(?:{MARKER})(?:(?<=[)\]])\s*|\s+)\S)", text.strip(),
+        flags=re.I,
+    ) if part.strip()]
+
+
 def adjacent_notes(following: str, table: str) -> list[tuple[str, str]]:
     notes = []
-    for paragraph in re.split(r"\n\s*\n|\n(?=\([a-z0-9]+\)|\[[a-z0-9]+\])", following.strip()):
+    for paragraph in _note_paragraphs(following):
         match = NOTE_START.match(paragraph)
         if not match:
             break
@@ -70,8 +78,13 @@ def adjacent_notes(following: str, table: str) -> list[tuple[str, str]]:
 
 def _definitions(block: str) -> list[tuple[str, str]]:
     if not block.startswith("|"):
-        match = NOTE_START.match(block)
-        return [(canonical_marker(match[1]), block)] if match else []
+        definitions = []
+        for paragraph in _note_paragraphs(block):
+            match = NOTE_START.match(paragraph)
+            if not match:
+                return []
+            definitions.append((canonical_marker(match[1]), paragraph))
+        return definitions
     rows = [cells(row) for row in block.splitlines()]
     if len(rows) < 2 or (len(rows) > 2 and any(rows[0])):
         return []
