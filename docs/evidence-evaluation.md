@@ -305,6 +305,18 @@ baseline default full payloads already retained the HR starred definitions;
 the symbol failure is exposed by the original local probe and bounded synthetic
 chunks. The full-payload cross-page charity exclusion was absent.
 
+Independent review found three additional synthetic gaps, corrected within
+the unreleased v9 candidate: adjacent financial captions retain the existing
+short-context budget instead of being restricted to headings and a few unit
+phrases; bracketed symbols never inherit a bare-symbol definition; and
+line-start definitions separated by HTML line breaks are associated separately.
+Unmarked continuation lines stay with their definition, duplicate definitions
+remain ambiguous, and unrelated narrative list items are not treated as table
+captions. The original three reviewer probes and expanded symbol/caption/
+continuation controls pass. The exact-source replay was repeated after these
+fixes, with unchanged aggregate results below; older private receipts remain
+retained rather than overwritten.
+
 The same final evaluator and frozen inputs produced these offline results
 for both HTML-only and frozen-OCR runs:
 
