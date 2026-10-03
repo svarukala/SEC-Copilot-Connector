@@ -165,7 +165,7 @@ async def test_prepare_readonly_apply_and_scoped_rollback(prepared):
                ("get", item_id) in graph.events[:first_delete] for item_id in plan["desired"])
     result = local(prepared)
     assert result["filing"]["state"] == "completed"
-    assert json.loads(result["filing"]["processing_options"])["processing_version"] == 8
+    assert json.loads(result["filing"]["processing_options"])["processing_version"] == 9
     assert len(result["chunks"]) == len(plan["desired"])
     assert all(c["state"] == "uploaded" for c in result["chunks"])
     assert not result["reconciliation_candidates"]
@@ -366,7 +366,7 @@ async def test_rollback_final_transaction_failure(prepared, monkeypatch):
         patch.setattr(m, "save_operation", fail)
         with pytest.raises(RuntimeError, match="rollback final"):
             await run(prepared, "rollback")
-    assert json.loads(local(prepared)["filing"]["processing_options"])["processing_version"] == 8
+    assert json.loads(local(prepared)["filing"]["processing_options"])["processing_version"] == 9
     assert await run(prepared, "rollback") == "rolled_back"
     assert local(prepared) == plan["old_local"]
     assert graph.items == plan["old"]

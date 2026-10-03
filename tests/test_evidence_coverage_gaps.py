@@ -102,7 +102,6 @@ def test_gap_sources_retain_rows_and_note_in_document_order(tmp_path, kind):
 
 
 @pytest.mark.parametrize("kind", ["symbol", "cross-page", "separated"])
-@pytest.mark.xfail(strict=True, raises=AssertionError, reason="Known gap: no safe binding for symbol/cross-page/narrative-separated notes")
 def test_desired_marked_rows_are_self_contained(tmp_path, kind):
     _, chunks, _ = process(tmp_path, note_source(kind))
     assert all("Net of obsolete inventory." in c.content for c in chunks if "| Product " in c.content)

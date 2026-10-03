@@ -320,7 +320,7 @@ class DiagnosticsTests(unittest.TestCase):
         changed = copy.deepcopy(report)
         report["runtime"], changed["runtime"] = before, after
         self.assertTrue(diag.compare_reports(report, changed)["categories"]["runtime"]["changed"])
-        for name in ("maintenance.py", "maintenance_ocr.py"):
+        for name in ("maintenance.py", "maintenance_ocr.py", "note_associations.py"):
             module = root / name
             module.write_text("PLAN_FORMAT = 3\n", encoding="utf-8")
             before = diag.runtime_info(root, self.schema)
@@ -334,7 +334,7 @@ class DiagnosticsTests(unittest.TestCase):
         (root / "pipeline.py").write_text("PROCESSING_VERSION = 3\n", encoding="utf-8")
         runtime = diag.runtime_info(root, self.schema)
         self.assertEqual(runtime["processing_version"], 3)
-        for name in ("ocr_engine.py", "maintenance.py", "maintenance_ocr.py"):
+        for name in ("ocr_engine.py", "maintenance.py", "maintenance_ocr.py", "note_associations.py"):
             self.assertIn(name, runtime["code_sha256"])
             self.assertIsNone(runtime["code_sha256"][name])
         with patch.object(diag.urllib.request, "build_opener", side_effect=AssertionError("network")):

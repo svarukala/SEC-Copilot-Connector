@@ -286,7 +286,7 @@ maintenance; preserve partial artifacts and retry with a different new recovery
 directory after resolving the error.
 
 **State format 4 is a permanent compatibility boundary, separate from processing
-version 8.** Activation atomically upgrades format 3 to 4, inserts the operation
+version 9.** Activation atomically upgrades format 3 to 4, inserts the operation
 guard, installs the desired chunks/cache/options with a noncompleted filing,
 and preserves old delivered IDs plus all potentially delivered IDs. The released
 format-3 reader accepts only versions 1/2/3 and therefore rejects format 4 before
@@ -360,10 +360,25 @@ automatic cleanup is performed.
 ### Existing plans and version boundaries
 
 Plan formats 2 (single-document) and 3 (complete multi-document) are separate
-from state format 4 and processing version 8. Neither the state schema nor
-non-OCR v8 content semantics changed for these extensions.
+from state format 4 and processing versions. The earlier OCR and inventory
+extensions did not change non-OCR v8 semantics. The note-association follow-up
+now uses **processing v9**, including `note_associations.py` in processing-code
+provenance. This changes cache/payload generation, not state format 4 or plan
+formats 1/2/3. Existing digests, historical options and frozen payloads are never
+migrated, relabeled or automatically repackaged.
+
+Old plans remain inspectable and support source-free rollback under their
+original digests. Forward replay rejects processing/module drift and requires
+the original runtime; do not rehash an activated plan to bypass this check.
+Ordinary ingestion resume still replays already prepared payloads unchanged.
+Unprepared old-version work needs explicit, separately authorized scoped
+`ingest --reprocess`. Completed-cache fingerprints change with processing v9.
+The frozen v8 sample uploader remains pinned to v8 and rejects this runtime
+before source access or authentication; its old reviews/destination are not
+retargeted to v9.
+
 The OCR-specific backend revision is captured in every new OCR generation's
-options and fingerprint instead of invalidating unrelated non-OCR caches.
+options and fingerprint independently of the processing-version boundary.
 Unprepared legacy/unknown OCR backends fail closed before source discovery:
 finish with the original runtime or explicitly reprocess the reviewed scope.
 Existing format-1 and pre-CLI format-2 plans remain readable/inspectable and eligible for source-free rollback,

@@ -10,10 +10,21 @@ import pytest
 
 from sec_connector.cli import main
 from sec_connector.models import ChunkState, FilingState
-from sec_connector.pipeline import IngestionPipeline, PROCESSING_VERSION
+from sec_connector.pipeline import IngestionPipeline, PROCESSING_VERSION, document_fingerprint
 from sec_connector.state_manager import StateManager
 from .test_cli import cli_pipeline
 from .test_recovery import config, filing, clients
+
+
+def test_v9_changes_cache_generation_without_mutating_captured_options(config, filing, clients):
+    _, _, documents, _ = clients
+    options = IngestionPipeline(config)._processing_options()
+    old_options = {**options, "processing_version": 8}
+    old = document_fingerprint("source", filing, documents[0], old_options)
+    new = document_fingerprint("source", filing, documents[0], options)
+    assert old != new and old_options["processing_version"] == 8
+    assert options["processing_version"] == 9
+    assert old == document_fingerprint("source", filing, documents[0], old_options)
 
 
 async def candidates(state, filing_id):
@@ -23,10 +34,10 @@ async def candidates(state, filing_id):
     return {row["chunk_id"] for row in await cursor.fetchall()}
 
 
-async def prepare_old(pipeline, clients, filing, monkeypatch):
+async def prepare_old(pipeline, clients, filing, monkeypatch, version=3):
     sec, graph, _, _ = clients
     with monkeypatch.context() as old:
-        old.setattr("sec_connector.pipeline.PROCESSING_VERSION", 3)
+        old.setattr("sec_connector.pipeline.PROCESSING_VERSION", version)
         async with pipeline._state() as state:
             filing_id = await state.add_filing(filing, processing_options=pipeline._processing_options())
             await pipeline._prepare_filing(filing_id, sec, state, graph, pipeline._stats())
@@ -34,11 +45,12 @@ async def prepare_old(pipeline, clients, filing, monkeypatch):
     return filing_id, chunks
 
 
+@pytest.mark.parametrize("version", [3, 8])
 async def test_reprocess_upgrades_early_pending_and_preserves_unselected_queue(
-    config, clients, filing,
+    config, clients, filing, version,
 ):
     pipeline = IngestionPipeline(config)
-    options = {**pipeline._processing_options(), "processing_version": 3}
+    options = {**pipeline._processing_options(), "processing_version": version}
     excluded = [
         filing.model_copy(update={"ticker": "PNC", "cik": "0000713676"}),
         filing.model_copy(update={
@@ -56,7 +68,7 @@ async def test_reprocess_upgrades_early_pending_and_preserves_unselected_queue(
     assert result["filings_completed"] == 1
     async with pipeline._state() as state:
         selected = await state.get_filing(selected_id)
-        assert selected.processing_options["processing_version"] == PROCESSING_VERSION == 8
+        assert selected.processing_options["processing_version"] == PROCESSING_VERSION == 9
         assert [await state.get_filing(item_id) for item_id in excluded_ids] == before
         scope = json.loads((await state.get_stats())["last_run"]["scope"])
         assert scope["reprocess"] is True
@@ -200,10 +212,11 @@ async def test_repeated_reprocess_preserves_all_generations(config, clients, fil
 
 
 @pytest.mark.parametrize("mode", ["resume", "ingest"])
-async def test_default_replay_keeps_old_prepared_payloads(config, clients, filing, monkeypatch, mode):
+@pytest.mark.parametrize("version", [3, 8])
+async def test_default_replay_keeps_old_prepared_payloads(config, clients, filing, monkeypatch, mode, version):
     sec, graph, _, _ = clients
     pipeline = IngestionPipeline(config)
-    filing_id, old = await prepare_old(pipeline, clients, filing, monkeypatch)
+    filing_id, old = await prepare_old(pipeline, clients, filing, monkeypatch, version)
     config.chunking.target_size = 40
     config.chunking.max_size = 80
     sec.get_filing_documents.side_effect = AssertionError("Must not rebuild inventory")
@@ -212,7 +225,7 @@ async def test_default_replay_keeps_old_prepared_payloads(config, clients, filin
     assert result["errors"] == 0
     assert [call.args[1] for call in graph.upload_payload.await_args_list] == [c.payload for c in old]
     async with pipeline._state() as state:
-        assert (await state.get_filing(filing_id)).processing_options["processing_version"] == 3
+        assert (await state.get_filing(filing_id)).processing_options["processing_version"] == version
         assert not await candidates(state, filing_id)
 
 

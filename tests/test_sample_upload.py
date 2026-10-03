@@ -32,7 +32,9 @@ def save_review(plan):
 
 
 @pytest.fixture
-def sample(tmp_path):
+def sample(tmp_path, monkeypatch):
+    # This uploader is permanently scoped to the historical v8 sample.
+    monkeypatch.setattr(sample_upload, "PROCESSING_VERSION", 8)
     schema = tmp_path / "schema.json"
     schema.write_text('{"baseType":"microsoft.graph.externalItem","properties":[]}')
     config = ChunkingConfig()
@@ -79,6 +81,16 @@ def sample(tmp_path):
 
 def test_sample_exact_count_and_exhibit_identity(sample):
     assert len(validate_sample(sample)) == 25
+
+
+def test_v9_runtime_refuses_frozen_v8_sample_before_source_or_auth(sample, monkeypatch):
+    from sec_connector.pipeline import PROCESSING_VERSION
+
+    assert PROCESSING_VERSION == 9
+    monkeypatch.setattr(sample_upload, "PROCESSING_VERSION", PROCESSING_VERSION)
+    monkeypatch.setattr(sample_upload, "digest", lambda _: pytest.fail("source accessed"))
+    with pytest.raises(ValueError, match="processing version differs"):
+        validate_sample(sample)
 
 
 @pytest.mark.parametrize("change", [

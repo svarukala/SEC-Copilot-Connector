@@ -302,7 +302,13 @@ Unprepared legacy OCR generations require their original runtime or explicit
 scoped reprocessing; they are not silently assigned the new backend. Already
 prepared payloads replay without OCR. New OCR generations bypass the HTML-only
 parse cache because it cannot certify changing image/model bytes. Non-OCR cache
-identity and processing v8 outputs are unchanged. See
+identity was unchanged by the OCR-backend-only extension. Processing **v9**
+separately changes table-note associations and therefore the completed-document
+cache generation, for both OCR-disabled and OCR-enabled parsing. Existing
+prepared payloads retain their exact captured content/options on ordinary
+resume; unprepared old-version work requires explicit scoped `--reprocess`.
+There is no automatic migration or live repackaging. Diagnostics include the
+new note-association module hash, or `null` when inspecting an older code tree. See
 [maintenance compatibility](maintenance.md#existing-plans-and-version-boundaries)
 before upgrading an in-flight maintenance operation.
 

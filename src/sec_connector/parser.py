@@ -12,6 +12,7 @@ from soupsieve import SelectorSyntaxError
 from .models import DocumentInfo, FilingMetadata, ParsedDocument
 from .config import OCRConfig
 from .ocr_engine import image_to_text
+from .note_associations import collect_table_notes
 from .utils import get_logger
 
 logger = get_logger("parser")
@@ -528,6 +529,7 @@ def html_to_markdown(
     *,
     local_image_dir: Optional[Path] = None,
     table_header_rows: Optional[dict[str, int]] = None,
+    table_notes: Optional[dict[str, list[tuple[str, str]]]] = None,
     ocr_resolver: Optional[Callable[[str, Path], str]] = None,
     ocr_settings: Optional[OCRConfig] = None,
 ) -> str:
@@ -605,7 +607,10 @@ def html_to_markdown(
     cleaned_lines = [line.rstrip() for line in lines]
     markdown = "\n".join(cleaned_lines)
 
-    return markdown.strip()
+    markdown = markdown.strip()
+    if table_notes is not None:
+        table_notes.update(collect_table_notes(markdown))
+    return markdown
 
 
 def extract_sgml_documents(content: str) -> list[dict]:
@@ -736,11 +741,13 @@ def parse_document(
         content, re.IGNORECASE,
     )
     table_header_rows = {}
+    table_notes = {}
     if is_html:
         markdown = html_to_markdown(
             content,
             local_image_dir=(local_image_dir or file_path.parent) if ocr_images else None,
             table_header_rows=table_header_rows,
+            table_notes=table_notes,
             ocr_resolver=ocr_resolver,
             ocr_settings=ocr_settings,
         )
@@ -759,6 +766,7 @@ def parse_document(
         content=markdown,
         content_type="text/markdown",
         table_header_rows=table_header_rows,
+        table_notes=table_notes,
     )
 
 

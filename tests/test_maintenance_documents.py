@@ -127,7 +127,7 @@ async def test_complete_inventory_atomic_apply_and_rollback(multi, monkeypatch):
     assert len(plan["desired"]) > len(plan["documents"])
     assert set(plan["baseline_absent"]) == set(plan["new"])
     info = m.inspect(plan, digest)
-    assert info["plan_format"] == 3 and info["processing_version"] == 8
+    assert info["plan_format"] == 3 and info["processing_version"] == 9
     assert len(info["documents"]) == len(plan["documents"])
     # Forward replay and rollback must not reparse any document.
     monkeypatch.setattr(m, "parse_document", lambda *a, **k: pytest.fail("reparsed frozen payloads"))
@@ -424,7 +424,7 @@ async def test_non_ocr_multidocument_capture_ignores_backend_settings(multi, mon
         "chunking", "ocr_images", "filings", "refresh_downloads", "icon_url",
         "schema_hash", "processing_version",
     }
-    assert options["processing_version"] == 8
+    assert options["processing_version"] == 9
     config.processing.ocr = OCRConfig(
         executable="unavailable-engine", tessdata_dir="missing-models", timeout_seconds=1,
     )
@@ -447,13 +447,18 @@ async def test_non_ocr_multidocument_capture_ignores_backend_settings(multi, mon
 
 
 @pytest.mark.parametrize("interrupted", [False, True])
-async def test_pre_backend_format3_drift_and_source_free_rollback(multi, monkeypatch, interrupted):
+@pytest.mark.parametrize("prior", ["pre-backend", "v8"])
+async def test_pre_backend_format3_drift_and_source_free_rollback(multi, monkeypatch, interrupted, prior):
     config, graph, original, _, root = multi
     # Simulate the retained pre-backend runtime at prepare/activation, never
     # rewrite the digest or provenance of an activated operation.
     inherited = deepcopy(original["provenance"])
     inherited["modules"].pop("ocr_engine")
     inherited["modules"]["maintenance"] = "pre-backend-maintenance-module"
+    if prior == "v8":
+        inherited = deepcopy(original["provenance"])
+        inherited["options"]["processing_version"] = 8
+        inherited["modules"].pop("note_associations")
     with monkeypatch.context() as patch:
         patch.setattr(m, "provenance", lambda _: deepcopy(inherited))
         case = await reprepare(multi)
@@ -548,7 +553,8 @@ async def test_multidocument_lock_guard_backup_and_ack(multi, monkeypatch):
 
 
 @pytest.mark.parametrize("interrupted", [False, True])
-async def test_legacy_format2_digest_drift_and_source_free_rollback(prepared, monkeypatch, interrupted):
+@pytest.mark.parametrize("prior", ["pre-backend", "v8"])
+async def test_legacy_format2_digest_drift_and_source_free_rollback(prepared, monkeypatch, interrupted, prior):
     """Freeze the v2 shape with PR4 provenance; never rehash an activated plan."""
     from tests.test_maintenance_recovery import interrupt
 
@@ -557,6 +563,9 @@ async def test_legacy_format2_digest_drift_and_source_free_rollback(prepared, mo
         interrupt(prepared, remote_ids=[])
     inherited = deepcopy(current["provenance"])
     inherited["modules"]["maintenance"] = "b7becf9da52cb5514be1636e4fe276a899609466269ae72a9cc90db4659e7f66"
+    if prior == "v8":
+        inherited["options"]["processing_version"] = 8
+        inherited["modules"].pop("note_associations")
     output = root / "legacy-v2.json"
     with monkeypatch.context() as patch:
         patch.setattr(m, "provenance", lambda _: deepcopy(inherited))

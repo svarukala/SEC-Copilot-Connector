@@ -18,6 +18,11 @@ banking sample, not representative SEC coverage.
 
 The runtime base is `53dd715b7a57ea8637528b54a9b1a12f53532d0f` (processing
 version 8); the final receipt was captured at **2026-10-02 20:19:06 UTC**.
+Those statements and the published receipt describe the original evaluator
+addition, not the later runtime change. The
+[processing-v9 follow-up](#processing-v9-note-association-follow-up) below records
+the separate association fix; historical receipts and expected answers remain
+unchanged.
 
 ## Supported-format and evidence matrix
 
@@ -229,11 +234,103 @@ into newly observed runs here. No copied/private customer artifact was imported.
 | Difficult/indirect headers | Explicit multilevel non-bank header regression; existing v8 class-only/unanchored limitations remain | Add source-adjudicated positive/negative cases before expanding inference. |
 | PDF/scanned input | No implemented parser or measured corpus | Separate design/approval and format-specific evaluation; not an extension of this PR. |
 
-The three strict `xfail` cases in `test_evidence_coverage_gaps.py` represent
+The three originally strict `xfail` cases in `test_evidence_coverage_gaps.py` represent
 desired note co-location, not hidden passing behavior. Separate ordinary tests
 require complete ordered row/note preservation. A future fix produces XPASS
 and must explicitly update the gap test and report after proving the intended
 association; do not remove the failure history.
+
+## Processing-v9 note-association follow-up
+
+The three original assertions first produced strict XPASS against the candidate;
+only their `xfail` decorator was then removed. Their original row-preservation,
+co-location, character-limit and serialized-request oracles are unchanged.
+`test_note_associations.py` adds exact-marker, unrelated-table/section, repeated
+marker/table, page ownership, short-row, byte-budget and oversized-note controls.
+
+HTML parsing now captures a table-note sidecar from the **original rendered
+source sequence before page/section splitting**, keyed by the exact table hash.
+Original Markdown is not rewritten. Symbol definitions (`*`, `**`, `***`, dagger
+and double dagger) stay distinct from emphasis, negative values and one another.
+Paragraph definitions and two-cell note layouts can follow a short intervening
+narrative or a single page boundary. Only repeated source page-prefix headings
+and repeated, page-end footer structures can be crossed; a new heading or
+independent table ends ownership. Identical table occurrences and duplicate
+definitions are not disambiguated by proximity.
+
+Search is bounded to 32 following blocks, 16,000 characters and 800 characters
+of intervening narrative. Exhausted block/character scans are logged and not
+bound. A short immediately preceding statement can accompany a marked row only
+when it names that row's unique, exact multiword label; this is not a general
+prose-understanding or long-distance coreference system. Other narrative is
+retained in source order, not appended wholesale to every table chunk.
+Definitions are repeated only in chunks with their marker (including marked
+headers), with the table's original document URL and page ownership. Oversized
+qualifiers stay in their original location with a warning rather than being
+truncated, misattributed or allowed to exceed the chunk/request limits.
+
+| Surface | v9 support / remaining limit |
+|---|---|
+| Symbol-only and short narrative-separated notes | Source-local paragraph/two-cell definitions, exact markers and ambiguity controls; the original synthetic gates pass. |
+| Cross-page notes | One boundary with proven repeated furniture or no intervening heading/table; original note still exists on its source page. Arbitrary distant or differently headed references are not inferred. |
+| PNC 2025 HR table 370 | All 13 ordered rows retained; only seven single-star financial rows require the adjustment definition, while double-star tangible book value retains its separate basis. Numeric notes remain distinct. |
+| PNC 2025 charity table 128 | Five ordered relationship rows retained, including full note (3) exclusion and the adjacent source statement on the charitable-contribution row; not a claim of personal donations. |
+| Image headers | The separate retained OCR receipt can be replayed, without engine calls: 26 consumed occurrences, 13 assets/headers and six charity marks checked against the earlier independent visual reference. HTML-only replay still has unnamed image placeholders. |
+| Budgets, duplicate markers, long-distance/continued paragraphs | Conservative limits remain; no guarantee that every possible source layout becomes self-contained. No PDF, new issuer, live delivery, retrieval or agent-answer claim. |
+
+`python -m tests.note_evidence_replay` is an opt-in, evaluator-only full-document
+payload comparison. It reads the authorized copied PNC HTML and retained metadata
+(March 12, 2025; source SHA-256
+`a78e444a6885c182f38288900af321092d2323edfadc96a16e1b9f010cba5d00`).
+`--frozen-ocr` additionally verifies the already-retained asset bytes/hashes and
+ordered OCR receipt; it does not perform fresh recognition. It checks exact
+rows, complete required qualifiers, header/marker geometry, original URLs,
+unique IDs, deterministic output and actual serialized Graph request sizes.
+The local content probe is reported separately from full page/section payloads.
+All source/asset/receipt paths and generated payloads remain private.
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+.\.venv\Scripts\python.exe -m tests.note_evidence_replay `
+  --root '<authorized retained copied source directory>' `
+  --metadata '<retained metadata summary.json>' `
+  --output '<new private output directory>' --frozen-ocr
+```
+
+Run the same evaluator against the retained integration base
+`b2c47ca0169ae359db6b7a7089b1f732729a44ed` and this candidate using separate
+`PYTHONPATH` roots/output directories. Never overwrite the old evidence or
+reinterpret content-probe misses as full-payload misses. In particular, the
+baseline default full payloads already retained the HR starred definitions;
+the symbol failure is exposed by the original local probe and bounded synthetic
+chunks. The full-payload cross-page charity exclusion was absent.
+
+The same final evaluator and frozen inputs produced these offline results
+for both HTML-only and frozen-OCR runs:
+
+| Measure | Retained v8 integration | v9 candidate |
+|---|---:|---:|
+| Exact selected rows retained once, in order | 18 | 18 |
+| Rows with all applicable qualifiers in full payloads | 16 | 18 |
+| Rows with all applicable qualifiers in local probe segments | 5 | 18 |
+| Full-document payload count | 477 | 681 |
+| Maximum content characters | 7,852 | 6,836 |
+| Maximum serialized request bytes | 9,044 | 8,013 |
+
+These are evidence availability counts, not answer-accuracy scores. Five
+unmarked HR rows require no marker definition. The complete parsed-content
+SHA-256 was identical before/after within each OCR mode, and lexical source
+coverage passed. All 18 selected rows retained their original page and section
+ownership, exact row occurrence and source headers. The frozen-OCR run also
+matched all 13 ordered name headers and six marked names against the earlier
+independent visual reference; no new OCR recognition or assets were acquired.
+
+Processing v9 invalidates completed parse-cache generations, not SQLite format
+4 or maintenance plan formats 1/2/3. Prepared payload replay, old-plan inspect
+and source-free rollback retain exact old bytes/digests; forward drift needs the
+original runtime. See [the version contract](maintenance.md#existing-plans-and-version-boundaries).
+No automatic migration, live repackaging or sample-uploader retargeting is part
+of this change.
 
 Run the infrastructure and synthetic controls without a source cache:
 
