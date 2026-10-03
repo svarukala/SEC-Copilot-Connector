@@ -142,14 +142,19 @@ exact-document workflow, not a broad live reprocessing procedure.
 It documents offline results, a separately approved frozen-manifest loader, and
 a controlled A/B evaluation protocol.
 
-Processing version **8** adds source-backed table-header and linked-note context.
+Processing version **9** adds bounded source-local symbol, cross-page and
+narrative-separated note associations before page/section splitting. It keeps
+original text and cites the owning table's document/page; repeated definitions,
+unrelated headings/tables and exhausted context budgets are not guessed.
+See the [v9 evidence and limits](docs/evidence-evaluation.md#processing-v9-note-association-follow-up).
+The original processing version **8** added source-backed table-header context.
 The [five-bank sample report](docs/evidence-v8-five-bank-sample.md) records the
 25-document delivery and qualified user evaluations, not universal answer
 accuracy. Its five added sources retain **17 pre-existing period-context
-diagnostic gaps**; indirect/cross-page notes, oversized context and unavailable
+diagnostic gaps**. Ambiguous/long-distance notes, oversized context and unavailable
 incorporated annual reports remain explicit limitations. Ordinary `resume`
 replays already prepared payloads unchanged; it does **not** rebuild them with
-version 8. See [recovery and reprocessing](docs/operations.md) before explicitly
+version 9. See [recovery and reprocessing](docs/operations.md) before explicitly
 rebuilding selected work. A code upgrade or merge does not authorize live
 reprocessing or deletion.
 
@@ -157,7 +162,7 @@ For an exact cached document in a completed sole-document filing, the
 [scoped maintenance workflow](docs/maintenance.md) provides reviewed
 `prepare`/`inspect`/`apply`/`resume`/`rollback` commands. It requires quiescing all
 writers, retains remote/local recovery evidence, and permanently upgrades that
-database to state format 4. This is separate from processing v8. A
+database to state format 4. This is separate from processing v9. A
 [single-scope live validation](docs/maintenance-live-validation.md) passed storage
 checks and bounded PNC agent acceptance. The procedure is validated for its
 supported single-document, non-OCR scope, not for all filings.
@@ -165,7 +170,7 @@ Offline-tested extensions support explicitly opted-in, fully prepared
 single-document interrupted delivery, frozen local rotated-image OCR inputs,
 and explicit complete multi-document inventories in completed, unsampled,
 OCR-disabled filings. Multi-document plans use format 3; state format 4 and
-processing v8 remain separate and unchanged. Missing inventory/unprepared work,
+plan formats 1/2/3 are unchanged by processing v9. Missing inventory/unprepared work,
 ambiguous ownership, multi-document subsets, mixed provenance and multi-document
 OCR remain unsupported; see the maintenance eligibility matrix. These
 extensions have no live customer acceptance. Real-engine offline parser/chunker
