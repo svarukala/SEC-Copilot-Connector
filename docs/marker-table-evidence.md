@@ -21,10 +21,21 @@ semantics. Each association explicitly includes its column path and coordinate.
 `blank` means **no marker shown**, not false or no relationship. `marked`
 retains the literal source symbol, including check marks, without inferring an
 affirmative meaning. Source-linked notes (including the existing bounded scope
-association) travel with every applicable row/header association. Unresolved
-note references or insufficient space suppress that table's entire expansion,
+association) travel with every applicable row/header association. Each component
+of a grouped reference such as `(a,b)` requires its own definition. References
+in repeated captions, preceding prose, and the normal section/document prefix
+also require source-bound definitions; context-only references not owned by the
+existing table-note association are conservatively excluded from expansion.
+Unresolved note references or insufficient space suppress that table's entire expansion,
 with a warning, rather than emitting an incomplete qualifier or partial matrix.
 Unrelated notes are not globally appended.
+
+Derived evidence retains the complete intervening source context, including
+long captions and full-width source titles, rather than the source splitter's
+optional short-caption subset. If that context cannot fit with an association
+and its notes, expansion is omitted. A preceding block containing independent
+note definitions also prevents expansion rather than transferring those notes
+to a different table. The original source text remains unchanged in all cases.
 
 Evidence uses normal document URL, filing identity, page, section and chunk
 ordinal attribution. Page is the connector's source segment ordinal, not an
@@ -33,13 +44,27 @@ serialized-request size validation; additions can shift subsequent subchunk
 IDs/ordinals. Neither the old item count nor identical downstream IDs is promised.
 No Graph schema change or new processing option is needed.
 
+Before returning chunks for persistence, the chunker uses the same pure external
+item builder and canonical serialization as Graph to check the complete request,
+including JSON escaping, all metadata, ACL, and the configured/captured icon URL.
+If any candidate request exceeds the ceiling, all marker additions for that
+document are omitted and its original source-only chunking is restored. This
+also prevents ordinal growth from making a previously fitting source request
+oversized. Associations are not fragmented and the limit is never increased.
+An independently oversized source-only request still uses the existing failure
+path; this fallback is not a repair for pre-existing oversized source content.
+
 ## Eligibility and deliberate exclusions
 
 Accepted tables are rectangular source grids with one to four consistently
 populated row-label fields entirely on one side of two to 32 marker columns.
 Leading headers may be explicit or already recognized by the parser; every
-marker column needs a unique, nonempty ordered header path. All cells in the
-marker region must be blank or the same glyph: bullet, filled/open circle,
+marker column needs a unique, nonempty ordered header path. Each column in the
+marker region must have a dedicated path: a parent-only path that prefixes a
+sibling leaf path is ambiguous and excludes the table, rather than creating a
+phantom aggregate column from an empty leaf gutter. Labelled all-blank leaves
+remain explicit. All cells in the marker region must be blank or the same glyph:
+bullet, filled/open circle,
 filled/open square, check mark (two variants), or checked box.
 These glyphs are only visible marks, not semantic classifications.
 

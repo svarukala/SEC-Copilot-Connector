@@ -280,7 +280,10 @@ class IngestionPipeline:
                     )
                     if parsed is None:
                         raise ValueError(f"Document did not produce usable content: {document.filename}")
-                    chunks = chunk_with_limit(parsed, chunking, max_chunks=remaining)
+                    chunks = chunk_with_limit(
+                        parsed, chunking, max_chunks=remaining,
+                        icon_url=record.processing_options.get("icon_url", self.config.azure.icon_url),
+                    )
                     payloads = [
                         graph.build_payload(chunk, icon_url=record.processing_options.get("icon_url"))
                         for chunk in chunks

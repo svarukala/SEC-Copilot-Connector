@@ -2,10 +2,8 @@
 
 import asyncio
 import json
-import hashlib
 import time
 from dataclasses import dataclass
-from datetime import timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from importlib.resources import files
@@ -17,7 +15,7 @@ from msal import ConfidentialClientApplication
 
 from .config import GRAPH_MAX_ITEM_BYTES, AppConfig
 from .models import ContentChunk, GraphExternalItem
-from .payloads import serialize_item
+from .payloads import chunk_to_external_item, serialize_item
 from .utils import get_logger
 
 logger = get_logger("graph_client")
@@ -303,55 +301,7 @@ class GraphClient:
 
     def _chunk_to_external_item(self, chunk: ContentChunk) -> GraphExternalItem:
         """Convert a ContentChunk to a GraphExternalItem."""
-        filing = chunk.filing
-        filing_date = filing.filing_date
-        if filing_date.tzinfo is None:
-            filing_date = filing_date.replace(tzinfo=timezone.utc)
-
-        properties = {
-            "Title": f"{chunk.title} [{filing.ticker}] - {chunk.document.filename}",
-            "Company": filing.company_name,
-            "Ticker": filing.ticker,
-            "Form": filing.form,
-            "FilingDate": filing_date.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
-            "Description": chunk.document.description or f"{filing.form} filing for {filing.company_name}",
-            "Url": filing.document_url(chunk.document.filename),
-            "CIK": filing.cik,
-            "AccessionNumber": filing.accession_number,
-            "Sequence": chunk.document.sequence,
-            "Page": chunk.page_number,
-            "IconUrl": self.config.azure.icon_url,
-            "FilingUrl": filing.filing_url,
-            "DocumentName": chunk.document.filename,
-            "FileExtension": Path(chunk.document.filename).suffix.lstrip(".").lower(),
-            "DocumentType": chunk.document.document_type,
-            "DocumentId": hashlib.sha256(
-                filing.document_url(chunk.document.filename).encode("utf-8")
-            ).hexdigest(),
-            "ChunkOrdinal": chunk.chunk_ordinal,
-            "IsAmendment": filing.is_amendment,
-        }
-        if chunk.section_title:
-            properties["SectionTitle"] = chunk.section_title
-        if filing.fiscal_report_period_end:
-            properties["ReportPeriodEnd"] = filing.fiscal_report_period_end.strftime("%Y-%m-%dT00:00:00Z")
-        if filing.acceptance_datetime:
-            if filing.acceptance_datetime.tzinfo is None:
-                raise ValueError("SEC acceptance_datetime must include its source timezone")
-            properties["AcceptanceDateTime"] = filing.acceptance_datetime.astimezone(
-                timezone.utc
-            ).isoformat().replace("+00:00", "Z")
-
-        content = {
-            "type": "text",
-            "value": chunk.content,
-        }
-
-        return GraphExternalItem(
-            id=chunk.graph_item_id,
-            properties=properties,
-            content=content,
-        )
+        return chunk_to_external_item(chunk, self.config.azure.icon_url)
 
     def build_payload(self, chunk: ContentChunk, icon_url: Optional[str] = None) -> dict:
         """Build the Graph API payload dict for a chunk.

@@ -9,6 +9,31 @@ from sec_connector.pipeline import IngestionPipeline
 from .test_recovery import config, filing, clients
 
 
+async def test_marker_envelope_uses_captured_icon_before_persisting(config, clients):
+    from sec_connector.chunker import chunk_document
+    from sec_connector.parser import parse_document
+    from sec_connector.payloads import serialize_item
+    from .test_marker_tables import matrix
+
+    sec, graph, documents, paths = clients
+    document = documents[0]
+    sec.get_filing_documents.return_value = [document]
+    paths[document.filename].write_text(matrix(), encoding="utf-8")
+    config.azure.icon_url = "https://example.invalid/" + "x" * 500
+    filing = sec.get_filings.return_value[0]
+    parsed = parse_document(paths[document.filename], filing, document)
+    original = parsed.model_copy(update={"marker_tables": {}})
+    baseline = [graph.build_payload(c) for c in chunk_document(
+        original, config.chunking, icon_url=config.azure.icon_url,
+    )]
+    config.chunking.max_item_bytes = max(len(serialize_item(p)) for p in baseline) + 10
+    result = await IngestionPipeline(config).ingest(["AAPL"])
+    assert result["errors"] == 0 and result["filings_completed"] == 1
+    actual = [call.args[1] for call in graph.upload_payload.await_args_list]
+    assert actual == baseline
+    assert all(len(serialize_item(p)) <= config.chunking.max_item_bytes for p in actual)
+
+
 async def test_shrinking_document_replaces_then_deletes_obsolete_ids(config, clients):
     _, graph, documents, paths = clients
     paths[documents[0].filename].write_text("<p>" + "Financial fact. " * 2000 + "</p>", encoding="utf-8")

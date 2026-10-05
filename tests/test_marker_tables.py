@@ -270,3 +270,151 @@ def test_optional_module_is_in_diagnostics_and_maintenance_provenance():
     schema = {"baseType": "microsoft.graph.externalItem",
               "properties": [{"name": "Title", "type": "string"}]}
     assert diagnostics.runtime_info(path.parent, schema)["code_sha256"]["marker_tables.py"] == expected
+
+
+@pytest.mark.parametrize("axis", ["row", "header", "field"])
+@pytest.mark.parametrize("group", ["(a,b)", "(a, b)", "(1,2)"])
+@pytest.mark.parametrize("complete", [False, True])
+def test_every_grouped_reference_component_requires_a_definition(axis, group, complete):
+    first, second = ("1", "2") if group == "(1,2)" else ("a", "b")
+    source = matrix()
+    label = {"row": "Survey", "header": "North", "field": "Activity"}[axis]
+    source = source.replace(label, label + group)
+    source += f"<p>({first}) First qualification.</p>"
+    if complete:
+        source += f"<p>({second}) Second qualification.</p>"
+    parsed = parse(source)
+    assert parsed.marker_tables
+    chunks = derived(parsed)
+    if not complete:
+        assert not chunks
+    else:
+        assert chunks
+        for chunk in chunks:
+            if label + group in chunk.content:
+                assert f"({first}) First qualification." in chunk.content
+                assert f"({second}) Second qualification." in chunk.content
+
+
+@pytest.mark.parametrize("group", ["(alpha,beta)", "(a , b)", "( a,b )"])
+def test_unbound_group_syntax_is_not_mistaken_for_no_references(group):
+    parsed = parse(matrix().replace("Survey", "Survey" + group))
+    assert parsed.marker_tables
+    assert not derived(parsed)
+
+
+@pytest.mark.parametrize("placement", ["caption", "preceding", "title"])
+@pytest.mark.parametrize("reference", ["(a)", "(a,b)"])
+def test_context_only_references_fail_closed_without_owned_definitions(placement, reference, caplog):
+    context = "Hypothetical coverage" + reference
+    source = matrix()
+    if placement == "caption":
+        source = source.replace("<table>", f"<table><caption>{context}</caption>")
+    elif placement == "title":
+        source = source.replace("<table>", f"<table><tr><td colspan='4'>{context}</td></tr>")
+    else:
+        source = f"<p>{context}</p>" + source
+    source += "<p>(a) Illustrative only; not actual coverage.</p><p>(b) Testing scope.</p>"
+    parsed = parse(source)
+    assert parsed.marker_tables
+    assert not derived(parsed)
+    assert context in parsed.content
+    assert "unresolved source note reference" in caplog.text
+
+
+def test_context_note_is_repeated_on_every_row_when_source_ownership_is_bound():
+    source = ("<p>Hypothetical coverage(a)</p>"
+              + matrix(rows=[("Survey(a)", ["\u2022", "", ""]), ("Review", ["", "\u2022", ""])])
+              + "<p>(a) Simulation only.</p>")
+    chunks = derived(parse(source))
+    assert chunks
+    assert all("Hypothetical coverage(a)" in c.content and "(a) Simulation only." in c.content
+               for c in chunks)
+
+
+@pytest.mark.parametrize("placement", ["caption", "preceding", "title"])
+@pytest.mark.parametrize("length", [7, 300])
+def test_full_long_context_is_retained_or_whole_expansion_omitted(placement, length):
+    context = ("Hypothetical simulation only, not actual coverage. "
+               + "This statement defines the table scope. " * length).strip()
+    source = matrix()
+    if placement == "caption":
+        source = source.replace("<table>", f"<table><caption>{context}</caption>")
+    elif placement == "title":
+        source = source.replace("<table>", f"<table><tr><td colspan='4'>{context}</td></tr>")
+    else:
+        source = f"<p>{context}</p>" + source
+    parsed = parse(source)
+    chunks = derived(parsed)
+    if length == 7:
+        assert chunks and all(context in c.content for c in chunks)
+    else:
+        assert not chunks
+    assert context in parsed.content
+
+
+def test_context_before_more_than_three_paragraphs_is_not_discarded():
+    scope = "This is a hypothetical simulation only."
+    source = f"<p>{scope}</p>" + "<p>Additional table context.</p>" * 5 + matrix()
+    chunks = derived(parse(source))
+    assert chunks and all(scope in c.content for c in chunks)
+
+
+def test_preceding_independent_notes_do_not_transfer_to_derived_table():
+    parsed = parse("<p>(a) Basis for a previous disclosure.</p>" + matrix())
+    assert parsed.marker_tables and not derived(parsed)
+
+
+def test_inherited_section_reference_also_requires_qualification():
+    source = ("<h2>Simulation(a)</h2><table><tr><td>Units</td><td>25</td></tr></table>"
+              + matrix() + "<p>(a) Not actual coverage.</p>")
+    assert not derived(parse(source))
+
+
+def test_shared_group_header_does_not_name_an_empty_leaf_gutter():
+    source = (
+        "<table><tr><th rowspan='2'>Task</th><th colspan='3'>East</th><th rowspan='2'>West</th></tr>"
+        "<tr><th>Basic</th><th></th><th>Advanced</th></tr>"
+        "<tr><td>Inspection</td><td>\u2022</td><td></td><td></td><td>\u2022</td></tr>"
+        "<tr><td>Review</td><td></td><td></td><td>\u2022</td><td></td></tr></table>"
+    )
+    assert not parse(source).marker_tables
+    labelled = source.replace("<th></th>", "<th>Intermediate</th>")
+    rows = next(iter(parse(labelled).marker_tables.values()))
+    assert all(row.cells[1].header == ["East", "Intermediate"] and not row.cells[1].marker
+               for row in rows)
+
+
+@pytest.mark.parametrize("metadata", [False, True])
+def test_exact_request_envelope_falls_back_to_unchanged_source_only(metadata, caplog):
+    parsed = parse(matrix())
+    config = AppConfig()
+    if metadata:
+        config.azure.icon_url = "https://example.invalid/" + "i" * 500
+        parsed.filing.company_name = 'Quoted "Company" \u6771'
+        parsed.document.description = "Detailed scope " * 20
+    graph = GraphClient(config)
+    source = parsed.model_copy(update={"marker_tables": {}})
+    original = chunk_document(source, config.chunking, icon_url=config.azure.icon_url)
+    baseline = [graph.build_payload(c) for c in original]
+    config.chunking.max_item_bytes = max(len(serialize_item(p)) for p in baseline) + 10
+    chunks = chunk_document(parsed, config.chunking, icon_url=config.azure.icon_url)
+    assert chunks == chunk_document(source, config.chunking, icon_url=config.azure.icon_url)
+    assert [graph.build_payload(c) for c in chunks] == baseline
+    assert all(len(serialize_item(graph.build_payload(c))) <= config.chunking.max_item_bytes for c in chunks)
+    assert "serialized request envelope exceeds budget" in caplog.text
+
+
+def test_request_ceiling_includes_json_escaping_and_accepts_exact_boundary():
+    parsed = parse(matrix())
+    config = AppConfig()
+    graph = GraphClient(config)
+    expected = chunk_document(parsed, config.chunking)
+    assert any("[Derived marker-table evidence;" in c.content for c in expected)
+    limit = max(len(serialize_item(graph.build_payload(c))) for c in expected)
+    config.chunking.max_item_bytes = limit
+    assert chunk_document(parsed, config.chunking) == expected
+    config.chunking.max_item_bytes = limit - 1
+    actual = chunk_document(parsed, config.chunking)
+    assert not any("[Derived marker-table evidence;" in c.content for c in actual)
+    assert actual == chunk_document(parsed.model_copy(update={"marker_tables": {}}), config.chunking)

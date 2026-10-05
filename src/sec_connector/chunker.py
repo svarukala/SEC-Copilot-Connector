@@ -4,9 +4,10 @@ import re
 import hashlib
 from typing import Optional
 
-from .config import GRAPH_MAX_ITEM_BYTES, ChunkingConfig
+from .config import GRAPH_MAX_ITEM_BYTES, AzureConfig, ChunkingConfig
 from .models import ContentChunk, MarkerRow, ParsedDocument
 from .marker_tables import render as render_marker_evidence
+from .payloads import chunk_to_external_item, serialize_item
 from .parser import _is_period_heading
 from .note_associations import (
     NOTE_START as _NOTE_START,
@@ -303,6 +304,7 @@ def _split_content(
     table_header_rows: Optional[dict[str, int]] = None,
     table_notes: Optional[dict[str, list[tuple[str, str]]]] = None,
     marker_tables: Optional[dict[str, list[MarkerRow]]] = None,
+    marker_outer_context: str = "",
 ) -> list[str]:
     """Keep table rows atomic; apply overlap exclusively to prose blocks."""
     # A complete section is better evidence than isolated layout/table blocks.
@@ -346,7 +348,10 @@ def _split_content(
             if table_notes and key in table_notes and notes:
                 nearby = [p for p in nearby if not re.match(r"^(?:[-*+]|\d+\.)\s", p)]
             context = "\n\n".join(nearby)
-            marker_context = context
+            # Derived evidence needs the entire intervening source context.
+            # The source-table splitter's optional 240-character caption limit
+            # must not silently remove a qualifier from standalone associations.
+            marker_context = blocks[index - 1].strip()
             # Do not let optional neighboring prose make otherwise valid rows
             # indivisible. It remains present in its own prose block.
             if not _fits(context, max_size // 3, max(4, max_bytes // 3)):
@@ -359,6 +364,7 @@ def _split_content(
             if marker_tables and key in marker_tables:
                 chunks.extend(render_marker_evidence(
                     key, marker_tables[key], marker_context, notes, max_size, max_bytes,
+                    marker_outer_context,
                 ))
         else:
             chunks.extend(
@@ -371,6 +377,8 @@ def _split_content(
 def chunk_document(
     parsed_doc: ParsedDocument,
     config: ChunkingConfig,
+    *,
+    icon_url: Optional[str] = None,
 ) -> list[ContentChunk]:
     """Chunk a parsed document into uploadable segments.
 
@@ -417,6 +425,7 @@ def chunk_document(
                     section, target, char_budget, overlap, byte_budget,
                     parsed_doc.table_header_rows, parsed_doc.table_notes,
                     parsed_doc.marker_tables,
+                    context,
                 )
                 if piece
             )
@@ -443,6 +452,18 @@ def chunk_document(
             )
             chunks.append(chunk)
 
+    if parsed_doc.marker_tables:
+        effective_icon = icon_url if icon_url is not None else AzureConfig().icon_url
+        if any(len(serialize_item(chunk_to_external_item(c, effective_icon).model_dump()))
+               > config.max_item_bytes for c in chunks):
+            logger.warning(
+                "Marker evidence omitted: serialized request envelope exceeds budget; "
+                "retaining source-only document chunking"
+            )
+            return chunk_document(
+                parsed_doc.model_copy(update={"marker_tables": {}}), config, icon_url=icon_url,
+            )
+
     logger.info(
         f"Chunked {document.filename} into {len(chunks)} chunks "
         f"(avg {sum(len(c.content) for c in chunks) // max(len(chunks), 1)} chars)"
@@ -455,6 +476,8 @@ def chunk_with_limit(
     parsed_doc: ParsedDocument,
     config: ChunkingConfig,
     max_chunks: Optional[int] = None,
+    *,
+    icon_url: Optional[str] = None,
 ) -> list[ContentChunk]:
     """Chunk a document with optional limit on number of chunks.
 
@@ -466,7 +489,7 @@ def chunk_with_limit(
     Returns:
         List of ContentChunk objects (possibly limited)
     """
-    chunks = chunk_document(parsed_doc, config)
+    chunks = chunk_document(parsed_doc, config, icon_url=icon_url)
 
     if max_chunks and len(chunks) > max_chunks:
         logger.info(f"Limiting chunks from {len(chunks)} to {max_chunks}")
