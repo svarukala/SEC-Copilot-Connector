@@ -111,7 +111,7 @@ def test_non_ocr_options_and_fingerprints_unchanged(config, filing, clients):
         "chunking", "ocr_images", "filings", "refresh_downloads", "icon_url",
         "schema_hash", "processing_version",
     }
-    assert original["processing_version"] == 9
+    assert original["processing_version"] == 10
     before = document_fingerprint("source", filing, clients[2][0], original)
     config.processing.ocr = OCRConfig(executable="unavailable", tessdata_dir="missing", timeout_seconds=1)
     assert pipeline._processing_options() == original

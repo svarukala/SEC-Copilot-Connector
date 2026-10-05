@@ -9,10 +9,11 @@ from bs4 import BeautifulSoup, NavigableString
 from markdownify import MarkdownConverter
 from soupsieve import SelectorSyntaxError
 
-from .models import DocumentInfo, FilingMetadata, ParsedDocument
+from .models import DocumentInfo, FilingMetadata, MarkerRow, ParsedDocument
 from .config import OCRConfig
 from .ocr_engine import image_to_text
 from .note_associations import collect_table_notes
+from .marker_tables import bind_unique, capture
 from .utils import get_logger
 
 logger = get_logger("parser")
@@ -209,6 +210,7 @@ class SECMarkdownConverter(MarkdownConverter):
 
     def __init__(self, **options):
         self.table_header_rows = options.pop("table_header_rows", None)
+        self.marker_tables = options.pop("marker_tables", None)
         super().__init__(**options)
 
     def convert_table(self, el, text=None, *args, **kwargs):
@@ -237,16 +239,21 @@ class SECMarkdownConverter(MarkdownConverter):
         ):
             # Layout wrappers must not turn their embedded financial tables into
             # escaped pipes, nor include the inner cells a second time.
-            return "\n\n" + "\n\n".join(
-                self.convert(cell.decode_contents()).strip()
-                for cells in direct_cells for cell in cells
-            ) + "\n\n"
+            marker_tables, self.marker_tables = self.marker_tables, None
+            try:
+                return "\n\n" + "\n\n".join(
+                    self.convert(cell.decode_contents()).strip()
+                    for cells in direct_cells for cell in cells
+                ) + "\n\n"
+            finally:
+                self.marker_tables = marker_tables
 
         grid = {}
         origins = {}
         header_flags = []
         source_header_flags = []
         title_flags = []
+        regular_grid = True
         for row_index, cells in enumerate(direct_cells):
             source_header_flags.append(row_index < source_header_end)
             column = 0
@@ -265,17 +272,25 @@ class SECMarkdownConverter(MarkdownConverter):
                     rowspan = int(cell.get("rowspan", 1))
                     if rowspan == 0:
                         rowspan = len(rows) - row_index
+                    if not 1 <= rowspan <= len(rows) - row_index:
+                        regular_grid = False
+                    if not 1 <= int(cell.get("colspan", 1)) <= 256:
+                        regular_grid = False
                     rowspan = min(max(rowspan, 1), len(rows) - row_index)
                     colspan = min(max(int(cell.get("colspan", 1)), 1), 256)
                 except (ValueError, TypeError):
+                    regular_grid = False
                     rowspan = colspan = 1
                 for down in range(rowspan):
                     for across in range(colspan):
+                        if (row_index + down, column + across) in grid:
+                            regular_grid = False
                         grid.setdefault((row_index + down, column + across), value)
                         origins.setdefault((row_index + down, column + across), (row_index, column))
                 column += colspan
 
         width = max((column for _, column in grid), default=0) + 1
+        source_width = width
         populated_rows = [
             row for row in range(len(rows))
             if any(grid.get((row, col), "") for col in range(width))
@@ -301,6 +316,16 @@ class SECMarkdownConverter(MarkdownConverter):
         title_flags = [title_flags[index] for index in populated]
         if not matrix:
             return text or ""
+        marker_eligible = (
+            self.marker_tables is not None and regular_grid
+            and source_width <= 128 and len(populated) <= 68
+            and not el.find("img") and el.find_parent("table") is None
+        )
+        marker_matrix = ([[grid.get((r, c), "") for c in range(source_width)] for r in populated]
+                         if marker_eligible else [])
+        marker_origins = ([[origins.get((r, c)) for c in range(source_width)] for r in populated]
+                          if marker_eligible else [])
+        marker_source_rows = list(populated)
         caption = el.find("caption", recursive=False)
         context = [self.convert(caption.decode_contents()).strip()] if caption else []
         # Full-width title/unit rows are context, not misleading column names.
@@ -310,6 +335,10 @@ class SECMarkdownConverter(MarkdownConverter):
             header_flags.pop(0)
             source_header_flags.pop(0)
             title_flags.pop(0)
+            if marker_matrix:
+                marker_matrix.pop(0)
+                marker_origins.pop(0)
+            marker_source_rows.pop(0)
 
         header_count = 0
         for values, explicit in zip(matrix, header_flags):
@@ -351,12 +380,16 @@ class SECMarkdownConverter(MarkdownConverter):
                         seen[source_cell] = column
             md_rows.append("| " + " | ".join(rendered) + " |")
         table_markdown = "\n".join(md_rows)
+        key = hashlib.sha256(table_markdown.encode("utf-8")).hexdigest()
+        if marker_eligible and self.marker_tables is not None:
+            self.marker_tables[key] = capture(
+                marker_matrix, marker_origins, header_count, marker_source_rows,
+            )
         source_count = next(
             (index for index, flag in enumerate(source_header_flags) if not flag),
             len(source_header_flags),
         )
         if self.table_header_rows is not None:
-            key = hashlib.sha256(table_markdown.encode("utf-8")).hexdigest()
             count = 2 + max(0, source_count - header_count)
             # Identical Markdown from conflicting HTML structures cannot safely
             # borrow the more permissive source interpretation.
@@ -530,6 +563,7 @@ def html_to_markdown(
     local_image_dir: Optional[Path] = None,
     table_header_rows: Optional[dict[str, int]] = None,
     table_notes: Optional[dict[str, list[tuple[str, str]]]] = None,
+    marker_tables: Optional[dict[str, list[MarkerRow]]] = None,
     ocr_resolver: Optional[Callable[[str, Path], str]] = None,
     ocr_settings: Optional[OCRConfig] = None,
 ) -> str:
@@ -589,6 +623,7 @@ def html_to_markdown(
             bullets="-",
             strip=["a"],
             table_header_rows=table_header_rows,
+            marker_tables=marker_tables,
         )
 
         markdown = converter.convert(str(soup))
@@ -597,6 +632,8 @@ def html_to_markdown(
         logger.warning("HTML too deeply nested, falling back to text extraction")
         if table_header_rows is not None:
             table_header_rows.clear()
+        if marker_tables is not None:
+            marker_tables.clear()
         markdown = soup.get_text(separator="\n")
 
     markdown = re.sub(r"\n{3,}", "\n\n", markdown)
@@ -610,6 +647,8 @@ def html_to_markdown(
     markdown = markdown.strip()
     if table_notes is not None:
         table_notes.update(collect_table_notes(markdown))
+    if marker_tables is not None:
+        bind_unique(markdown, marker_tables)
     return markdown
 
 
@@ -742,12 +781,14 @@ def parse_document(
     )
     table_header_rows = {}
     table_notes = {}
+    marker_tables = {}
     if is_html:
         markdown = html_to_markdown(
             content,
             local_image_dir=(local_image_dir or file_path.parent) if ocr_images else None,
             table_header_rows=table_header_rows,
             table_notes=table_notes,
+            marker_tables=marker_tables,
             ocr_resolver=ocr_resolver,
             ocr_settings=ocr_settings,
         )
@@ -767,6 +808,7 @@ def parse_document(
         content_type="text/markdown",
         table_header_rows=table_header_rows,
         table_notes=table_notes,
+        marker_tables=marker_tables,
     )
 
 

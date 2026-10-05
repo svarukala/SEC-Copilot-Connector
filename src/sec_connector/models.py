@@ -96,6 +96,21 @@ class DocumentInfo(BaseModel):
         return v
 
 
+class MarkerCell(BaseModel):
+    """An uninterpreted source marker (or blank) at an unambiguous column."""
+    column: int
+    header: list[str]
+    marker: str
+
+
+class MarkerRow(BaseModel):
+    """Source coordinates and ordered hierarchical labels, not inferred answers."""
+    row: int
+    labels: list[str]
+    label_headers: list[list[str]]
+    cells: list[MarkerCell]
+
+
 class ParsedDocument(BaseModel):
     """A parsed document ready for chunking."""
     filing: FilingMetadata
@@ -104,6 +119,7 @@ class ParsedDocument(BaseModel):
     content_type: str = "text/markdown"
     table_header_rows: dict[str, int] = Field(default_factory=dict)
     table_notes: dict[str, list[tuple[str, str]]] = Field(default_factory=dict)
+    marker_tables: dict[str, list[MarkerRow]] = Field(default_factory=dict)
 
 
 class ContentChunk(BaseModel):

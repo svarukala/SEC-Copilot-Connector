@@ -5,7 +5,8 @@ import hashlib
 from typing import Optional
 
 from .config import GRAPH_MAX_ITEM_BYTES, ChunkingConfig
-from .models import ContentChunk, ParsedDocument
+from .models import ContentChunk, MarkerRow, ParsedDocument
+from .marker_tables import render as render_marker_evidence
 from .parser import _is_period_heading
 from .note_associations import (
     NOTE_START as _NOTE_START,
@@ -301,6 +302,7 @@ def _split_content(
     content: str, target_size: int, max_size: int, overlap: int, max_bytes: int,
     table_header_rows: Optional[dict[str, int]] = None,
     table_notes: Optional[dict[str, list[tuple[str, str]]]] = None,
+    marker_tables: Optional[dict[str, list[MarkerRow]]] = None,
 ) -> list[str]:
     """Keep table rows atomic; apply overlap exclusively to prose blocks."""
     # A complete section is better evidence than isolated layout/table blocks.
@@ -309,7 +311,11 @@ def _split_content(
         (table_notes or {}).get(hashlib.sha256(match[0].strip().encode("utf-8")).hexdigest())
         for match in TABLE.finditer(content)
     )
-    if _fits(content, max_size, max_bytes) and not has_bound_notes:
+    has_markers = any(
+        (marker_tables or {}).get(hashlib.sha256(match[0].strip().encode("utf-8")).hexdigest())
+        for match in TABLE.finditer(content)
+    )
+    if _fits(content, max_size, max_bytes) and not has_bound_notes and not has_markers:
         return [content]
     blocks = re.split(r"(^[ \t]*\|[^\n]*(?:\n[ \t]*\|[^\n]*)*)", content, flags=re.MULTILINE)
     if len(blocks) == 1:
@@ -340,6 +346,7 @@ def _split_content(
             if table_notes and key in table_notes and notes:
                 nearby = [p for p in nearby if not re.match(r"^(?:[-*+]|\d+\.)\s", p)]
             context = "\n\n".join(nearby)
+            marker_context = context
             # Do not let optional neighboring prose make otherwise valid rows
             # indivisible. It remains present in its own prose block.
             if not _fits(context, max_size // 3, max(4, max_bytes // 3)):
@@ -349,6 +356,10 @@ def _split_content(
                 table, context, target_size, max_size, max_bytes, notes,
                 (table_header_rows or {}).get(key, 0),
             ))
+            if marker_tables and key in marker_tables:
+                chunks.extend(render_marker_evidence(
+                    key, marker_tables[key], marker_context, notes, max_size, max_bytes,
+                ))
         else:
             chunks.extend(
                 part for piece in _split_prose(block, target_size, max_size, overlap)
@@ -405,6 +416,7 @@ def chunk_document(
                 for piece in _split_content(
                     section, target, char_budget, overlap, byte_budget,
                     parsed_doc.table_header_rows, parsed_doc.table_notes,
+                    parsed_doc.marker_tables,
                 )
                 if piece
             )

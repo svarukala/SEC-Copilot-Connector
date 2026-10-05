@@ -126,7 +126,7 @@ def provenance(config) -> dict:
     options = IngestionPipeline(config)._processing_options()
     modules = ("parser", "chunker", "models", "payloads", "pipeline", "graph_client",
                "config", "state_manager", "maintenance", "maintenance_ocr", "ocr_engine",
-               "note_associations")
+               "note_associations", "marker_tables")
     return {
         "options": options,
         "modules": {name: file_hash(Path(__file__).with_name(name + ".py")) for name in modules},

@@ -179,6 +179,14 @@ Retain configured forms, history, amendment, and exhibit options when editing YA
 
 ## Schema and parser upgrades
 
+Processing v10 adds [bounded marker-table evidence](marker-table-evidence.md)
+without changing source Markdown, Graph schema, SQLite format 4, or maintenance
+plan formats 1/2/3. It changes completed-document cache generation and may add
+chunks/shift IDs. Existing prepared payloads still replay exactly. Historical
+maintenance plans keep their original options/digests: forward provenance drift
+requires the original runtime; inspection and source-free rollback remain
+available. Do not relabel a frozen v8/v9 manifest as v10.
+
 The canonical [schema](../config/schema.json) has 22 properties. `Url` points to
 the actual primary/exhibit document; `FilingUrl` points to the filing index.
 Ticker, form, and document type support refinements; reporting period, filing

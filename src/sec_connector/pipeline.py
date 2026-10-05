@@ -19,7 +19,7 @@ from .utils import console, get_logger
 from .ocr_engine import captured_options, captured_settings
 
 logger = get_logger("pipeline")
-PROCESSING_VERSION = 9
+PROCESSING_VERSION = 10
 
 
 def document_fingerprint(

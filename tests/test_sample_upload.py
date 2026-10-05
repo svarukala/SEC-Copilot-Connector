@@ -83,10 +83,10 @@ def test_sample_exact_count_and_exhibit_identity(sample):
     assert len(validate_sample(sample)) == 25
 
 
-def test_v9_runtime_refuses_frozen_v8_sample_before_source_or_auth(sample, monkeypatch):
+def test_current_runtime_refuses_frozen_v8_sample_before_source_or_auth(sample, monkeypatch):
     from sec_connector.pipeline import PROCESSING_VERSION
 
-    assert PROCESSING_VERSION == 9
+    assert PROCESSING_VERSION == 10
     monkeypatch.setattr(sample_upload, "PROCESSING_VERSION", PROCESSING_VERSION)
     monkeypatch.setattr(sample_upload, "digest", lambda _: pytest.fail("source accessed"))
     with pytest.raises(ValueError, match="processing version differs"):
