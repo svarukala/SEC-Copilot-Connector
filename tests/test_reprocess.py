@@ -16,14 +16,15 @@ from .test_cli import cli_pipeline
 from .test_recovery import config, filing, clients
 
 
-def test_v9_changes_cache_generation_without_mutating_captured_options(config, filing, clients):
+@pytest.mark.parametrize("prior", [8, 9])
+def test_current_changes_cache_generation_without_mutating_captured_options(config, filing, clients, prior):
     _, _, documents, _ = clients
     options = IngestionPipeline(config)._processing_options()
-    old_options = {**options, "processing_version": 8}
+    old_options = {**options, "processing_version": prior}
     old = document_fingerprint("source", filing, documents[0], old_options)
     new = document_fingerprint("source", filing, documents[0], options)
-    assert old != new and old_options["processing_version"] == 8
-    assert options["processing_version"] == 9
+    assert old != new and old_options["processing_version"] == prior
+    assert options["processing_version"] == 10
     assert old == document_fingerprint("source", filing, documents[0], old_options)
 
 
@@ -45,7 +46,7 @@ async def prepare_old(pipeline, clients, filing, monkeypatch, version=3):
     return filing_id, chunks
 
 
-@pytest.mark.parametrize("version", [3, 8])
+@pytest.mark.parametrize("version", [3, 8, 9])
 async def test_reprocess_upgrades_early_pending_and_preserves_unselected_queue(
     config, clients, filing, version,
 ):
@@ -68,7 +69,7 @@ async def test_reprocess_upgrades_early_pending_and_preserves_unselected_queue(
     assert result["filings_completed"] == 1
     async with pipeline._state() as state:
         selected = await state.get_filing(selected_id)
-        assert selected.processing_options["processing_version"] == PROCESSING_VERSION == 9
+        assert selected.processing_options["processing_version"] == PROCESSING_VERSION == 10
         assert [await state.get_filing(item_id) for item_id in excluded_ids] == before
         scope = json.loads((await state.get_stats())["last_run"]["scope"])
         assert scope["reprocess"] is True
@@ -212,7 +213,7 @@ async def test_repeated_reprocess_preserves_all_generations(config, clients, fil
 
 
 @pytest.mark.parametrize("mode", ["resume", "ingest"])
-@pytest.mark.parametrize("version", [3, 8])
+@pytest.mark.parametrize("version", [3, 8, 9])
 async def test_default_replay_keeps_old_prepared_payloads(config, clients, filing, monkeypatch, mode, version):
     sec, graph, _, _ = clients
     pipeline = IngestionPipeline(config)
