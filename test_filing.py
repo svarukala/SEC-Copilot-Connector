@@ -47,7 +47,7 @@ async def inspect_filing(url: str, output_dir: Path, ocr: bool) -> None:
     parsed = await asyncio.to_thread(parse_document, path, filing, document, ocr_images=ocr)
     if parsed is None:
         raise ValueError("Document did not produce usable content")
-    chunks = chunk_document(parsed, config.chunking)
+    chunks = chunk_document(parsed, config.chunking, icon_url=config.azure.icon_url)
     graph = GraphClient(config)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "02_full_markdown.md").write_text(parsed.content, encoding="utf-8")

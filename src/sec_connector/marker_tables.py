@@ -6,7 +6,7 @@ import json
 import re
 
 from .models import MarkerCell, MarkerRow
-from .note_associations import MARKER, TABLE, canonical_marker, linked_marker
+from .note_associations import MARKER, NOTE_START, TABLE, canonical_marker, linked_marker
 from .utils import get_logger
 
 logger = get_logger("marker_tables")
@@ -68,6 +68,9 @@ def capture(matrix, origins, header_count, source_rows) -> list[MarkerRow]:
     identities = [tuple(v.casefold().strip("*_ ") for v in paths[c]) for c in data]
     if any(not identity for identity in identities) or len(set(identities)) != len(data):
         return []
+    if any(len(parent) < len(leaf) and leaf[:len(parent)] == parent
+           for parent in identities for leaf in identities):
+        return []
     # A shared header must not straddle the row-label and marker axes.
     for r in range(header_count):
         if {origins[r][c] for c in labels if matrix[r][c]} & {
@@ -114,9 +117,13 @@ def bind_unique(content: str, candidates: dict[str, list[MarkerRow]]) -> None:
 
 def render(
     key: str, rows: list[MarkerRow], context: str, notes: list[tuple[str, str]],
-    max_size: int, max_bytes: int,
+    max_size: int, max_bytes: int, outer_context: str = "",
 ) -> list[str]:
     """All-or-none bounded table expansion; never emit a detached qualifier."""
+    if any(NOTE_START.match(p.strip()) for p in re.split(r"\n\s*\n", context)):
+        logger.warning("Marker evidence omitted: preceding context contains independently owned notes")
+        return []
+
     def fits(text):
         return len(text) <= max_size and len(text.encode("utf-8")) <= max_bytes
 
@@ -141,10 +148,14 @@ def render(
             )
 
         for cell in row.cells:
-            identity = " | ".join(row.labels + [v for path in row.label_headers for v in path]
-                                  + cell.header)
+            identity = " | ".join([context, outer_context] + row.labels
+                                  + [v for path in row.label_headers for v in path] + cell.header)
             refs = {canonical_marker(m[0]) for m in re.finditer(MARKER, identity, re.I)
                     if linked_marker(m[0], identity)}
+            for group in re.findall(r"\(\s*([a-z0-9]+(?:\s*,\s*[a-z0-9]+)+)\s*\)", identity, re.I):
+                parts = re.split(r"\s*,\s*", group)
+                if any(not part.isdecimal() for part in parts) or all(len(part) <= 2 for part in parts):
+                    refs.update(f"({part})" for part in parts)
             applicable = [(m, n) for m, n in notes if linked_marker(m, identity)]
             if not refs.issubset({m for m, _ in applicable}):
                 logger.warning("Marker evidence omitted: unresolved source note reference")

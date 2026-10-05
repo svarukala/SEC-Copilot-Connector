@@ -522,7 +522,7 @@ async def prepare(config, graph, *, cik, accession, filename, sequence, source: 
     if capture.bundle["assets"]:
         frozen["options"]["maintenance_ocr_bundle_hash"] = sha(capture.bundle)
     payloads = [graph.build_payload(c, icon_url=frozen["options"]["icon_url"])
-                for c in chunk_with_limit(parsed, config.chunking)]
+                for c in chunk_with_limit(parsed, config.chunking, icon_url=frozen["options"]["icon_url"])]
     validate_payloads(payloads, scope, config.chunking.max_item_bytes)
     desired = {p["id"]: p for p in payloads}
     baseline = await observe_baseline(graph, manifest, desired, old_local)
@@ -584,7 +584,7 @@ async def prepare_documents(config, graph, *, cik, accession, selections, output
         if parsed is None:
             raise ValueError(f"Source produced no usable content: {document.filename}")
         payloads = [graph.build_payload(c, icon_url=frozen["options"]["icon_url"])
-                    for c in chunk_with_limit(parsed, config.chunking)]
+                    for c in chunk_with_limit(parsed, config.chunking, icon_url=frozen["options"]["icon_url"])]
         validate_payloads(payloads, entry["scope"], config.chunking.max_item_bytes)
         if set(desired) & {p["id"] for p in payloads}:
             raise ValueError("Cross-document desired ID collision")
