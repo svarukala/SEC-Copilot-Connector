@@ -165,7 +165,7 @@ async def test_prepare_readonly_apply_and_scoped_rollback(prepared):
                ("get", item_id) in graph.events[:first_delete] for item_id in plan["desired"])
     result = local(prepared)
     assert result["filing"]["state"] == "completed"
-    assert json.loads(result["filing"]["processing_options"])["processing_version"] == 8
+    assert json.loads(result["filing"]["processing_options"])["processing_version"] == 9
     assert len(result["chunks"]) == len(plan["desired"])
     assert all(c["state"] == "uploaded" for c in result["chunks"])
     assert not result["reconciliation_candidates"]
@@ -366,7 +366,7 @@ async def test_rollback_final_transaction_failure(prepared, monkeypatch):
         patch.setattr(m, "save_operation", fail)
         with pytest.raises(RuntimeError, match="rollback final"):
             await run(prepared, "rollback")
-    assert json.loads(local(prepared)["filing"]["processing_options"])["processing_version"] == 8
+    assert json.loads(local(prepared)["filing"]["processing_options"])["processing_version"] == 9
     assert await run(prepared, "rollback") == "rolled_back"
     assert local(prepared) == plan["old_local"]
     assert graph.items == plan["old"]
@@ -644,12 +644,10 @@ async def test_old_code_rejects_format4_before_mutation(prepared, tmp_path):
     assert Path(plan["database"]).read_bytes() == before
 
 
-@pytest.mark.parametrize("problem", ["multidoc", "sample", "inflight", "inventory", "ocr", "ownership", "source", "cache"])
+@pytest.mark.parametrize("problem", ["multidoc", "sample", "inflight", "inventory", "ownership", "source", "cache"])
 async def test_prepare_rejects_unsupported_state(prepared, problem):
     config, graph, plan, _, root = prepared
-    if problem == "ocr":
-        config.processing.ocr_images = True
-    elif problem == "source":
+    if problem == "source":
         Path(plan["source"]).write_text("changed source")
     else:
         with sqlite3.connect(plan["database"]) as db:

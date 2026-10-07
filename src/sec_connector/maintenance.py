@@ -1,6 +1,7 @@
-"""Frozen single-document maintenance. No SEC discovery or schema mutations."""
+"""Frozen exact-inventory maintenance. No SEC discovery or schema mutations."""
 
 from contextlib import closing
+import base64
 from datetime import datetime, timezone
 import hashlib
 from importlib.metadata import version
@@ -15,6 +16,8 @@ import aiohttp
 from .chunker import chunk_with_limit
 from .graph_client import GRAPH_BASE_URL, GraphClient, HTTPResult
 from .models import DocumentInfo, FilingMetadata
+from . import maintenance_ocr
+from .ocr_engine import captured_settings
 from .parser import parse_document
 from .payloads import payload_hash, serialize_item
 from .pilot_upload import SERVICE_METADATA_KEYS, validate_service_metadata, validate_token_identity
@@ -121,10 +124,9 @@ def ownership(db, item_ids, filing_id):
 
 def provenance(config) -> dict:
     options = IngestionPipeline(config)._processing_options()
-    if options["ocr_images"]:
-        raise ValueError("Maintenance v1 does not support OCR/multiple source assets")
     modules = ("parser", "chunker", "models", "payloads", "pipeline", "graph_client",
-               "config", "state_manager", "maintenance")
+               "config", "state_manager", "maintenance", "maintenance_ocr", "ocr_engine",
+               "note_associations")
     return {
         "options": options,
         "modules": {name: file_hash(Path(__file__).with_name(name + ".py")) for name in modules},
@@ -146,7 +148,7 @@ def scope_for(filing, document):
     }
 
 
-def validate_payloads(payloads, scope, limit):
+def validate_payloads(payloads, scope, limit, *, allow_empty=False):
     ids = set()
     prefix = f"{scope['CIK']}-{scope['AccessionNumber'].replace('-', '')}-{scope['Sequence']}-"
     for p in payloads:
@@ -164,8 +166,107 @@ def validate_payloads(payloads, scope, limit):
                 or not isinstance(p["content"]["value"], str) or len(serialize_item(p)) > limit):
             raise ValueError("Invalid or oversized replay payload")
         ids.add(item_id)
-    if not ids:
+    if not ids and not allow_empty:
         raise ValueError("Empty payload set")
+
+
+def retained_manifest(local, scope, limit, *, recover_prepared=False):
+    """Prove complete local ownership independently of remote delivery receipts."""
+    record = local["filing"]
+    if record["sample_limit"] is not None:
+        raise ValueError("Sampled scope is unsupported; finish the full filing separately")
+    if record["inventory_complete"] != 1 or len(local["documents"]) != 1:
+        raise ValueError("Requires a complete sole-document inventory; resolve missing/multiple documents separately")
+    if record["payloads_ready"] != 1 or local["documents"][0]["state"] != "parsed":
+        raise ValueError("Unprepared download/parse state: restore missing inputs and finish ordinary resume first")
+    if record["state"] != "completed" and not recover_prepared:
+        raise ValueError(
+            "Interrupted prepared delivery: prefer ordinary resume to finish the old generation; "
+            "explicit --recover-prepared is required for a reviewed replacement"
+        )
+    if record["state"] not in {"completed", "pending", "downloaded", "parsed", "uploaded", "failed"}:
+        raise ValueError("Retiring or unknown filing state is unsupported")
+    if record["state"] == "completed" and (record["error_message"] or local["reconciliation_candidates"]):
+        raise ValueError("Completed filing has unresolved recovery state")
+    payloads = [json.loads(c["payload"]) for c in local["chunks"]]
+    validate_payloads(payloads, scope, limit)
+    for row, payload in zip(local["chunks"], payloads):
+        if (row["filename"] != scope["DocumentName"] or row["sequence"] != scope["Sequence"]
+                or row["chunk_id"] != payload["id"] or row["page_number"] != payload["properties"]["Page"]
+                or row["state"] not in {"pending", "failed", "uploaded"}
+                or (row["state"] == "uploaded" and row["error_message"])
+                or (record["state"] == "completed" and row["state"] != "uploaded")):
+            raise ValueError("Old manifest is not consistent with its delivery checkpoints")
+    cache = local["document_cache"]
+    if (len(cache) != 1 or cache[0]["filename"] != scope["DocumentName"]
+            or not same_payload(json.loads(cache[0]["payloads"]), payloads)):
+        raise ValueError("Old manifest/cache is inconsistent or missing")
+    manifest = {p["id"]: p for p in payloads}
+    delivered = {r["chunk_id"]: r["payload_hash"] for r in local["delivered_items"]}
+    if (any(i not in manifest or h != payload_hash(manifest[i]) for i, h in delivered.items())
+            or any(r["error_message"] for r in local["delivered_items"])
+            or any(c["state"] == "uploaded" and c["chunk_id"] not in delivered for c in local["chunks"])):
+        raise ValueError("Delivered checkpoint lacks an exact retained payload; investigate before maintenance")
+    if any(r["chunk_id"] not in manifest for r in local["reconciliation_candidates"]):
+        raise ValueError("Unresolved potentially delivered ID lacks an exact historical payload; investigate ownership")
+    return manifest
+
+
+def multi_manifest(local, documents, limit):
+    """Prove each document independently, then account for every filing row."""
+    record = local["filing"]
+    if (record["state"] != "completed" or record["sample_limit"] is not None
+            or record["inventory_complete"] != 1 or record["payloads_ready"] != 1
+            or record["error_message"] or local["reconciliation_candidates"]):
+        raise ValueError("Multi-document maintenance requires completed, unsampled, fully prepared inventory")
+    options = json.loads(record["processing_options"])
+    if options.get("ocr_images") is not False or "maintenance_ocr_bundle_hash" in options:
+        raise ValueError("Multi-document maintenance requires captured OCR-disabled provenance")
+    filing = FilingMetadata.model_validate_json(record["metadata"])
+    if (filing.cik, filing.accession_number) != (record["cik"], record["accession_number"]):
+        raise ValueError("Filing metadata differs from persisted identity")
+    names = [d["scope"]["DocumentName"] for d in documents]
+    sequences = [d["scope"]["Sequence"] for d in documents]
+    if (len(names) < 2 or len(set(names)) != len(names) or len(set(sequences)) != len(sequences)
+            or list(zip(sequences, names)) != sorted(zip(sequences, names))
+            or filing.primary_document not in names):
+        raise ValueError("Select distinct documents/sequences including the primary in deterministic order")
+    if (set(names) != {r["filename"] for r in local["documents"]}
+            or len(names) != len(local["documents"])
+            or set(names) != {r["filename"] for r in local["document_cache"]}
+            or len(names) != len(local["document_cache"])
+            or set(names) != {r["filename"] for r in local["chunks"]}):
+        raise ValueError("Selection must cover the exact complete inventory, chunks and caches; subsets are unsupported")
+    manifest = {}
+    for entry in documents:
+        scope = entry["scope"]
+        name = scope["DocumentName"]
+        row = next(r for r in local["documents"] if r["filename"] == name)
+        document = DocumentInfo.model_validate_json(row["metadata"])
+        if (row["state"] != "parsed" or row["error_message"]
+                or not same_payload(scope, scope_for(filing, document))):
+            raise ValueError("Document metadata/state differs from exact selection")
+        chunks = [r for r in local["chunks"] if r["filename"] == name]
+        ids = {r["chunk_id"] for r in chunks}
+        cache = [r for r in local["document_cache"] if r["filename"] == name]
+        if cache[0]["fingerprint"] != document_fingerprint(entry["source_hash"], filing, document, options):
+            raise ValueError("Source/cache provenance mismatch or mixed processing generations")
+        partition = {
+            "filing": record, "documents": [row], "chunks": chunks, "document_cache": cache,
+            "delivered_items": [r for r in local["delivered_items"] if r["chunk_id"] in ids],
+            "reconciliation_candidates": [],
+        }
+        owned = retained_manifest(partition, scope, limit)
+        if set(manifest) & set(owned):
+            raise ValueError("Cross-document ID collision")
+        manifest.update(owned)
+    if set(manifest) != {r["chunk_id"] for r in local["delivered_items"]}:
+        raise ValueError("Unaccounted delivered items in multi-document inventory")
+    return manifest
+
+
+def plan_documents(plan):
+    return plan["documents"] if plan["format"] == 3 else [plan]
 
 
 def normalized(raw, schema):
@@ -218,7 +319,7 @@ async def environment(graph, plan=None):
 
 def load_plan(path, expected_digest):
     plan = json.loads(path.read_bytes())
-    if sha(plan) != expected_digest or plan.get("format") != 1:
+    if sha(plan) != expected_digest or plan.get("format") not in (1, 2, 3):
         raise ValueError("Reviewed plan digest or format mismatch")
     return plan
 
@@ -229,12 +330,81 @@ def check_binding(plan, config, *, forward=True):
     if plan["identity"] != expected or plan["database"] != str(pipeline.db_path.resolve()):
         raise ValueError("Plan destination/app/database mismatch")
     if forward:
-        if plan["provenance"] != provenance(config):
-            raise ValueError("Processing code/config drift")
-        if file_hash(Path(plan["source"])) != plan["source_hash"]:
-            raise ValueError("Source drift")
+        current = provenance(config)
+        if plan["format"] == 1:
+            current["modules"].pop("maintenance_ocr", None)
+            current["modules"].pop("ocr_engine", None)
+        elif plan["format"] == 2 and plan["ocr"]["assets"]:
+            current["options"]["maintenance_ocr_bundle_hash"] = sha(plan["ocr"])
+        if plan["provenance"] != current:
+            raise ValueError(
+                "Processing code/config drift; retain the original plan and runtime for forward recovery. "
+                "Do not migrate an activated plan; source-free rollback remains available"
+            )
+        for entry in plan_documents(plan):
+            if plan["format"] in (2, 3):
+                maintenance_ocr.regular_file(Path(entry["source"]))
+            if file_hash(Path(entry["source"])) != entry["source_hash"]:
+                raise ValueError("Source drift")
+    if plan["format"] == 3:
+        if plan["recovery_class"] != "completed" or plan["provenance"]["options"]["ocr_images"] is not False:
+            raise ValueError("Multi-document plans require completed non-OCR generations")
+        retained = multi_manifest(plan["old_local"], plan["documents"], config.chunking.max_item_bytes)
+        filing = FilingMetadata.model_validate_json(plan["old_local"]["filing"]["metadata"])
+        if plan["scope"] != {"CIK": filing.cik, "AccessionNumber": filing.accession_number}:
+            raise ValueError("Multi-document filing scope mismatch")
+        for entry in plan["documents"]:
+            source = Path(entry["source"])
+            if (not source.is_absolute() or source.name != entry["scope"]["DocumentName"]
+                    or hashlib.sha256(base64.b64decode(entry["source_bytes"], validate=True)).hexdigest()
+                    != entry["source_hash"]):
+                raise ValueError("Frozen document source binding mismatch")
+            row = next(r for r in plan["old_local"]["documents"] if r["filename"] == source.name)
+            document = DocumentInfo.model_validate_json(row["metadata"])
+            if entry["fingerprint"] != document_fingerprint(
+                entry["source_hash"], filing, document, plan["provenance"]["options"],
+            ):
+                raise ValueError("Desired document cache fingerprint mismatch")
+        if not same_payload(plan["old"], retained):
+            raise ValueError("Completed multi-document baseline must match the entire retained manifest")
+    if plan["format"] == 2:
+        source = Path(plan["source"])
+        if hashlib.sha256(base64.b64decode(plan["source_bytes"], validate=True)).hexdigest() != plan["source_hash"]:
+            raise ValueError("Frozen source hash mismatch")
+        options = plan["provenance"]["options"]
+        settings = captured_settings(options.get("ocr_backend", {})) if forward and options["ocr_images"] else None
+        maintenance_ocr.validate(plan["ocr"], source, forward=forward, settings=settings)
+        if plan["ocr"]["assets"] and (
+            options["ocr_images"] is not True or options.get("maintenance_ocr_bundle_hash") != sha(plan["ocr"])
+        ):
+            raise ValueError("OCR options/bundle binding mismatch")
+        retained = retained_manifest(
+            plan["old_local"], plan["scope"], config.chunking.max_item_bytes,
+            recover_prepared=plan["recovery_class"] == "prepared_delivery",
+        )
+    if plan["format"] in (2, 3):
+        if any(i not in retained or not same_payload(p, retained[i]) for i, p in plan["old"].items()):
+            raise ValueError("Observed old set is not owned by the retained local manifest")
+        absent = set(plan["baseline_absent"])
+        if absent != (set(retained) | set(plan["desired"])) - set(plan["old"]):
+            raise ValueError("Incomplete remote baseline receipts")
+        if set(plan["remote"]) != set(plan["old"]) or set(plan["new_absent"]) != set(plan["new"]):
+            raise ValueError("Missing remote baseline observations")
+        acknowledged = {r["chunk_id"] for r in plan["old_local"]["delivered_items"]}
+        if not acknowledged <= set(plan["old"]):
+            raise ValueError("Acknowledged items absent from the remote baseline")
     for name in ("old", "desired"):
-        validate_payloads(list(plan[name].values()), plan["scope"], config.chunking.max_item_bytes)
+        remaining = set(plan[name])
+        for entry in plan_documents(plan):
+            payloads = [p for p in plan[name].values()
+                        if p["properties"].get("DocumentName") == entry["scope"]["DocumentName"]]
+            validate_payloads(
+                payloads, entry["scope"], config.chunking.max_item_bytes,
+                allow_empty=plan["format"] == 2 and name == "old" and plan["recovery_class"] == "prepared_delivery",
+            )
+            remaining.difference_update(p["id"] for p in payloads)
+        if remaining:
+            raise ValueError("Payloads outside selected documents")
         if any(k != p["id"] for k, p in plan[name].items()):
             raise ValueError("Plan item key mismatch")
         if plan[name + "_hashes"] != {k: payload_hash(p) for k, p in plan[name].items()}:
@@ -245,16 +415,20 @@ def check_binding(plan, config, *, forward=True):
     order = plan["desired_order"]
     if len(order) != len(desired) or set(order) != desired:
         raise ValueError("Incomplete or duplicate desired ordering")
-    if [plan["desired"][i]["properties"].get("ChunkOrdinal") for i in order] != list(range(1, len(order) + 1)):
-        raise ValueError("Desired ordinals are incomplete")
+    document_order = []
+    for entry in plan_documents(plan):
+        ids = [i for i in order if plan["desired"][i]["properties"]["DocumentName"] == entry["scope"]["DocumentName"]]
+        if [plan["desired"][i]["properties"].get("ChunkOrdinal") for i in ids] != list(range(1, len(ids) + 1)):
+            raise ValueError("Desired ordinals are incomplete")
+        document_order.extend(ids)
+    if document_order != order:
+        raise ValueError("Desired document ordering is not deterministic")
 
 
-async def prepare(config, graph, *, cik, accession, filename, sequence, source: Path, output: Path):
-    """Read-only database and Graph observations; write only a new plan artifact."""
+def read_local(config, cik, accession):
     pipeline = IngestionPipeline(config)
     identity = (config.azure.tenant_id.lower(), config.azure.connection_id)
     check_state_access(pipeline.db_path, identity, maintenance=True)
-    frozen = provenance(config)
     with closing(read_only(pipeline.db_path)) as db:
         db.execute("BEGIN")
         if db.execute("SELECT version FROM destination").fetchone()[0] == 4:
@@ -268,82 +442,168 @@ async def prepare(config, graph, *, cik, accession, filename, sequence, source: 
         old_local = snapshot(db, row["id"])
         if db.execute("SELECT 1 FROM runs WHERE status = 'running'").fetchone():
             raise ValueError("Running/interrupted ingestion must be resolved before maintenance")
-    record = old_local["filing"]
-    if (record["state"] != "completed" or record["sample_limit"] is not None
-            or record["inventory_complete"] != 1 or record["payloads_ready"] != 1
-            or record["error_message"] or len(old_local["documents"]) != 1
-            or old_local["reconciliation_candidates"]):
-        raise ValueError("Requires a completed unsampled sole-document inventory without pending recovery")
-    doc_row = old_local["documents"][0]
-    document = DocumentInfo.model_validate_json(doc_row["metadata"])
-    filing = FilingMetadata.model_validate_json(record["metadata"])
-    if ((filing.cik, filing.accession_number) != (cik, accession)
-            or (document.filename, document.sequence) != (filename, sequence)
-            or doc_row["filename"] != filename or doc_row["state"] != "parsed"
-            or doc_row["error_message"]):
-        raise ValueError("Exact persisted document does not match requested scope")
-    scope = scope_for(filing, document)
-    source = source.resolve()
-    if source.name != filename:
-        raise ValueError("Source filename must match the selected document")
-    source_hash = file_hash(source)
-    old_options = json.loads(record["processing_options"])
-    if old_options.get("ocr_images") is not False:
-        raise ValueError("Old OCR provenance is unsupported or missing")
-    cache = old_local["document_cache"]
-    if (len(cache) != 1 or cache[0]["filename"] != filename
-            or cache[0]["fingerprint"] != document_fingerprint(source_hash, filing, document, old_options)):
-        raise ValueError("Source does not match the persisted document cache provenance")
-    old_payloads = [json.loads(c["payload"]) for c in old_local["chunks"]]
-    if (any(c["state"] != "uploaded" or c["filename"] != filename or c["sequence"] != sequence
-            or c["chunk_id"] != json.loads(c["payload"])["id"]
-            or c["page_number"] != json.loads(c["payload"])["properties"]["Page"]
-            or c["error_message"] for c in old_local["chunks"])
-            or json.loads(cache[0]["payloads"]) != old_payloads):
-        raise ValueError("Old manifest/cache is not fully acknowledged and consistent")
-    validate_payloads(old_payloads, scope, config.chunking.max_item_bytes)
-    old = {p["id"]: p for p in old_payloads}
-    if {r["chunk_id"]: r["payload_hash"] for r in old_local["delivered_items"]} != {
-        k: payload_hash(p) for k, p in old.items()
-    } or any(r["error_message"] for r in old_local["delivered_items"]):
-        raise ValueError("Delivered state differs from old manifest")
-    parsed = parse_document(source, filing, document, ocr_images=False)
-    if parsed is None:
-        raise ValueError("Source produced no usable content")
-    payloads = [graph.build_payload(c, icon_url=frozen["options"]["icon_url"])
-                for c in chunk_with_limit(parsed, config.chunking)]
-    validate_payloads(payloads, scope, config.chunking.max_item_bytes)
-    desired = {p["id"]: p for p in payloads}
+    return old_local
+
+
+async def observe_baseline(graph, manifest, desired, old_local):
     schema = await environment(graph)
-    remote = {}
-    for item_id, payload in old.items():
+    remote, old, baseline_absent = {}, {}, {}
+    acknowledged = {r["chunk_id"] for r in old_local["delivered_items"]}
+    for item_id, payload in manifest.items():
         raw = await get_item(graph, item_id)
+        if raw is None and item_id not in acknowledged and old_local["filing"]["state"] != "completed":
+            baseline_absent[item_id] = now()
+            continue
         if raw is None or not same_payload(normalized(raw, schema)[0], payload):
             raise ValueError(f"Old remote mismatch or missing item: {item_id}")
+        old[item_id] = payload
         remote[item_id] = {"raw": raw, "observed_at": now()}
     new_absent = {}
     for item_id in sorted(set(desired) - set(old)):
         if await get_item(graph, item_id) is not None:
             raise ValueError(f"New ID already occupied: {item_id}")
         new_absent[item_id] = now()
+    baseline_absent.update(new_absent)
+    return {
+        "schema": schema, "schema_hash": sha(schema), "old": old, "desired": desired,
+        "old_hashes": {k: payload_hash(p) for k, p in old.items()},
+        "desired_hashes": {k: payload_hash(p) for k, p in desired.items()},
+        "new": sorted(set(desired) - set(old)), "stale": sorted(set(old) - set(desired)),
+        "remote": remote, "new_absent": new_absent, "baseline_absent": baseline_absent,
+        "desired_order": list(desired),
+    }
+
+
+async def prepare(config, graph, *, cik, accession, filename, sequence, source: Path, output: Path,
+                  recover_prepared=False):
+    """Read-only database and Graph observations; write only a new plan artifact."""
+    pipeline = IngestionPipeline(config)
+    identity = (config.azure.tenant_id.lower(), config.azure.connection_id)
+    frozen = provenance(config)
+    old_local = read_local(config, cik, accession)
+    record = old_local["filing"]
+    if record["inventory_complete"] != 1 or len(old_local["documents"]) != 1:
+        raise ValueError("Requires a complete sole-document inventory; resolve missing/multiple documents separately")
+    doc_row = old_local["documents"][0]
+    document = DocumentInfo.model_validate_json(doc_row["metadata"])
+    filing = FilingMetadata.model_validate_json(record["metadata"])
+    if doc_row["state"] != "parsed" or doc_row["error_message"]:
+        raise ValueError("Unprepared download/parse state: restore missing inputs and finish ordinary resume first")
+    if ((filing.cik, filing.accession_number) != (cik, accession)
+            or (document.filename, document.sequence) != (filename, sequence)
+            or doc_row["filename"] != filename):
+        raise ValueError("Exact persisted document does not match requested scope")
+    scope = scope_for(filing, document)
+    source = maintenance_ocr.regular_file(source).resolve()
+    if source.name != filename:
+        raise ValueError("Source filename must match the selected document")
+    source_bytes = source.read_bytes()
+    source_hash = hashlib.sha256(source_bytes).hexdigest()
+    old_options = json.loads(record["processing_options"])
+    if not isinstance(old_options.get("ocr_images"), bool):
+        raise ValueError("Old OCR setting is missing; restore captured processing evidence first")
+    if old_options["ocr_images"] and not frozen["options"]["ocr_images"]:
+        raise ValueError("Old OCR was enabled; explicitly retain OCR in configuration, never silently disable it")
+    manifest = retained_manifest(
+        old_local, scope, config.chunking.max_item_bytes, recover_prepared=recover_prepared,
+    )
+    cache = old_local["document_cache"]
+    if (len(cache) != 1 or cache[0]["filename"] != filename
+            or cache[0]["fingerprint"] != document_fingerprint(source_hash, filing, document, old_options)):
+        raise ValueError("Source does not match the persisted document cache provenance")
+    capture = maintenance_ocr.Capture(source, config.processing.ocr)
+    parsed = parse_document(
+        source, filing, document, ocr_images=frozen["options"]["ocr_images"],
+        ocr_resolver=capture.resolve,
+    )
+    if parsed is None:
+        raise ValueError("Source produced no usable content")
+    maintenance_ocr.validate(capture.bundle, source, forward=True, settings=config.processing.ocr)
+    if capture.bundle["assets"]:
+        frozen["options"]["maintenance_ocr_bundle_hash"] = sha(capture.bundle)
+    payloads = [graph.build_payload(c, icon_url=frozen["options"]["icon_url"])
+                for c in chunk_with_limit(parsed, config.chunking)]
+    validate_payloads(payloads, scope, config.chunking.max_item_bytes)
+    desired = {p["id"]: p for p in payloads}
+    baseline = await observe_baseline(graph, manifest, desired, old_local)
     with closing(read_only(pipeline.db_path)) as db:
         db.execute("BEGIN")
         if snapshot(db, record["id"]) != old_local:
             raise ValueError("Local scope changed during preparation")
-        ownership(db, set(old) | set(desired), record["id"])
+        ownership(db, set(manifest) | set(desired), record["id"])
     if source_hash != file_hash(source):
         raise ValueError("Source changed during preparation")
     plan = {
-        "format": 1, "prepared_at": now(), "identity": [*identity, config.azure.client_id.lower()],
+        "format": 2, "prepared_at": now(), "identity": [*identity, config.azure.client_id.lower()],
         "database": str(pipeline.db_path.resolve()), "source": str(source), "source_hash": source_hash,
-        "scope": scope, "provenance": frozen, "schema": schema, "schema_hash": sha(schema),
-        "old_local": old_local, "old": old, "desired": desired,
-        "old_hashes": {k: payload_hash(p) for k, p in old.items()},
-        "desired_hashes": {k: payload_hash(p) for k, p in desired.items()},
-        "new": sorted(set(desired) - set(old)), "stale": sorted(set(old) - set(desired)),
-        "remote": remote, "new_absent": new_absent, "desired_order": list(desired),
+        "source_bytes": base64.b64encode(source_bytes).decode("ascii"),
+        "ocr": capture.bundle,
+        "historical_ocr_provenance": "unknown; rollback binds exact stored payloads and remote receipts"
+        if old_options["ocr_images"] else "disabled in captured old options",
+        "recovery_class": "completed" if record["state"] == "completed" else "prepared_delivery",
+        "scope": scope, "provenance": frozen, "old_local": old_local, **baseline,
         "fingerprint": document_fingerprint(source_hash, filing, document, frozen["options"]),
     }
+    check_binding(plan, config)
+    write_new(output, plan)
+    return sha(plan)
+
+
+async def prepare_documents(config, graph, *, cik, accession, selections, output: Path):
+    """Freeze an explicit full inventory; never infer exhibits or download inputs."""
+    frozen = provenance(config)
+    if frozen["options"]["ocr_images"] is not False:
+        raise ValueError("Multi-document OCR is unsupported; do not disable inherited OCR to bypass this guard")
+    old_local = read_local(config, cik, accession)
+    filing = FilingMetadata.model_validate_json(old_local["filing"]["metadata"])
+    documents = []
+    for filename, sequence, source in sorted(selections, key=lambda s: (s[1], s[0])):
+        row = next((r for r in old_local["documents"] if r["filename"] == filename), None)
+        if row is None:
+            raise ValueError("Selected document is not in the persisted inventory")
+        document = DocumentInfo.model_validate_json(row["metadata"])
+        if (document.filename, document.sequence) != (filename, sequence):
+            raise ValueError("Exact persisted document does not match requested scope")
+        scope = scope_for(filing, document)
+        source = maintenance_ocr.regular_file(source).resolve()
+        if source.name != filename:
+            raise ValueError("Source filename must match the selected document")
+        source_bytes = source.read_bytes()
+        source_hash = hashlib.sha256(source_bytes).hexdigest()
+        documents.append({
+            "scope": scope, "source": str(source), "source_hash": source_hash,
+            "source_bytes": base64.b64encode(source_bytes).decode("ascii"),
+            "fingerprint": document_fingerprint(source_hash, filing, document, frozen["options"]),
+        })
+    manifest = multi_manifest(old_local, documents, config.chunking.max_item_bytes)
+    desired = {}
+    for entry in documents:
+        row = next(r for r in old_local["documents"] if r["filename"] == entry["scope"]["DocumentName"])
+        document = DocumentInfo.model_validate_json(row["metadata"])
+        parsed = parse_document(Path(entry["source"]), filing, document, ocr_images=False)
+        if parsed is None:
+            raise ValueError(f"Source produced no usable content: {document.filename}")
+        payloads = [graph.build_payload(c, icon_url=frozen["options"]["icon_url"])
+                    for c in chunk_with_limit(parsed, config.chunking)]
+        validate_payloads(payloads, entry["scope"], config.chunking.max_item_bytes)
+        if set(desired) & {p["id"] for p in payloads}:
+            raise ValueError("Cross-document desired ID collision")
+        desired.update((p["id"], p) for p in payloads)
+    baseline = await observe_baseline(graph, manifest, desired, old_local)
+    pipeline = IngestionPipeline(config)
+    with closing(read_only(pipeline.db_path)) as db:
+        db.execute("BEGIN")
+        if snapshot(db, old_local["filing"]["id"]) != old_local:
+            raise ValueError("Local scope changed during preparation")
+        ownership(db, set(manifest) | set(desired), old_local["filing"]["id"])
+    plan = {
+        "format": 3, "prepared_at": now(),
+        "identity": [config.azure.tenant_id.lower(), config.azure.connection_id, config.azure.client_id.lower()],
+        "database": str(pipeline.db_path.resolve()), "documents": documents,
+        "scope": {"CIK": cik, "AccessionNumber": accession},
+        "recovery_class": "completed", "provenance": frozen, "old_local": old_local, **baseline,
+    }
+    check_binding(plan, config)
     write_new(output, plan)
     return sha(plan)
 
@@ -379,6 +639,16 @@ def verify_backup(data, plan, digest):
         raise ValueError("Recovery evidence binding mismatch")
 
 
+def tracked_ids(plan):
+    return set(plan["old"]) | set(plan["desired"]) | set(plan.get("baseline_absent", {}))
+
+
+async def verify_untouched_absences(graph, plan):
+    for item_id in set(plan.get("baseline_absent", {})) - set(plan["desired"]):
+        if await get_item(graph, item_id) is not None:
+            raise ValueError(f"Originally absent old-only ID occupied; investigate uncertain ownership: {item_id}")
+
+
 async def activate(state, graph, plan, digest, recovery):
     """Backup first; format, guard and desired generation commit together."""
     db = state._db
@@ -387,7 +657,7 @@ async def activate(state, graph, plan, digest, recovery):
         reader.execute("BEGIN")
         if snapshot(reader, filing_id) != plan["old_local"]:
             raise ValueError("Local scope drift before activation")
-        ownership(reader, set(plan["old"]) | set(plan["desired"]), filing_id)
+        ownership(reader, tracked_ids(plan), filing_id)
         if reader.execute("SELECT 1 FROM runs WHERE status = 'running'").fetchone():
             raise ValueError("Running ingestion blocks maintenance")
     refreshed = {}
@@ -397,7 +667,7 @@ async def activate(state, graph, plan, digest, recovery):
             raise ValueError(f"Old remote drift before activation: {item_id}")
         refreshed[item_id] = {"raw": raw, "observed_at": now()}
     absent = {}
-    for item_id in plan["new"]:
+    for item_id in sorted(set(plan["new"]) | set(plan.get("baseline_absent", {}))):
         if await get_item(graph, item_id) is not None:
             raise ValueError(f"New ID collision before activation: {item_id}")
         absent[item_id] = now()
@@ -437,19 +707,23 @@ async def activate(state, graph, plan, digest, recovery):
             await db.execute(
                 """INSERT INTO chunks(chunk_id,filing_id,filename,page_number,sequence,payload,state)
                    VALUES (?,?,?,?,?,?,'pending')""",
-                (item_id, filing_id, plan["scope"]["DocumentName"], p["properties"]["Page"],
-                 plan["scope"]["Sequence"], canonical(p)),
+                (item_id, filing_id, p["properties"]["DocumentName"], p["properties"]["Page"],
+                 p["properties"]["Sequence"], canonical(p)),
             )
-        for item_id in sorted(set(plan["old"]) | set(plan["desired"])):
-            await db.execute("INSERT INTO reconciliation_candidates VALUES (?,?)", (item_id, filing_id))
+        for item_id in sorted(tracked_ids(plan)):
+            await db.execute("INSERT OR IGNORE INTO reconciliation_candidates VALUES (?,?)", (item_id, filing_id))
         await db.execute(
             "UPDATE filings SET state = 'parsed', processing_options = ?, error_message = NULL WHERE id = ?",
             (canonical(plan["provenance"]["options"]), filing_id),
         )
-        await db.execute(
-            "UPDATE document_cache SET fingerprint = ?, payloads = ? WHERE filing_id = ?",
-            (plan["fingerprint"], canonical([plan["desired"][i] for i in plan["desired_order"]]), filing_id),
-        )
+        for entry in plan_documents(plan):
+            name = entry["scope"]["DocumentName"]
+            payloads = [plan["desired"][i] for i in plan["desired_order"]
+                        if plan["desired"][i]["properties"]["DocumentName"] == name]
+            await db.execute(
+                "UPDATE document_cache SET fingerprint = ?, payloads = ? WHERE filing_id = ? AND filename = ?",
+                (entry["fingerprint"], canonical(payloads), filing_id, name),
+            )
         data["local_hash"] = sha(await async_snapshot(db, filing_id))
         await save_operation(db, digest, "forward", data)
         await db.commit()
@@ -550,7 +824,7 @@ async def finish(state, plan, digest, data, *, rollback=False):
 
 
 async def execute(config, graph, plan, digest, action, *, acknowledged, recovery=None):
-    if action not in {"apply", "resume", "rollback"} or plan.get("format") != 1 or sha(plan) != digest:
+    if action not in {"apply", "resume", "rollback"} or plan.get("format") not in (1, 2, 3) or sha(plan) != digest:
         raise ValueError("Invalid action or reviewed plan digest")
     if not acknowledged:
         raise ValueError("Acknowledge quiescing all local, scheduled and other-machine writers")
@@ -586,11 +860,12 @@ async def execute(config, graph, plan, digest, action, *, acknowledged, recovery
         if sha(await async_snapshot(state._db, plan["old_local"]["filing"]["id"])) != data["local_hash"]:
             raise ValueError("Local maintenance scope drift")
         with closing(read_only(path)) as reader:
-            ownership(reader, set(plan["old"]) | set(plan["desired"]), plan["old_local"]["filing"]["id"])
+            ownership(reader, tracked_ids(plan), plan["old_local"]["filing"]["id"])
         if phase == "rolled_back" or (phase == "completed" and action != "rollback"):
             raise ValueError(f"Operation already {phase}; inspect retained evidence")
         if phase == "rolling_back" and action != "rollback":
             raise ValueError("Rollback has started; repeat maintenance rollback")
+        await verify_untouched_absences(graph, plan)
         if action == "rollback":
             phase = "rolling_back"
             await checkpoint(state._db, digest, phase, data)
@@ -610,6 +885,7 @@ async def execute(config, graph, plan, digest, action, *, acknowledged, recovery
             for item_id in plan["new"]:
                 if await get_item(graph, item_id) is not None:
                     raise ValueError(f"New ID is no longer absent: {item_id}")
+            await verify_untouched_absences(graph, plan)
             await finish(state, plan, digest, data, rollback=True)
             return "rolled_back"
         # Check a property-removing shared overwrite before the rest of the set.
@@ -631,6 +907,7 @@ async def execute(config, graph, plan, digest, action, *, acknowledged, recovery
         for item_id in plan["stale"]:
             if await get_item(graph, item_id) is not None:
                 raise ValueError(f"Stale ID is no longer absent: {item_id}")
+        await verify_untouched_absences(graph, plan)
         await finish(state, plan, digest, data)
         return "completed"
 
@@ -642,7 +919,22 @@ def inspect(plan, digest):
         "new": len(plan["new"]), "stale": len(plan["stale"]),
         "processing_version": plan["provenance"]["options"]["processing_version"],
         "phase": "prepared",
+        "plan_format": plan["format"],
+        "recovery_class": plan.get("recovery_class", "completed"),
+        "prepared_local_items": len(plan["old_local"]["chunks"]),
+        "observed_absent": len(plan.get("baseline_absent", plan["new_absent"])),
+        "ocr_assets": len(plan.get("ocr", {}).get("assets", [])),
+        "historical_ocr_provenance": plan.get(
+            "historical_ocr_provenance",
+            "disabled in captured old options" if plan["format"] == 3 else "disabled (format 1)",
+        ),
     }
+    if plan["format"] == 3:
+        result["documents"] = [{
+            "scope": entry["scope"], "source": entry["source"], "source_hash": entry["source_hash"],
+            **{name: sum(p["properties"]["DocumentName"] == entry["scope"]["DocumentName"]
+                         for p in plan[name].values()) for name in ("old", "desired")},
+        } for entry in plan["documents"]]
     with closing(read_only(Path(plan["database"]))) as db:
         row = db.execute("SELECT version FROM destination").fetchone()
         if row[0] == 4:

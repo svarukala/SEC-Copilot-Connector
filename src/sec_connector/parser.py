@@ -3,13 +3,16 @@
 import re
 import hashlib
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from bs4 import BeautifulSoup, NavigableString
 from markdownify import MarkdownConverter
 from soupsieve import SelectorSyntaxError
 
 from .models import DocumentInfo, FilingMetadata, ParsedDocument
+from .config import OCRConfig
+from .ocr_engine import image_to_text
+from .note_associations import collect_table_notes
 from .utils import get_logger
 
 logger = get_logger("parser")
@@ -401,10 +404,9 @@ class SECMarkdownConverter(MarkdownConverter):
         return "\n---\n"
 
 
-def _ocr_image(image):
+def _ocr_image(image, settings: Optional[OCRConfig] = None):
     """Run the locally installed Tesseract engine; never download models."""
-    import pytesseract
-    return pytesseract.image_to_string(image, config="--psm 7").strip()
+    return image_to_text(image, settings)
 
 
 def _clean_ocr_text(text: str) -> str:
@@ -423,13 +425,34 @@ def _clean_ocr_text(text: str) -> str:
     return text.strip()
 
 
+def ocr_asset_text(asset, settings: Optional[OCRConfig] = None) -> str:
+    """Recognize one local image or frozen byte stream with the v8 settings."""
+    try:
+        from PIL import Image
+    except ImportError as exc:
+        raise RuntimeError("OCR requires Pillow and a local Tesseract executable") from exc
+    with Image.open(asset) as image:
+        rotated = image.rotate(-90, expand=True)
+    w, h = rotated.size
+    if h < 100:
+        scale = max(3, 100 // h)
+        rotated = rotated.resize((w * scale, h * scale), Image.Resampling.LANCZOS)
+    text = _clean_ocr_text(_ocr_image(rotated, settings))
+    if not text:
+        raise ValueError("OCR returned no usable text")
+    return text
+
+
 def resolve_rotated_text_images(
     soup: BeautifulSoup,
     image_dir: Path,
+    *,
+    ocr_resolver: Optional[Callable[[str, Path], str]] = None,
+    ocr_settings: Optional[OCRConfig] = None,
 ) -> int:
     """OCR predownloaded adjacent assets only, failing explicitly on missing inputs.
 
-    Pillow, pytesseract and a local Tesseract executable are required when a
+    Pillow and a local Tesseract executable are required when a
     rotated image is present. Remote URLs and paths outside image_dir are rejected;
     all downloads belong to SECClient, not the parser.
     """
@@ -450,22 +473,11 @@ def resolve_rotated_text_images(
             raise ValueError(f"OCR local image missing or outside image directory: {src!r}")
         assets.append(asset)
 
-    try:
-        from PIL import Image
-        import pytesseract  # noqa: F401
-    except ImportError as exc:
-        raise RuntimeError("OCR requires Pillow, pytesseract and a local Tesseract executable") from exc
-
     resolved = 0
     for img_tag, asset in zip(rotated_imgs, assets):
         try:
-            with Image.open(asset) as image:
-                rotated = image.rotate(-90, expand=True)
-            w, h = rotated.size
-            if h < 100:
-                scale = max(3, 100 // h)
-                rotated = rotated.resize((w * scale, h * scale), Image.Resampling.LANCZOS)
-            text = _clean_ocr_text(_ocr_image(rotated))
+            text = (ocr_resolver(str(img_tag.get("src", "")), asset)
+                    if ocr_resolver is not None else ocr_asset_text(asset, ocr_settings))
             if not text:
                 raise ValueError("OCR returned no usable text")
             img_tag.replace_with(text)
@@ -517,6 +529,9 @@ def html_to_markdown(
     *,
     local_image_dir: Optional[Path] = None,
     table_header_rows: Optional[dict[str, int]] = None,
+    table_notes: Optional[dict[str, list[tuple[str, str]]]] = None,
+    ocr_resolver: Optional[Callable[[str, Path], str]] = None,
+    ocr_settings: Optional[OCRConfig] = None,
 ) -> str:
     """Convert HTML content to Markdown.
 
@@ -538,7 +553,7 @@ def html_to_markdown(
         tag.decompose()
 
     if local_image_dir is not None:
-        resolve_rotated_text_images(soup, local_image_dir)
+        resolve_rotated_text_images(soup, local_image_dir, ocr_resolver=ocr_resolver, ocr_settings=ocr_settings)
 
     for tag in soup.find_all(True):
         style = tag.get("style", "")
@@ -592,7 +607,10 @@ def html_to_markdown(
     cleaned_lines = [line.rstrip() for line in lines]
     markdown = "\n".join(cleaned_lines)
 
-    return markdown.strip()
+    markdown = markdown.strip()
+    if table_notes is not None:
+        table_notes.update(collect_table_notes(markdown))
+    return markdown
 
 
 def extract_sgml_documents(content: str) -> list[dict]:
@@ -679,6 +697,8 @@ def parse_document(
     ocr_images: bool = False,
     *,
     local_image_dir: Optional[Path] = None,
+    ocr_resolver: Optional[Callable[[str, Path], str]] = None,
+    ocr_settings: Optional[OCRConfig] = None,
 ) -> Optional[ParsedDocument]:
     """Parse a downloaded document file.
 
@@ -721,11 +741,15 @@ def parse_document(
         content, re.IGNORECASE,
     )
     table_header_rows = {}
+    table_notes = {}
     if is_html:
         markdown = html_to_markdown(
             content,
             local_image_dir=(local_image_dir or file_path.parent) if ocr_images else None,
             table_header_rows=table_header_rows,
+            table_notes=table_notes,
+            ocr_resolver=ocr_resolver,
+            ocr_settings=ocr_settings,
         )
     else:
         markdown = clean_sec_text(content)
@@ -742,6 +766,7 @@ def parse_document(
         content=markdown,
         content_type="text/markdown",
         table_header_rows=table_header_rows,
+        table_notes=table_notes,
     )
 
 

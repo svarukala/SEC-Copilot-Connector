@@ -7,6 +7,13 @@ from typing import Optional
 from .config import GRAPH_MAX_ITEM_BYTES, ChunkingConfig
 from .models import ContentChunk, ParsedDocument
 from .parser import _is_period_heading
+from .note_associations import (
+    NOTE_START as _NOTE_START,
+    adjacent_notes as _table_notes,
+    cells as _table_cells,
+    linked_marker as _linked_marker,
+    TABLE,
+)
 from .utils import get_logger
 
 logger = get_logger("chunker")
@@ -136,10 +143,6 @@ def _bounded_fragments(text: str, max_size: int, max_bytes: int) -> list[str]:
     ]
 
 
-def _table_cells(row: str) -> list[str]:
-    return [cell.strip() for cell in re.split(r"(?<!\\)\|", row.strip().strip("|"))]
-
-
 def _unit_label(text: str) -> bool:
     return bool(re.search(r"\bin (?:millions|billions|thousands)\b", text, re.I))
 
@@ -212,42 +215,6 @@ def _table_header_count(rows: list[str]) -> int:
         )):
             count = index
     return count
-
-
-_NOTE_START = re.compile(r"^(\([a-z0-9]+\)|\[[a-z0-9]+\])\s*\S", re.I)
-
-
-def _linked_marker(marker: str, rows: str) -> bool:
-    for row in rows.splitlines():
-        for cell in _table_cells(row):
-            grouped = marker.startswith("(") and any(
-                marker[1:-1] in re.split(r",\s*", group)
-                for group in re.findall(r"\(([a-z0-9]{1,2}(?:,\s*[a-z0-9]{1,2})+)\)", cell, re.I)
-            )
-            if marker not in cell and not grouped:
-                continue
-            # A standalone (1) in a value column may be negative one, not a note.
-            if (re.fullmatch(r"\(\d+\)", marker) and not re.search(r"[A-Za-z]", cell)
-                    and not _is_period_heading(cell.replace(marker, "").strip())):
-                continue
-            return True
-    return False
-
-
-def _table_notes(following: str, table: str) -> list[tuple[str, str]]:
-    notes = []
-    for paragraph in re.split(r"\n\s*\n|\n(?=\([a-z0-9]+\)|\[[a-z0-9]+\])", following.strip()):
-        match = _NOTE_START.match(paragraph)
-        if not match:
-            break
-        marker = match[1]
-        if _linked_marker(marker, table):
-            notes.append((marker, paragraph))
-    ambiguous = {marker for marker, _ in notes if sum(m == marker for m, _ in notes) > 1}
-    if ambiguous:
-        logger.warning("Duplicate table note markers %s; not repeating ambiguous definitions",
-                       ", ".join(sorted(ambiguous)))
-    return [(marker, note) for marker, note in notes if marker not in ambiguous]
 
 
 def _split_table(
@@ -333,11 +300,16 @@ def _split_table(
 def _split_content(
     content: str, target_size: int, max_size: int, overlap: int, max_bytes: int,
     table_header_rows: Optional[dict[str, int]] = None,
+    table_notes: Optional[dict[str, list[tuple[str, str]]]] = None,
 ) -> list[str]:
     """Keep table rows atomic; apply overlap exclusively to prose blocks."""
     # A complete section is better evidence than isolated layout/table blocks.
     # target_size guides necessary splits; max_size is the actual upper bound.
-    if _fits(content, max_size, max_bytes):
+    has_bound_notes = any(
+        (table_notes or {}).get(hashlib.sha256(match[0].strip().encode("utf-8")).hexdigest())
+        for match in TABLE.finditer(content)
+    )
+    if _fits(content, max_size, max_bytes) and not has_bound_notes:
         return [content]
     blocks = re.split(r"(^[ \t]*\|[^\n]*(?:\n[ \t]*\|[^\n]*)*)", content, flags=re.MULTILINE)
     if len(blocks) == 1:
@@ -361,15 +333,18 @@ def _split_content(
                 if len(nearby) == 3:
                     break
             following = blocks[index + 1].strip() if index + 1 < len(blocks) else ""
-            notes = _table_notes(following, block)
+            table = block.strip()
+            key = hashlib.sha256(table.encode("utf-8")).hexdigest()
+            notes = (table_notes[key] if table_notes is not None and key in table_notes
+                     else _table_notes(following, block))
+            if table_notes and key in table_notes and notes:
+                nearby = [p for p in nearby if not re.match(r"^(?:[-*+]|\d+\.)\s", p)]
             context = "\n\n".join(nearby)
             # Do not let optional neighboring prose make otherwise valid rows
             # indivisible. It remains present in its own prose block.
             if not _fits(context, max_size // 3, max(4, max_bytes // 3)):
                 logger.warning("Table caption context exceeds reserved budget; retained in preceding source block")
                 context = ""
-            table = block.strip()
-            key = hashlib.sha256(table.encode("utf-8")).hexdigest()
             chunks.extend(_split_table(
                 table, context, target_size, max_size, max_bytes, notes,
                 (table_header_rows or {}).get(key, 0),
@@ -428,7 +403,8 @@ def chunk_document(
             sub_chunks.extend(
                 (context + piece, section_title)
                 for piece in _split_content(
-                    section, target, char_budget, overlap, byte_budget, parsed_doc.table_header_rows
+                    section, target, char_budget, overlap, byte_budget,
+                    parsed_doc.table_header_rows, parsed_doc.table_notes,
                 )
                 if piece
             )

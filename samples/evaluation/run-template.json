@@ -1,0 +1,33 @@
+[
+  {
+    "id": "",
+    "kind": "invocation",
+    "case_id": "incentive-above-target",
+    "conversation_id": "",
+    "response_id": "",
+    "timestamp": "",
+    "actual_model_setting": "unobserved",
+    "fresh_chat": null,
+    "selected_connection": "unobserved",
+    "instructions_version": "unobserved",
+    "instructions_sha256": "unobserved",
+    "payload_manifest_sha256": "unobserved",
+    "skills": [],
+    "skills_observed": false,
+    "other_sources": [],
+    "other_sources_observed": false,
+    "index_visibility": "unobserved",
+    "prompt": "According to PNC's 2025 proxy, how did William S. Demchak's incentive compensation awarded for 2024 compare with his target? Give both amounts and calculate the percentage above target.",
+    "response": "",
+    "reviewer": "",
+    "adjudication_notes": "",
+    "components": {
+      "target": "fail",
+      "award": "fail",
+      "calculation": "fail",
+      "period-and-basis": "fail"
+    },
+    "source_grounding": "unobserved",
+    "citations": []
+  }
+]

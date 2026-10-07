@@ -66,11 +66,19 @@ class ChunkingConfig(BaseModel):
         return self
 
 
+class OCRConfig(BaseModel):
+    """Local Tesseract CLI; never installs an engine or language model."""
+    executable: str = Field(default="tesseract", min_length=1)
+    tessdata_dir: Optional[str] = None
+    timeout_seconds: float = Field(default=60, gt=0, le=300)
+
+
 class ProcessingConfig(BaseModel):
     """Processing configuration."""
     concurrent_downloads: int = Field(default=5, gt=0)
     batch_size: int = Field(default=20, gt=0)
-    ocr_images: bool = False  # Local assets, Pillow, pytesseract, and Tesseract are required.
+    ocr_images: bool = False  # Local assets, Pillow, and Tesseract are required.
+    ocr: OCRConfig = Field(default_factory=OCRConfig)
 
 
 class SyncConfig(BaseModel):
