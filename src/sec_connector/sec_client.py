@@ -86,7 +86,7 @@ class SECClient:
         if self._session:
             await self._session.close()
 
-    async def _get(self, url: str) -> bytes:
+    async def _get(self, url: str, *, max_bytes: Optional[int] = None) -> bytes:
         """Pace every network attempt, retrying only transient failures."""
         user_agent = self.config.sec.user_agent.strip()
         if (
@@ -106,10 +106,20 @@ class SECClient:
             retry_after = None
             try:
                 async with self._session.get(
-                    url, timeout=aiohttp.ClientTimeout(total=120, connect=30)
+                    url, timeout=aiohttp.ClientTimeout(total=120, connect=30),
+                    **({"allow_redirects": False} if max_bytes is not None else {}),
                 ) as response:
                     retry_after = response.headers.get("Retry-After")
                     response.raise_for_status()
+                    if max_bytes is not None:
+                        if response.status != 200:
+                            raise ValueError("Bounded SEC download requires HTTP 200 without redirects")
+                        content = bytearray()
+                        async for block in response.content.iter_chunked(65536):
+                            content.extend(block)
+                            if len(content) > max_bytes:
+                                raise ValueError(f"SEC asset exceeds {max_bytes} bytes")
+                        return bytes(content)
                     return await response.read()
             except aiohttp.ClientResponseError as exc:
                 if exc.status != 429 and not 500 <= exc.status <= 599:

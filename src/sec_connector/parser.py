@@ -449,6 +449,7 @@ def resolve_rotated_text_images(
     *,
     ocr_resolver: Optional[Callable[[str, Path], str]] = None,
     ocr_settings: Optional[OCRConfig] = None,
+    ocr_asset_names: Optional[dict[str, str]] = None,
 ) -> int:
     """OCR predownloaded adjacent assets only, failing explicitly on missing inputs.
 
@@ -465,6 +466,10 @@ def resolve_rotated_text_images(
     assets = []
     for img in rotated_imgs:
         src = str(img.get("src", ""))
+        if ocr_asset_names is not None:
+            if src not in ocr_asset_names:
+                raise ValueError(f"OCR image was not staged: {src!r}")
+            src = ocr_asset_names[src]
         url = urlsplit(src)
         if not src or url.scheme or url.netloc:
             raise ValueError(f"OCR requires a predownloaded local image, not {src!r}")
@@ -532,6 +537,7 @@ def html_to_markdown(
     table_notes: Optional[dict[str, list[tuple[str, str]]]] = None,
     ocr_resolver: Optional[Callable[[str, Path], str]] = None,
     ocr_settings: Optional[OCRConfig] = None,
+    ocr_asset_names: Optional[dict[str, str]] = None,
 ) -> str:
     """Convert HTML content to Markdown.
 
@@ -553,7 +559,10 @@ def html_to_markdown(
         tag.decompose()
 
     if local_image_dir is not None:
-        resolve_rotated_text_images(soup, local_image_dir, ocr_resolver=ocr_resolver, ocr_settings=ocr_settings)
+        resolve_rotated_text_images(
+            soup, local_image_dir, ocr_resolver=ocr_resolver, ocr_settings=ocr_settings,
+            ocr_asset_names=ocr_asset_names,
+        )
 
     for tag in soup.find_all(True):
         style = tag.get("style", "")
@@ -699,6 +708,7 @@ def parse_document(
     local_image_dir: Optional[Path] = None,
     ocr_resolver: Optional[Callable[[str, Path], str]] = None,
     ocr_settings: Optional[OCRConfig] = None,
+    ocr_asset_names: Optional[dict[str, str]] = None,
 ) -> Optional[ParsedDocument]:
     """Parse a downloaded document file.
 
@@ -750,6 +760,7 @@ def parse_document(
             table_notes=table_notes,
             ocr_resolver=ocr_resolver,
             ocr_settings=ocr_settings,
+            ocr_asset_names=ocr_asset_names,
         )
     else:
         markdown = clean_sec_text(content)

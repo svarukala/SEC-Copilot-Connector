@@ -243,6 +243,12 @@ and exhibit selection. It is not an offline command or a full-backfill preview.
 
 ## Content limitations and OCR
 
+For automatic bounded staging of the selected primary documents' rotated images,
+use [`prepare-exact` and the exact-import runbook](customer-v9-setup.md).
+Preparation is Graph-free; `--offline` additionally disables SEC networking.
+`import-exact --upload` explicitly delivers the reviewed digest-bound bundle.
+Ordinary ingestion, captured replay and maintenance/rollback behavior remain unchanged.
+
 PDF exhibits are unsupported. Unsupported binaries are logged as excluded;
 missing/unusable required documents fail rather than count as successful coverage.
 Items use a tenant-wide `everyone` read ACL because the source is public SEC data.
