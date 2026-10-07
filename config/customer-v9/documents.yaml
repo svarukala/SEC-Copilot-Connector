@@ -1,0 +1,19 @@
+documents:
+  - ticker: PNC
+    cik: "0000713676"
+    accession_number: "0001193125-25-052937"
+    form: "DEF 14A"
+    filing_date: "2025-03-12"
+    filename: d889589ddef14a.htm
+  - ticker: PNC
+    cik: "0000713676"
+    accession_number: "0000713676-24-000028"
+    form: "10-K"
+    filing_date: "2024-02-21"
+    filename: pnc-20231231.htm
+  - ticker: PNC
+    cik: "0000713676"
+    accession_number: "0000713676-25-000027"
+    form: "10-K"
+    filing_date: "2025-02-21"
+    filename: pnc-20241231.htm
