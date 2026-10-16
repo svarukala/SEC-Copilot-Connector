@@ -11,6 +11,11 @@ tickers.
 
 ## What this release improves
 
+For a fresh, exact three-document installation with native OCR and **Graph-free
+preparation before any upload**, use the [v9 + OCR customer runbook](docs/customer-v9-setup.md).
+It includes the exact PNC manifest, isolated configuration and explicit live
+import/retry commands. Ordinary `ingest --test` still uploads.
+
 - **Richer schema:** 22 properties provide issuer, ticker, form, reporting period,
   document, and section context, with links to the actual SEC source document.
 - **Financial-table fidelity:** removes duplicated layout content and improves

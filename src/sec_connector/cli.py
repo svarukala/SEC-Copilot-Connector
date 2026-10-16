@@ -100,6 +100,63 @@ def apply_connection_config(config, connection_id: Optional[str] = None, connect
         config.azure.connection_name = connection_name
 
 
+@main.command("prepare-exact")
+@click.option("--manifest", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--cache", required=True, type=click.Path(file_okay=False, path_type=Path))
+@click.option("--out", required=True, type=click.Path(dir_okay=False, path_type=Path))
+@click.option("--offline", is_flag=True, help="No network; require an intact previous online cache.")
+@click.option("--refresh", is_flag=True, help="Refetch selected source documents and OCR assets from SEC.")
+@click.pass_context
+def prepare_exact(ctx, manifest, cache, out, offline, refresh):
+    """Verify exact SEC primaries and build full payloads locally. NEVER contacts Graph."""
+    from .exact_import import atomic_write, digest, json_bytes, load_manifest, prepare
+    try:
+        if out.exists():
+            raise ValueError("Output already exists; choose a new bundle filename")
+        bundle = run_async(prepare(ctx.obj["config"], load_manifest(manifest), cache,
+                                   offline=offline, refresh=refresh))
+        raw = json_bytes(bundle)
+        atomic_write(out, raw)
+        for entry in bundle["documents"]:
+            console.print(
+                f"{entry['filing']['accession_number']} / {entry['document']['filename']}: "
+                f"{len(entry['payloads'])} items, {len(entry['ocr'])} OCR images, "
+                f"largest request {entry['largest_item_bytes']} bytes", markup=False,
+            )
+        console.print(f"Graph-free bundle: {out}\nSHA256: {digest(raw)}", markup=False)
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
+@main.command("import-exact")
+@click.option("--manifest", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--bundle", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--bundle-sha256", required=True, help="Reviewed SHA256 printed by prepare-exact.")
+@click.option("--upload", is_flag=True, required=True, help="Explicitly authorize live Graph upload.")
+@click.pass_context
+def import_exact(ctx, manifest, bundle, bundle_sha256, upload):
+    """UPLOAD the exact prepared bundle. No SEC discovery, OCR, sampling or pruning."""
+    from .exact_import import digest, import_bundle, load_manifest, regular_file, validate_bundle
+    config = ctx.obj["config"]
+    try:
+        if ctx.obj.get("connection_id_override"):
+            raise ValueError("Use azure.connection_id in the same config for setup and exact import")
+        raw = regular_file(bundle).read_bytes()
+        if digest(raw) != bundle_sha256.lower():
+            raise ValueError("Prepared bundle SHA256 mismatch")
+        selection = load_manifest(manifest)
+        prepared = json.loads(raw)
+        validate_bundle(prepared, selection, config)
+        require_graph_credentials(config)
+        initialize_logging(config, ctx.obj["verbose"])
+        stats = run_async(import_bundle(config, selection, prepared, bundle_sha256.lower()))
+        _print_stats(stats)
+        if stats["errors"]:
+            raise click.ClickException("Incomplete delivery; repeat this exact import command to retry")
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
 @main.command()
 @click.option("--connection-id", "-n", help="Connection ID for Graph connector")
 @click.option("--connection-name", help="Display name for the connector in Microsoft 365")

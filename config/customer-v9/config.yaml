@@ -1,0 +1,36 @@
+sec:
+  user_agent: ${SEC_USER_AGENT}
+  rate_limit: 5
+azure:
+  tenant_id: ${AZURE_TENANT_ID}
+  client_id: ${AZURE_CLIENT_ID}
+  client_secret: ${AZURE_CLIENT_SECRET}
+  connection_id: ${SEC_CONNECTION_ID}
+  connection_name: "SEC Filings - Three PNC Primaries - v9 OCR"
+  connection_description: "Full 2025 proxy and FY2023/FY2024 PNC annual reports"
+filings:
+  forms: ["DEF 14A", "10-K"]
+  include_history: true
+  include_amendments: false
+  include_exhibits: false
+  start_date: "2024-02-21"
+  end_date: "2025-03-12"
+chunking:
+  target_size: 4000
+  max_size: 8000
+  overlap: 200
+  max_item_bytes: 31457280
+processing:
+  ocr_images: true
+  ocr:
+    executable: ${SEC_TESSERACT_EXE}
+    tessdata_dir: ${SEC_TESSDATA_DIR}
+    timeout_seconds: 60
+sync:
+  refresh_downloads: false
+  prune_missing_filings: false
+paths:
+  downloads: data/downloads
+  payloads: data/payloads
+  database: data/state.db
+  logs: data/logs

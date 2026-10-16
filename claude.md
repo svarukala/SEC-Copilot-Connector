@@ -1,5 +1,16 @@
 # SEC Copilot Connector - Implementation Plan
 
+## Portable handoff maintenance
+
+Read `HANDOFF.md` before continuing project work. Update it in the same change
+when meaningful implementation, validation, publication, operational decisions,
+or recovery requirements change. Record the verification date, tested commit,
+current branch/PR status, remaining work and local-only risks; distinguish
+historical results from current checks. Keep it portable and free of credentials,
+customer content and machine-specific private paths. Verify it is published
+after pushing; never imply that a published branch is merged or that Git
+preserves private runtime state. Preserve all other instructions below.
+
 ## Overview
 Python-based Microsoft Copilot Connector to import SEC EDGAR filings (10-K, 10-Q, DEF 14A, 8-K) for semantic indexing and LLM reasoning in Microsoft 365.
 

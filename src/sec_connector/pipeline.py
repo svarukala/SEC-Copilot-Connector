@@ -22,6 +22,24 @@ logger = get_logger("pipeline")
 PROCESSING_VERSION = 9
 
 
+def processing_options(config: AppConfig) -> dict:
+    """Capture processing settings without requiring a destination or opening state."""
+    options = {
+        "chunking": config.chunking.model_dump(),
+        "ocr_images": config.processing.ocr_images,
+        "filings": config.filings.model_dump(mode="json"),
+        "refresh_downloads": config.sync.refresh_downloads,
+        "icon_url": config.azure.icon_url,
+        "schema_hash": hashlib.sha256(
+            json.dumps(GraphClient.load_schema(), sort_keys=True).encode("utf-8")
+        ).hexdigest(),
+        "processing_version": PROCESSING_VERSION,
+    }
+    if config.processing.ocr_images:
+        options["ocr_backend"] = captured_options(config.processing.ocr)
+    return options
+
+
 def document_fingerprint(
     source_hash: str, filing: FilingMetadata, document: DocumentInfo,
     options: dict, remaining: Optional[int] = None,
@@ -106,20 +124,7 @@ class IngestionPipeline:
         }
 
     def _processing_options(self) -> dict:
-        options = {
-            "chunking": self.config.chunking.model_dump(),
-            "ocr_images": self.config.processing.ocr_images,
-            "filings": self.config.filings.model_dump(mode="json"),
-            "refresh_downloads": self.config.sync.refresh_downloads,
-            "icon_url": self.config.azure.icon_url,
-            "schema_hash": hashlib.sha256(
-                json.dumps(GraphClient.load_schema(), sort_keys=True).encode("utf-8")
-            ).hexdigest(),
-            "processing_version": PROCESSING_VERSION,
-        }
-        if self.config.processing.ocr_images:
-            options["ocr_backend"] = captured_options(self.config.processing.ocr)
-        return options
+        return processing_options(self.config)
 
     async def ingest(
         self, tickers: list[str], max_filings: Optional[int] = None,
@@ -221,6 +226,8 @@ class IngestionPipeline:
         record = await state.get_filing(filing_id)
         if record.payloads_ready:
             return
+        if record.processing_options.get("exact_bundle_sha256"):
+            raise ValueError("Incomplete exact preparation; repeat import-exact with the original bundle")
         filing = FilingMetadata.model_validate(record.model_dump())
         if record.processing_options.get("processing_version", PROCESSING_VERSION) != PROCESSING_VERSION:
             raise RuntimeError(
