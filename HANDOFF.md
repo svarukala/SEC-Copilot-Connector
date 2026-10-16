@@ -1,6 +1,6 @@
 # SEC Copilot Connector handoff
 
-Last verified: **2026-10-11**. This is the portable continuation record for the
+Last verified: **2026-10-16 (authorized pre-merge verification)**. This is the portable continuation record for the
 standalone product. Update it with meaningful progress; do not treat dated
 remote status or historical results as permanently current.
 
@@ -13,19 +13,43 @@ editable Python installation.
 
 | Reference | Verified identity/status before this documentation update |
 |---|---|
-| GitHub `main` | `b472a1b14bb8f86e679fb9f6ccc661ec9e778358`, reviewed v9 merge |
+| GitHub `main` before PR #9 merge | `b472a1b14bb8f86e679fb9f6ccc661ec9e778358`, reviewed v9 merge |
 | Customer setup branch | `svarukala-customer-v9-setup` |
-| Published customer setup tip | `d3099150556628778d0311b15a0d1ced8bcbaf81` |
+| Published customer setup tip before this handoff update | `de242a6b577385390f69760f41a68f7baaa970b2`; product code unchanged from `d3099150556628778d0311b15a0d1ced8bcbaf81` |
 | Setup implementation | `27ff921ce7c2b17d68e11079c8c84056957098ee` |
-| [PR #9](https://github.com/svarukala/SEC-Copilot-Connector/pull/9) | OPEN, targeting `main`, not merged |
+| [PR #9](https://github.com/svarukala/SEC-Copilot-Connector/pull/9) at pre-merge check | OPEN/CLEAN/MERGEABLE, targeting `main`; user authorized normal merge on 2026-10-16 |
 | Reviewed v9 integration head | `048e6ccbee487e93856008877b6a73266c9161fa`, merged via [PR #8](https://github.com/svarukala/SEC-Copilot-Connector/pull/8) |
 | Parked combined v10 branch | `svarukala-review-combined-sec-upgrades`, published tip `7e1caffae4dbed88cff7d759e8042233a9f93e4c`; not the customer baseline |
 
-This handoff and its maintenance instruction are a documentation-only successor
-on the customer setup branch. Use GitHub's current branch tip and
-`git log -1 -- HANDOFF.md` to identify the handoff revision; the table above pins
-the product revision tested, rather than attempting to embed this file's own
-commit hash.
+The user explicitly authorized merging PR #9 after final unchanged-head checks
+on 2026-10-16. This documentation is prepared **before** that operation and does
+not claim it has completed. The execution path is a normal merge of the exact
+verified head, without admin bypass, force or branch deletion. GitHub's PR
+record is the authoritative completed-state and merge-commit receipt.
+**After confirming PR #9 is MERGED and its merge commit is contained in remote
+main, recover from main**, not the former unmerged feature-branch workflow.
+The recovery commands below enforce that condition.
+Use `git log -1 -- HANDOFF.md` to identify this documentation revision; the table
+pins tested input commits rather than attempting to embed this file's own hash.
+
+## Final authorized merge checks (2026-10-16)
+
+- Live input refs matched `de242a6...` (PR head) and `b472a1b...` (main).
+  No reviews, required checks or active branch rules were listed; main was
+  unprotected. Normal GitHub merge checks still apply; never bypass a new rule.
+- Product source, tests, configuration and dependency manifest were unchanged
+  from the 2026-10-11 full validation of `d309915...`.
+- Current focused source tests: `tests\test_exact_import.py` and
+  `tests\test_cli.py`: **52 passed** in 7.65 seconds, with the existing Pydantic
+  deprecation warning. Installed 1.0.1 / processing 9 module/resource byte
+  equality, `pip check`, and main/prepare-exact/import-exact CLI help passed.
+- The only merge-preparation change is this handoff transition. Earlier full
+  tests/native-OCR evidence below remain historical, not fresh runs today.
+- After merging, verify the merge tree equals the checked head tree, both
+  expected parents are present, remote main contains the merge, v10 remains
+  excluded, and the handoff/runbook are published with the email file absent.
+  No Graph, tenant, customer, agent or shared-main-checkout actions are authorized
+  by this source merge.
 
 **Decision retained:** processing version **9**, package **1.0.1**, existing
 destination-state format **3**. V10 marker-table changes caused a real search
@@ -33,7 +57,7 @@ regression; the user parked v10 troubleshooting. Do not switch to, merge, or
 restart v10 work without a new decision. Default v9 parsing/payload behavior,
 historical prepared replay/rollback and version guards remain intact.
 
-## Crash-recovery audit: current vs historical evidence
+## Historical crash-recovery audit (2026-10-11)
 
 On 2026-10-11, after fetching GitHub refs:
 
@@ -55,11 +79,11 @@ On 2026-10-11, after fetching GitHub refs:
 - Installed package sanity passed: `pip check`, module/CLI help, and byte
   equality of all 21 installed Python modules plus packaged config/schema
   against the tested source. No dependency reinstall was needed.
-- Current full-source pytest run against `d309915...`: **922 passed, 4 skipped,
+- That day's full-source pytest run against `d309915...`: **922 passed, 4 skipped,
   14 subtests passed**, in 409.41 seconds. One existing Pydantic class-based
   `Config` deprecation warning; no failures. Source was selected explicitly
   through `PYTHONPATH`, not inferred from a clean Git status.
-- Current **offline** full-document preparation used the approved real native
+- That day's **offline** full-document preparation used the approved real native
   OCR bundle and existing verified cache. It reproduced all 2,198 payloads and
   the entire previous online bundle byte-for-byte, SHA256
   `366ca3555078936e64a6a34b00efa404df11a512fb59da9be77fcff7fbeb4993`.
@@ -107,7 +131,7 @@ Proxy-only or `--max-filings 3` is not an equivalent selection.
 
 ## Fresh-machine recovery (PowerShell)
 
-Use a new directory. Obtain access to GitHub and your organization's approved
+Use a new directory. Obtain GitHub CLI (`gh`) access to verify the merge and your organization's approved
 Python package feed or complete wheelhouse. Python 3.12 is the tested version;
 do not transfer an old virtual environment between machines.
 
@@ -117,18 +141,28 @@ if ($LASTEXITCODE -ne 0) { throw "Clone failed" }
 Set-Location SEC-Connector-v9-Recovery
 git fetch origin
 if ($LASTEXITCODE -ne 0) { throw "Fetch failed" }
-git switch --track origin/svarukala-customer-v9-setup
-if ($LASTEXITCODE -ne 0) { throw "Expected recovery branch unavailable; inspect PR #9" }
+$PR = gh pr view 9 --repo svarukala/SEC-Copilot-Connector --json state,mergeCommit | ConvertFrom-Json
+if ($LASTEXITCODE -ne 0 -or $PR.state -ne "MERGED" -or -not $PR.mergeCommit.oid) {
+    throw "PR #9 merge is not confirmed; stop and inspect GitHub"
+}
+git merge-base --is-ancestor $PR.mergeCommit.oid origin/main
+if ($LASTEXITCODE -ne 0) { throw "Remote main does not contain the recorded merge" }
+git switch main
+if ($LASTEXITCODE -ne 0) { throw "Cannot select main" }
+git merge --ff-only origin/main
+if ($LASTEXITCODE -ne 0) { throw "Cannot fast-forward this fresh checkout" }
 git status --short
 git rev-parse HEAD
 git log -1 -- HANDOFF.md
 ```
 
-Check PR #9 in GitHub before proceeding. These commands recover the published
-branch while it exists; they do not merge it. If the PR is merged or the branch
-has been removed, verify its recorded merge commit and use the approved main
-revision instead. Do not reset a populated local checkout to make it match.
-For the exact tested pre-handoff code, the immutable commit is `d309915...`.
+These commands verify the completed PR merge, then recover main in a **fresh
+clone**; they do not merge the PR or modify a shared checkout. They deliberately
+stop if the authorized merge has not completed. If main has subsequently moved,
+review its additional changes, or use `git checkout --detach $PR.mergeCommit.oid`
+in this fresh clone for the exact merged release. Do not reset a populated local
+checkout to make it match. For the historical tested pre-handoff code, the
+immutable commit is `d309915...`.
 
 ```powershell
 python -m venv .venv
@@ -221,8 +255,10 @@ investigate documented recovery constraints before any live operation.
 
 ## Authorization boundaries and next actions
 
-1. Review PR #9 and decide whether to merge. Publication and this handoff are
-   authorized; merging is **not** authorized by the crash-recovery request.
+1. The user authorized PR #9's normal source merge on 2026-10-16. Verify its
+   completed GitHub merge record and remote main as above before recovery.
+   This supersedes the earlier crash-recovery-only authorization, but does
+   not authorize any live Microsoft 365 operation or v10 integration.
 2. For machine migration, recover the reviewed source and securely transfer or
    regenerate only the needed private artifacts. Rerun tests and Graph-free
    preparation before trusting the new environment.
