@@ -9,6 +9,31 @@ case. The connector is not tied to a particular company or industry. Commands
 below use `AAPL`, `MSFT`, and `GOOG` as examples; replace them with your desired
 tickers.
 
+## Disclaimer and adopter responsibility
+
+**Provided "AS IS" and "AS AVAILABLE", without warranties of any kind, express
+or implied, including merchantability, fitness for a particular purpose and
+noninfringement.** No support, maintenance, updates or service-level agreement
+(SLA) is guaranteed. This is not an officially supported Microsoft product.
+
+This project was predominantly AI-generated. Human review and testing do not
+eliminate defects, security vulnerabilities or inaccurate results. Adopters
+assume **operational ownership**, not ownership of the intellectual property:
+you are responsible for evaluating, reviewing and testing the code for security,
+compliance and fitness for your use, and for deploying, monitoring, maintaining,
+enhancing and fixing bugs in your installation, at your own risk.
+
+To the fullest extent permitted by applicable law, the authors and contributors
+disclaim liability for claims, damages or other losses arising from use of, or
+inability to use, this project. Fixes and enhancements via pull requests are
+welcome so others can benefit; submission does not guarantee acceptance or
+ongoing support.
+
+**License status:** [Package metadata](pyproject.toml) declares MIT, but this
+repository currently has no `LICENSE` file containing the full terms. This
+disclaimer does not grant or change license rights; obtain clarification from
+the repository owner before relying on licensing permissions.
+
 ## What this release improves
 
 For a fresh, exact three-document installation with native OCR and **Graph-free
