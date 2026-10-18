@@ -1,6 +1,6 @@
 # SEC Copilot Connector handoff
 
-Last verified: **2026-10-16 (authorized pre-merge verification)**. This is the portable continuation record for the
+Last verified: **2026-10-18 (README disclaimer and live source status)**. This is the portable continuation record for the
 standalone product. Update it with meaningful progress; do not treat dated
 remote status or historical results as permanently current.
 
@@ -10,6 +10,45 @@ Repository: <https://github.com/svarukala/SEC-Copilot-Connector>.
 The legacy `SEC-Connector` folder in `svarukala/AgenticProjects` is **not** the
 current product source. Do not copy it over this repository or use its older
 editable Python installation.
+
+## Current documentation change (2026-10-18)
+
+- GitHub `main` and this change's starting commit were verified as
+  `0f9a00f770315c76114d7807ed21fb5be13e6e66`. GitHub confirms
+  [PR #9](https://github.com/svarukala/SEC-Copilot-Connector/pull/9) is **MERGED**
+  at that commit (2026-10-16). Recover from verified main as described below.
+- Branch `svarukala-readme-usage-disclaimer` adds a prominent README notice:
+  as-is availability, no warranties or guaranteed support, predominantly
+  AI-generated code, adopter operational responsibility, qualified liability
+  disclaimer and voluntary community pull requests. No IP ownership transfer
+  or official Microsoft support is implied.
+- License gap: `pyproject.toml` declares MIT, but no tracked `LICENSE` or other
+  full license text exists; GitHub license metadata is null. The README links
+  to the actual package metadata and flags the gap. No license terms or
+  metadata were added or changed. The owner must clarify licensing separately;
+  legal counsel should assess enforceability and liability protection.
+- Publication verified for disclaimer commit
+  `c5fc4d252350e34b972e98cc65c208c5aa7d661c`: remote branch tip matched, and
+  GitHub's README/handoff blobs matched local Git blobs.
+  [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10) is
+  **OPEN, ready for review**, targeting `main`, not merged. This subsequent
+  handoff-only receipt records those checks; use `git log -1 -- HANDOFF.md` for
+  its revision. Review, licensing clarification and any separately authorized
+  merge remain pending. This task does **not** authorize merging.
+- Documentation verification on that commit: `git diff --check` passed;
+  all 17 README and 4 handoff relative file-link targets exist, fenced blocks
+  balance, and the reviewed diff changes only these two Markdown files.
+  No documentation-specific tests were found; no product tests were run.
+- Scope is `README.md` and this handoff only. No source/runtime changes, live
+  Graph operations, shared-main-checkout changes or v10 work. Product tests
+  below are historical; no fresh product test result is claimed for this
+  prose-only change. Local-only recovery risks below remain unchanged: Git
+  publication does not preserve private runtime state.
+
+## Historical pre-merge record (2026-10-16)
+
+The following table and merge-preparation checks describe the state before
+PR #9 merged; they are retained as historical evidence, not current PR status.
 
 | Reference | Verified identity/status before this documentation update |
 |---|---|
@@ -32,7 +71,7 @@ The recovery commands below enforce that condition.
 Use `git log -1 -- HANDOFF.md` to identify this documentation revision; the table
 pins tested input commits rather than attempting to embed this file's own hash.
 
-## Final authorized merge checks (2026-10-16)
+## Historical final authorized merge checks (2026-10-16)
 
 - Live input refs matched `de242a6...` (PR head) and `b472a1b...` (main).
   No reviews, required checks or active branch rules were listed; main was
