@@ -27,9 +27,18 @@ editable Python installation.
   to the actual package metadata and flags the gap. No license terms or
   metadata were added or changed. The owner must clarify licensing separately;
   legal counsel should assess enforceability and liability protection.
-- Publication status at preparation: local documentation changes only; no PR
-  opened yet. Review and publication checks remain before handoff. This task
-  authorizes a ready-for-review PR, **not a merge**.
+- Publication verified for disclaimer commit
+  `c5fc4d252350e34b972e98cc65c208c5aa7d661c`: remote branch tip matched, and
+  GitHub's README/handoff blobs matched local Git blobs.
+  [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10) is
+  **OPEN, ready for review**, targeting `main`, not merged. This subsequent
+  handoff-only receipt records those checks; use `git log -1 -- HANDOFF.md` for
+  its revision. Review, licensing clarification and any separately authorized
+  merge remain pending. This task does **not** authorize merging.
+- Documentation verification on that commit: `git diff --check` passed;
+  all 17 README and 4 handoff relative file-link targets exist, fenced blocks
+  balance, and the reviewed diff changes only these two Markdown files.
+  No documentation-specific tests were found; no product tests were run.
 - Scope is `README.md` and this handoff only. No source/runtime changes, live
   Graph operations, shared-main-checkout changes or v10 work. Product tests
   below are historical; no fresh product test result is claimed for this
