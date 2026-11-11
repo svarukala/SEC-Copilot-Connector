@@ -1,6 +1,6 @@
 # SEC Copilot Connector handoff
 
-Last verified: **2026-11-11 (authorized PR #10 pre-merge review)**. This is the portable continuation record for the
+Last verified: **2026-11-11 (authorized README/demo pre-merge review)**. This is the portable continuation record for the
 standalone product. Update it with meaningful progress; do not treat dated
 remote status or historical results as permanently current.
 
@@ -11,7 +11,99 @@ The legacy `SEC-Connector` folder in `svarukala/AgenticProjects` is **not** the
 current product source. Do not copy it over this repository or use its older
 editable Python installation.
 
-## Authorized disclaimer merge review (2026-11-11)
+## Authorized README/demo merge (2026-11-11)
+
+- The user explicitly requested "plz merge to main" for the completed README/
+  demo change. This supersedes its earlier publication-only boundary and
+  authorizes the normal merge of
+  [PR #11](https://github.com/svarukala/SEC-Copilot-Connector/pull/11) only,
+  without admin bypass, force or source-branch deletion.
+- Reviewed documentation head before this handoff update:
+  `f9a804771291178259e6353b5b9a116e1a9c1459` on
+  `svarukala-sec-readme-and-demo`; fetched main:
+  `227f6961b3fc81b36f45f2d10eed356576c14d5b`. The complete change is limited
+  to README and handoff. Product source, tests, configuration and dependencies
+  remain identical to that main baseline: package 1.0.1 / processing 9.
+- PR #11 was opened into `main`. At the authorization check, main was
+  unprotected with no active branch rules; normal merge commits were enabled
+  and automatic branch deletion was disabled. Recheck the exact final head,
+  reviews, checks and mergeability before issuing the normal merge.
+- Earlier documentation/link/CLI and full public-demo integrity checks below
+  remain the evidence for the unchanged README. The coordinator additionally
+  verified public browser video decoding/rendering: readyState 4, no media error,
+  1920 x 1080, duration approximately 159.67 seconds, with a visible SEC Filings
+  Analyst frame. This does not verify financial-answer accuracy.
+- This record is prepared **before** the merge; it does not claim completion.
+  GitHub's PR #11 MERGED state and merge SHA are the authoritative receipt.
+  After merging, verify both merge parents, equality with the final reviewed
+  head tree, remote-main ancestry, README/handoff blobs, the immediately
+  post-introduction diagram and exactly one final demo player. The fresh-clone
+  procedure below now gates recovery on PR #11's confirmed merge.
+- This handoff-only update records authorization and recovery; identify its
+  revision with `git log -1 -- HANDOFF.md`. No product tests or live SEC/Graph
+  actions are required by this documentation merge. The unresolved full-license
+  gap, private-runtime recovery requirements and parked v10 decision remain.
+  PR #7, legacy sources and the shared main checkout remain out of scope.
+
+## Historical README and demo publication (2026-11-11)
+
+The following describes the completed publication before the subsequent merge
+request above. Its no-merge boundary is superseded only for PR #11.
+
+- GitHub confirms [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10)
+  is **MERGED** at `227f6961b3fc81b36f45f2d10eed356576c14d5b`, containing reviewed
+  head `aa3165bb392110bac6c5b14e5131549d5b4395be`. This branch incorporates that
+  completed merge, not a competing edit to the disclaimer branch.
+- Branch `svarukala-sec-readme-and-demo` changes only README and this handoff:
+  clearer purpose, a Mermaid flow immediately after the opening paragraph,
+  demo access, a choice of setup/evaluation paths, seven setup-to-agent steps,
+  prompt examples and a documentation map. Detailed processing/OCR/maintenance
+  caveats remain in an expandable reference section. The AS-IS/adopter/
+  AI-generated disclaimer and unresolved full-license gap are preserved verbatim.
+- Tested product baseline: `227f6961b3fc81b36f45f2d10eed356576c14d5b`, package
+  **1.0.1**, processing **9**. Source-selected CLI help for the main command,
+  setup, ingest, resume, prepare-exact and import-exact passed using an existing
+  provisioned interpreter. The default shell Python lacked `aiohttp`; no
+  product dependencies or runtime state were changed. No product test suite,
+  live SEC/Graph operation or tenant/agent acceptance run was performed.
+- Current documentation checks: Mermaid parser accepted `flowchart-v2`;
+  Markdown parsing, relative file links and heading anchors, YAML and PowerShell
+  syntax, diagram placement and `git diff --check` passed. The diagram explicitly
+  separates ingestion/indexing from prompts; it does not promise live SEC queries.
+- The public demo is hosted at
+  <https://github.com/user-attachments/assets/d93f30f0-75f4-4083-bfc0-d751f5ceea1a>.
+  Anonymous full-download verification returned HTTP 200, `video/mp4`,
+  66,233,143 bytes and SHA256
+  `6770a3214cd728f619c9b5bd79eb13cf4d98245ebc6da11d3465cd7895a46aa7`,
+  equal to the original recording. The MP4 is not committed to Git. The first
+  raw-API upload remained private even after branch publication; the coordinator
+  replaced it using native GitHub attachment upload associated with a
+  [follow-up demo comment](https://github.com/svarukala/SEC-Copilot-Connector/pull/10#issuecomment-6803294359),
+  not a change to the merged disclaimer. Use only the final public URL above.
+  GitHub's rendered README expands both ordinary video links and bare URLs
+  into players, so the final README uses one standalone URL with a bold label.
+  GitHub Markdown rendering of the final README confirmed exactly one player.
+  Public retrieval was verified at publication; the coordinator's subsequent
+  browser decoding/rendering check is recorded in the authorization section above.
+- Publication verified for documentation commit
+  `e33c94a40db648a0209c16765fb0585f175d3852`: remote branch tip matches, and
+  GitHub's README/handoff blobs match local Git blobs. This subsequent
+  demo-URL correction and handoff receipt record that verification; identify their revision
+  with `git log -1 -- HANDOFF.md`.
+- This is a separate **published, unmerged** documentation branch, with no PR
+  opened at verification. Review and a separately authorized merge remain
+  pending. PR #10's merge permission does not apply to this change.
+- Remaining work: review and separately authorize merging this documentation;
+  licensing clarification remains with the repository owner. V10 stays parked.
+  No shared-main checkout, source, configuration or private runtime artifacts
+  were modified. Git recovery still excludes credentials, native OCR software,
+  caches, prepared bundles and destination-scoped state; preserve those separately
+  through approved storage and the recovery procedure below.
+
+## Historical authorized disclaimer merge review (2026-11-11)
+
+The following is the pre-merge record. PR #10 has since merged as recorded above;
+do not repeat its merge or interpret its authorization as applying to new work.
 
 - The user authorized review and merging to main, then confirmed repository
   trust was resolved. This supersedes the earlier no-merge instruction for
@@ -216,9 +308,9 @@ if ($LASTEXITCODE -ne 0) { throw "Clone failed" }
 Set-Location SEC-Connector-v9-Recovery
 git fetch origin
 if ($LASTEXITCODE -ne 0) { throw "Fetch failed" }
-$PR = gh pr view 10 --repo svarukala/SEC-Copilot-Connector --json state,mergeCommit | ConvertFrom-Json
+$PR = gh pr view 11 --repo svarukala/SEC-Copilot-Connector --json state,mergeCommit | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0 -or $PR.state -ne "MERGED" -or -not $PR.mergeCommit.oid) {
-    throw "PR #10 merge is not confirmed; stop and inspect GitHub"
+    throw "PR #11 merge is not confirmed; stop and inspect GitHub"
 }
 git merge-base --is-ancestor $PR.mergeCommit.oid origin/main
 if ($LASTEXITCODE -ne 0) { throw "Remote main does not contain the recorded merge" }
@@ -330,9 +422,9 @@ investigate documented recovery constraints before any live operation.
 
 ## Authorization boundaries and next actions
 
-1. The user authorized PR #10's normal documentation merge on 2026-11-11.
+1. The user authorized PR #11's normal README/demo merge on 2026-11-11.
    Verify its completed GitHub merge record and remote main as above before
-   recovery. PR #9 is already merged. This authorization does not extend to
+   recovery. PR #9 and PR #10 are already merged. This authorization does not extend to
    PR #7 closure, live Microsoft 365 operations or v10 integration.
 2. For machine migration, recover the reviewed source and securely transfer or
    regenerate only the needed private artifacts. Rerun tests and Graph-free
