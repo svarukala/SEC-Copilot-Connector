@@ -1,6 +1,6 @@
 # SEC Copilot Connector handoff
 
-Last verified: **2026-10-18 (README disclaimer and live source status)**. This is the portable continuation record for the
+Last verified: **2026-11-11 (authorized PR #10 pre-merge review)**. This is the portable continuation record for the
 standalone product. Update it with meaningful progress; do not treat dated
 remote status or historical results as permanently current.
 
@@ -11,7 +11,42 @@ The legacy `SEC-Connector` folder in `svarukala/AgenticProjects` is **not** the
 current product source. Do not copy it over this repository or use its older
 editable Python installation.
 
-## Current documentation change (2026-10-18)
+## Authorized disclaimer merge review (2026-11-11)
+
+- The user authorized review and merging to main, then confirmed repository
+  trust was resolved. This supersedes the earlier no-merge instruction for
+  [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10) only.
+  Complete a normal merge without bypass, force or branch deletion.
+- Reviewed input head: `3a9109fa5cfc8a283593a93bfd7e228952bef0eb` on
+  `svarukala-readme-usage-disclaimer`; live main:
+  `0f9a00f770315c76114d7807ed21fb5be13e6e66`. The complete diff is limited to
+  README and handoff documentation. This subsequent handoff-only update
+  records authorization and recovery; identify its commit with
+  `git log -1 -- HANDOFF.md`.
+- At review, PR #10 was OPEN, non-draft, CLEAN/MERGEABLE, with no reviews,
+  comments or status checks. Main was unprotected with no active branch rules;
+  normal merge commits are enabled and automatic branch deletion is disabled.
+  Recheck the exact head and normal merge gates after publishing this update.
+- Documentation checks cover the full diff, relative file-link targets and
+  Markdown fences. No product tests are rerun for prose-only changes; prior
+  product validation below remains historical, not current testing.
+- [PR #7](https://github.com/svarukala/SEC-Copilot-Connector/pull/7) remains OPEN,
+  but its head `20029ceb9d385b8bd569e2859c2ac8a9beaa6ec4` is already an ancestor
+  of fetched main. It is redundant for integration: do not merge it again or
+  close it without separate authorization.
+- This record is written **before** PR #10 merges; it does not claim success.
+  GitHub's PR #10 merged state and merge SHA are the authoritative receipt.
+  After merging, verify remote main contains that merge and the exact reviewed
+  head, the merge tree matches the reviewed tree, and README/handoff are
+  published. The fresh-clone recovery below now checks PR #10.
+- The full-license gap remains unresolved: MIT is declared only in package
+  metadata, with no full `LICENSE` file and no GitHub-detected license. No
+  license terms were invented or changed. Owner clarification and legal review
+  remain follow-ups; the disclaimer does not guarantee liability protection.
+  No runtime, Graph, v10, presentation or shared-main changes are authorized.
+  Private runtime state still requires separate recovery as described below.
+
+## Historical documentation publication (2026-10-18)
 
 - GitHub `main` and this change's starting commit were verified as
   `0f9a00f770315c76114d7807ed21fb5be13e6e66`. GitHub confirms
@@ -30,11 +65,12 @@ editable Python installation.
 - Publication verified for disclaimer commit
   `c5fc4d252350e34b972e98cc65c208c5aa7d661c`: remote branch tip matched, and
   GitHub's README/handoff blobs matched local Git blobs.
-  [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10) is
+  [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10) was
   **OPEN, ready for review**, targeting `main`, not merged. This subsequent
   handoff-only receipt records those checks; use `git log -1 -- HANDOFF.md` for
   its revision. Review, licensing clarification and any separately authorized
-  merge remain pending. This task does **not** authorize merging.
+  merge remained pending then. That task did **not** authorize merging;
+  the 2026-11-11 authorization above supersedes this historical restriction.
 - Documentation verification on that commit: `git diff --check` passed;
   all 17 README and 4 handoff relative file-link targets exist, fenced blocks
   balance, and the reviewed diff changes only these two Markdown files.
@@ -180,9 +216,9 @@ if ($LASTEXITCODE -ne 0) { throw "Clone failed" }
 Set-Location SEC-Connector-v9-Recovery
 git fetch origin
 if ($LASTEXITCODE -ne 0) { throw "Fetch failed" }
-$PR = gh pr view 9 --repo svarukala/SEC-Copilot-Connector --json state,mergeCommit | ConvertFrom-Json
+$PR = gh pr view 10 --repo svarukala/SEC-Copilot-Connector --json state,mergeCommit | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0 -or $PR.state -ne "MERGED" -or -not $PR.mergeCommit.oid) {
-    throw "PR #9 merge is not confirmed; stop and inspect GitHub"
+    throw "PR #10 merge is not confirmed; stop and inspect GitHub"
 }
 git merge-base --is-ancestor $PR.mergeCommit.oid origin/main
 if ($LASTEXITCODE -ne 0) { throw "Remote main does not contain the recorded merge" }
@@ -294,10 +330,10 @@ investigate documented recovery constraints before any live operation.
 
 ## Authorization boundaries and next actions
 
-1. The user authorized PR #9's normal source merge on 2026-10-16. Verify its
-   completed GitHub merge record and remote main as above before recovery.
-   This supersedes the earlier crash-recovery-only authorization, but does
-   not authorize any live Microsoft 365 operation or v10 integration.
+1. The user authorized PR #10's normal documentation merge on 2026-11-11.
+   Verify its completed GitHub merge record and remote main as above before
+   recovery. PR #9 is already merged. This authorization does not extend to
+   PR #7 closure, live Microsoft 365 operations or v10 integration.
 2. For machine migration, recover the reviewed source and securely transfer or
    regenerate only the needed private artifacts. Rerun tests and Graph-free
    preparation before trusting the new environment.
