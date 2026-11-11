@@ -18,8 +18,7 @@ lock remains.
 | USB | 5 | 955 | 955 | 955 |
 | **Total** | **25** | **8,513** | **8,513** | **8,513** |
 
-Final connection GET confirms ID **`secevidencev820260930`**, name
-**SEC evidence pilot v8 - five-bank sample**, native connection state **`ready`**,
+Final connection GET confirms the reviewed sample destination, native connection state **`ready`**,
 and all **22 schema properties** compatible with the frozen schema. The native
 schema operation completed and was tracked in the dedicated journal. Maximum
 emitted content is **7,998 characters**; maximum serialized request is
@@ -31,7 +30,7 @@ or readback failure remains.
 **Native connection readiness and Graph persistence are not proof of search
 visibility or Copilot answer quality.** The loader did not edit or evaluate an
 agent. A subsequent user-reported evaluation is recorded separately below.
-Production `secedgar20260909v2` and both earlier PNC pilot connections were not
+The existing baseline and both earlier isolated sample connections were not
 mutated. No delete, prune/reset, broad ingest, source download, shared database/
 cache/environment edit, main merge or push was performed.
 
@@ -47,9 +46,9 @@ processing or any uploaded payload.
 ## Approved scope and loader
 
 The user authorized **one new connection and exactly 25 documents: five each for
-PNC, WFC, JPM, BAC and USB**. The destination is `secevidencev820260930`, display
-name **SEC evidence pilot v8 - five-bank sample**, in tenant
-`144b8c80-398d-405e-8055-fc9a9d5013f8`. Its 21-character alphanumeric ID and display
+PNC, WFC, JPM, BAC and USB** as public SEC examples, not evidence of issuer
+relationships. Destination and tenant identifiers are omitted from this report.
+The reviewed destination's 21-character alphanumeric ID and display
 name meet the [Graph externalConnection limits](https://learn.microsoft.com/graph/api/resources/externalconnectors-externalconnection?view=graph-rest-1.0).
 This authorization does not extend to agents, skills, evaluations, deletion,
 existing connections or broad ticker/date ingestion.
@@ -250,8 +249,8 @@ Exact source citations:
 - [USB 2Q26 release, accession 0000036104-26-000039](https://www.sec.gov/Archives/edgar/data/0000036104/000003610426000039/a2q26earningsrelease.htm).
 
 For an operator-approved evaluation, bind the intended agent knowledge source
-exclusively to **SEC evidence pilot v8 - five-bank sample**
-(`secevidencev820260930`) and verify that binding and search visibility before
+exclusively to the reviewed five-bank sample connection from the private run
+receipt and verify that binding and search visibility before
 interpreting results. This handoff does not perform or authorize that agent edit.
 Keep exact base instructions and installed skill presence/content/version fixed;
 record them alongside model, source binding, prompt, chat freshness, attempt

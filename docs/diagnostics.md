@@ -46,7 +46,7 @@ connection/item IDs, exact public filing scopes, hashes, fixed evidence counters
 state/check results, current-interpreter dependency versions, and Graph-added
 property names. Review them before sharing via an approved channel. Error codes
 are intentionally generic; do not collect unfiltered logs or send `.env`, state
-databases, private maintenance plans, or customer workbooks.
+databases, private maintenance plans, or private workbooks.
 
 ## Standalone Windows collection
 
@@ -66,7 +66,7 @@ The installed wheel normally carries `sec_connector\resources\schema.json`;
 a source checkout normally uses `config\schema.json`. `--schema` is explicit
 so the diagnostic never guesses which file represents the baseline.
 
-The following uses placeholders, not usable credentials or customer paths.
+The following uses placeholders, not usable credentials or installation paths.
 Replace all bracketed values. The output directory must already exist with
 appropriate private ACLs.
 
@@ -230,7 +230,7 @@ python -m unittest discover -s tests -p test_diagnostics.py
 ```
 
 The same tests run under pytest. No test contacts Graph/Entra/SEC, imports
-production initialization, or reads customer state. Keep state compatibility,
+production initialization, or reads installation state. Keep state compatibility,
 terminal phase names, stored payload serialization, and fingerprint assumptions
 aligned with production changes. Update the report version when its format
 changes incompatibly.

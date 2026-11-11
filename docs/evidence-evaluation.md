@@ -11,7 +11,7 @@ The [public manifest](../samples/evaluation/pnc-evidence-v1.json) pins four cach
 PNC HTML sources by accession, filename, SEC URL and SHA-256. It defines seven
 questions, nine evidence groups and **34 exact, nonempty source-cell rows**.
 Only factual rows and short locating phrases are included, not whole filings,
-customer answers, worksheets, screenshots, operational identifiers or cache paths.
+private answers, worksheets, screenshots, operational identifiers or cache paths.
 The [machine-readable receipt](evidence-evaluation-results.json) records the
 actual offline run and code/dependency hashes. This is a purposive four-document
 banking sample, not representative SEC coverage.
@@ -221,7 +221,7 @@ small purposive sample**.
 The historical instruction-only success, user-reported three candidate
 successes and baseline failures with unknown count remain in the
 [original pilot report](evidence-packaging-pilot.md). They were not converted
-into newly observed runs here. No copied/private customer artifact was imported.
+into newly observed runs here. No private operator artifact was imported.
 
 ## Bounded next fixes and acceptance gates
 

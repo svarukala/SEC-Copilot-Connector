@@ -6,8 +6,8 @@ azure:
   client_id: ${AZURE_CLIENT_ID}
   client_secret: ${AZURE_CLIENT_SECRET}
   connection_id: ${SEC_CONNECTION_ID}
-  connection_name: "SEC Filings - Three PNC Primaries - v9 OCR"
-  connection_description: "Full 2025 proxy and FY2023/FY2024 PNC annual reports"
+  connection_name: "SEC Filings - Three-Document Sample - v9 OCR"
+  connection_description: "Public SEC sample: full proxy and two annual reports"
 filings:
   forms: ["DEF 14A", "10-K"]
   include_history: true

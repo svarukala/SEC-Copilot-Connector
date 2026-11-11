@@ -1,9 +1,10 @@
 # Scoped maintenance: live storage validation
 
-**The first PNC-only live upgrade passed its bounded acceptance set.** This report
-records one approved production update and its tested prompts, not universal
-filing support or retrieval accuracy. No tenant identifiers, credentials, private paths, raw
-receipts or reusable production plan are included.
+**One single-document live maintenance run passed its bounded acceptance set.**
+This historical report records an operator-approved run and its tested prompts,
+not universal filing support or retrieval accuracy. Issuer names identify public
+SEC evidence, not an issuer relationship or deployment. No tenant identifiers,
+credentials, private paths, raw receipts or reusable live plan are included.
 
 ## Executed scope and result
 
@@ -46,7 +47,7 @@ format-3 scope and unrelated rows. Private recovery evidence retained the comple
 reviewed plan, 1,091 old replayable remote observations and 36 initial absence
 observations. Recovery artifacts and the newer runtime remain retained.
 
-## Bounded PNC agent acceptance
+## Bounded public-filing agent acceptance
 
 On October 2, 2026 at approximately 12:53 EDT, the user reported trying the
 original prompt, **"what is the PNC CEO pay ratio for 2025"**, three times with
@@ -67,7 +68,7 @@ The methodology response had a minor completeness note: it could also mention
 that the selected median employee was reused because there were no material
 workforce changes. This was not judged a wrong answer.
 
-This completes the **first PNC-only upgrade's tested acceptance scope**.
+This completes the **single-document run's tested acceptance scope**.
 Supplied responses and citations were reviewed for the checks identified above,
 but exact runtime knowledge binding, retrieval traces and use of fresh chats
 were not independently confirmed. There is no claim of independently captured
@@ -93,7 +94,7 @@ by this result.
 This live evidence covers only the completed, unsampled, sole-document,
 OCR-disabled scope. The [operator procedure](maintenance.md) now also describes
 offline-tested prepared-delivery and local rotated-image OCR extensions; those
-are **not** validated by this PNC run. Multi-document and unprepared/incomplete
+are **not** validated by this run. Multi-document and unprepared/incomplete
 inventory remain unsupported. Format 4 remains after
 rollback; older connector executables cannot reopen the database. A database or
 Git restore alone is not a Graph rollback.

@@ -1,10 +1,10 @@
 # Scoped in-place maintenance
 
 **Validated for the supported single-document, non-OCR scope**, through one
-approved PNC update with live storage verification and bounded agent acceptance;
+operator-approved update with live storage verification and bounded agent acceptance;
 see the [sanitized validation result](maintenance-live-validation.md).
 The prepared-delivery, local rotated-image OCR and complete multi-document
-extensions below have **offline coverage only**, not customer/live acceptance.
+extensions below have **offline coverage only**, not operator/live acceptance.
 Rollback and interrupted-operation
 recovery are covered by offline failure injection, not a live rollback exercise.
 This is not validation for all filings or general scanned-document OCR.
@@ -21,7 +21,7 @@ overwrites/deletions. There is no transaction spanning Graph and SQLite.
 2. Confirm the supported exact-inventory eligibility and OCR inputs below. Stop all
    local, scheduled and other-machine writers and retain a private recovery area.
 3. Run `prepare`, then `inspect`; review the new plan's exact IDs, content,
-   properties, ACLs and digest. Never reuse another customer's plan or receipts.
+   properties, ACLs and digest. Never reuse another installation's plan or receipts.
 4. Obtain explicit approval for that digest, scoped writes, backup retention and
    permanent state format 4. Run `apply` with a new recovery directory.
 5. On interruption use the same plan with maintenance `resume`, not normal
@@ -46,7 +46,7 @@ approved package repository configuration, as in [operations](operations.md):
 .\.venv\Scripts\python.exe -m sec_connector maintenance --help
 ```
 
-These are customer installation instructions, not a request to reinstall a
+These are operator installation instructions, not a request to reinstall a
 shared environment during recovery. Retain the same installed build and
 dependencies from prepare through completion/recovery. Do not update code or
 dependencies in an unfinished operation. If using an editable checkout or
@@ -413,9 +413,9 @@ The multi-document suite adds synthetic two- and four-document inventories
 (including HTML and text exhibits), per-document lost PUT/DELETE outcomes,
 partial retirement, resumable rollback, checkpoint/transaction failures,
 full-set gates, unrelated-row preservation, exact selection, and provenance
-rejections. It does not use the reported PNC annual sources or any live database,
-cache, SEC endpoint, or Graph tenant. The reported PNC 2023 annual primary plus
-EX-21 and the PNC 2024 four-document annual inventory motivate this boundary;
+rejections. It does not use the public PNC annual sources or any live database,
+cache, SEC endpoint, or Graph tenant. The PNC 2023 annual primary plus
+EX-21 and the PNC 2024 four-document annual inventory illustrate this boundary;
 their actual eligibility and content quality have **not** been certified here.
 Before direct-backend integration the full offline suite passed **713 tests**, with four
 existing private-corpus opt-ins skipped. Validation used a worktree-local Python
@@ -438,8 +438,8 @@ nothing. It did not rerun the separate real-source acceptance reported below.
 
 ### Real-engine acceptance case (offline parser/chunker passed)
 
-The coordinating customer-worksheet review reported an OCR-dependent case in
-PNC's 2025 proxy, `d889589ddef14a.htm`, accession `0001193125-25-052937`, printed
+The public-filing regression case uses PNC's 2025 proxy,
+`d889589ddef14a.htm`, accession `0001193125-25-052937`, printed
 page 25, **Transactions with directors in 2024**. The charity row has six
 markers, while all 13 director-name headers are narrow rotated JPEGs with
 `alt="LOGO"` and remain `[rotated text]` with v8/OCR disabled. A separately
@@ -478,7 +478,7 @@ rowspan-aware source grid independently established the marked columns:
 The current parser/chunker, run without OCR on the exact table excerpt,
 preserved six markers in columns **2, 5, 6, 7, 8, 13**, but emitted
 **13 `[rotated text]` headers**. This verifies the input and non-OCR symptom;
-it does not measure OCR accuracy or establish a customer fix.
+it does not measure OCR accuracy or establish a live deployment fix.
 
 After separate authorization for official private extraction tooling, a
 **preliminary real Tesseract CLI comparison passed**. This is deliberately
@@ -549,13 +549,13 @@ outcomes, full-document payloads, metadata provenance and scripts. The full HTML
 run does not imply general scanned-image coverage: ordinary/non-rotated images
 remain outside the parser's OCR eligibility. **Cross-page charity disclosure
 scope/exclusions, live maintenance execution, Graph indexing and Copilot answers
-remain unvalidated.** No customer source/cache/state, tenant, registry, system
+remain unvalidated.** No installation source/cache/state, tenant, registry, system
 PATH or shared environment was mutated. Nothing was merged or deployed.
 
-Do not conflate that case with the reported PNC 2023 10-K, printed page 36,
-**9.64% CAGR** disclosure: the coordinating review identified it as an HTML
-table below `Picture2.jpg`, not an OCR/image-extraction gap. These reported
-acceptance targets do not authorize source downloads or customer/tenant writes.
+Do not conflate that case with the public PNC 2023 10-K, printed page 36,
+**9.64% CAGR** disclosure: source review identified it as an HTML
+table below `Picture2.jpg`, not an OCR/image-extraction gap. These
+regression cases do not authorize source downloads or installation/tenant writes.
 
 ## Limits and live release gate
 
@@ -566,9 +566,9 @@ No untracked global IDs are enumerated. Failures/drift can require operator
 investigation rather than automatic completion; the guard intentionally remains.
 
 The recorded live run confirmed property removal and complete storage
-verification/retirement. The first PNC-only update also passed its bounded agent
+verification/retirement. The single-document update also passed its bounded agent
 acceptance set; storage checks alone did not establish that result. For each
 new scope, allow indexing and obtain acceptance of the relevant Copilot prompts
-with documented bindings and controls. Each customer's scope still needs its
+with documented bindings and controls. Each operator's scope still needs its
 own plan, review and authorization. This is not an all-filings procedure; no
 further live mutation is implied by the tests or this report.

@@ -392,13 +392,13 @@ def test_output_and_cache_reject_symlinks_before_writing(tmp_path):
     assert not list(target.iterdir())
 
 
-def test_shipped_customer_config_and_manifest(monkeypatch):
+def test_shipped_sample_config_and_manifest(monkeypatch):
     from sec_connector.config import load_config
     root = Path(__file__).parents[1]
     monkeypatch.setenv("SEC_TESSERACT_EXE", r"C:\ApprovedTools\tesseract.exe")
     monkeypatch.setenv("SEC_TESSDATA_DIR", r"C:\ApprovedTools\tessdata")
-    config = load_config(root / "config" / "customer-v9" / "config.yaml")
-    manifest = exact.load_manifest(root / "config" / "customer-v9" / "documents.yaml")
+    config = load_config(root / "config" / "sample-v9" / "config.yaml")
+    manifest = exact.load_manifest(root / "config" / "sample-v9" / "documents.yaml")
     assert len(manifest.documents) == 3
     assert {(d.accession_number, d.filename) for d in manifest.documents} == {
         ("0001193125-25-052937", "d889589ddef14a.htm"),

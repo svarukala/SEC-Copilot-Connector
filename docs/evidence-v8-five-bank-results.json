@@ -1,7 +1,6 @@
 {
   "status": "uploaded-and-read-back",
-  "connection_id": "secevidencev820260930",
-  "connection_name": "SEC evidence pilot v8 - five-bank sample",
+  "destination_identifiers_omitted": true,
   "native_connection_state": "ready",
   "schema_complete": true,
   "schema_property_count": 22,

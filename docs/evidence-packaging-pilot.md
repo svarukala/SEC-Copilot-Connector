@@ -92,10 +92,9 @@ python -m pytest tests\test_evidence_packaging.py -q --basetemp '<isolated new t
 ## Approval-only destination and replacement proposal
 
 Propose two **new, isolated** connections in the explicitly approved tenant:
-`secevidencepilot20260930a` (saved v4 baseline) and
-`secevidencepilot20260930b` (saved v5 candidate). The exact proposed tenant identity
-is recorded privately with the handoff, not in repository documentation.
-The historical connection `secedgar20260909v2` remains untouched. Names and tenant
+one for the saved v4 baseline and one for the saved v5 candidate. Exact destination
+identities belong in the private run plan, not in this report.
+The existing baseline connection remains untouched. Names and tenant
 selection are proposals, not evidence of availability, creation, or permission.
 
 The upload allowlist for each arm is exactly the CIK, accession, primary filename,
@@ -251,9 +250,9 @@ exact-item GET comparisons. Neither proves Microsoft Search indexing, agent
 retrieval readiness, or Copilot efficacy. An application can read its external
 items before they are available to a user's search or agent.
 
-For agent binding, select only `SEC evidence pilot baseline`
-(`secevidencepilot20260930a`) for arm A or only `SEC evidence pilot candidate`
-(`secevidencepilot20260930b`) for arm B in the approved tenant. The uploader does
+For agent binding, select only the reviewed baseline connection for arm A or
+only the reviewed candidate connection for arm B, using the destination identities
+in the private run plan for the approved tenant. The uploader does
 not create or edit agents, install skills, enable web sources, or grant new
 permissions. Keep identical instructions, skills, schema and ACL configuration;
 the only intended difference is the frozen packaging treatment. Perform those

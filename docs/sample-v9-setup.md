@@ -1,9 +1,13 @@
-# Three-document v9 + OCR installation and import
+# Three-document v9 + OCR sample installation and import
 
 This procedure uses a **fresh installation and a new, unused Graph connection**.
 Leave the existing connector, app, database, configuration and agent unchanged.
-Use the reviewed v9 setup commit supplied with the delivery, not a v10 branch.
+Use a reviewed v9 release commit containing this runbook, not a v10 branch.
 Package 1.0.1 retains processing version **9** and the existing state format.
+
+The selected public SEC filings are reproducible examples, not evidence of an
+issuer relationship or deployment. This sample uses complete documents; it is
+not the CLI's page-limited `--test` mode.
 
 `prepare-exact` verifies the manifest against SEC submissions and filing detail
 inventories, downloads only the selected full primary documents and the visible
@@ -13,7 +17,7 @@ Neither command falls back to ticker-wide ingestion.
 
 ## Exact scope
 
-Use [documents.yaml](../config/customer-v9/documents.yaml) unchanged:
+Use [documents.yaml](../config/sample-v9/documents.yaml) unchanged:
 
 | Filing | Filing date (not fiscal period) | Accession | Primary filename |
 |---|---|---|---|
@@ -43,7 +47,7 @@ Run from a parent directory where `SEC-Connector-v9-OCR` does not already exist:
 git clone https://github.com/svarukala/SEC-Copilot-Connector.git SEC-Connector-v9-OCR
 if ($LASTEXITCODE -ne 0) { throw "Clone failed" }
 Set-Location SEC-Connector-v9-OCR
-$ReleaseCommit = Read-Host "Approved v9 setup commit SHA from the delivery"
+$ReleaseCommit = Read-Host "Reviewed v9 release commit SHA containing this runbook"
 git checkout --detach $ReleaseCommit
 if ($LASTEXITCODE -ne 0) { throw "Checkout failed" }
 python -m venv .venv
@@ -60,12 +64,12 @@ if ($LASTEXITCODE -ne 0) { throw "Dependency check failed" }
 An approved **complete wheelhouse** is an alternative to the feed: install its
 reviewed `sec-connector[ocr]==1.0.1` wheel and dependencies with
 `.\.venv\Scripts\python.exe -m pip install --no-index --find-links C:\ApprovedWheelhouse "sec-connector[ocr]==1.0.1"`.
-The source/configuration/runbook must still be from the same reviewed delivery.
+The source/configuration/runbook must still be from the same reviewed release.
 Do not use an editable install or an older installation's Python executable.
 
 Remain in this fresh repository root for every command below. Relative `data`
 paths resolve from the current directory. Use
-[config/customer-v9/config.yaml](../config/customer-v9/config.yaml), **not** the
+[config/sample-v9/config.yaml](../config/sample-v9/config.yaml), **not** the
 demonstration `config/config.yaml`.
 
 ```powershell
@@ -74,8 +78,8 @@ $env:SEC_TESSERACT_EXE = Read-Host "Absolute path to the approved native tessera
 $env:SEC_TESSDATA_DIR = Read-Host "Absolute path to its approved tessdata directory"
 if (-not (Test-Path $env:SEC_TESSERACT_EXE -PathType Leaf)) { throw "Missing Tesseract" }
 if (-not (Test-Path (Join-Path $env:SEC_TESSDATA_DIR "eng.traineddata") -PathType Leaf)) { throw "Missing English model" }
-$Config = "config\customer-v9\config.yaml"
-$Manifest = "config\customer-v9\documents.yaml"
+$Config = "config\sample-v9\config.yaml"
+$Manifest = "config\sample-v9\documents.yaml"
 ```
 
 The loader expands environment variables but does **not** load `.env`. These
@@ -143,7 +147,7 @@ Andrew T. Feldstein; Richard J. Harshman; Daniel R. Hesse; Renu Khator;
 Linda R. Medler; Robert A. Niblock; Martin Pfinsgraff; Bryan Salesky.
 Item counts are evidence for these source bytes/dependencies, not an accuracy
 guarantee or a substitute for exact identity checks.
-The [public validation receipt](customer-v9-validation.json) records source URLs,
+The [historical public validation receipt](sample-v9-validation.json) records source URLs,
 hashes, sizes, native-engine provenance and exact payload equality with reviewed v9.
 
 ## 3. Offline replay and cache check
@@ -173,10 +177,10 @@ they are not a signed SEC publisher attestation. Do not modify the bundle or
 silently accept an unexpected digest.
 
 **Stop here for local-only validation.** The steps below contact Microsoft 365
-and are for a customer-authorized live import. They were not run against a live
+and require an operator-authorized live import. They were not run against a live
 tenant as part of the local validation.
 
-## 4. Customer-authorized new connection (LIVE)
+## 4. Operator-authorized new connection (LIVE)
 
 An authorized tenant administrator must create a **separate app registration**
 and grant admin consent to these Microsoft Graph **application** permissions:
@@ -191,7 +195,7 @@ $env:AZURE_CLIENT_ID = Read-Host "New app's application/client ID"
 $env:AZURE_CLIENT_SECRET = [System.Net.NetworkCredential]::new(
     "", (Read-Host "New app client secret VALUE, not secret ID" -AsSecureString)
 ).Password
-$env:SEC_CONNECTION_ID = "pnc9ocr" + [guid]::NewGuid().ToString("N").Substring(0,16)
+$env:SEC_CONNECTION_ID = "secsample9ocr" + [guid]::NewGuid().ToString("N").Substring(0,16)
 Write-Output "Record this new connection ID for future retries: $env:SEC_CONNECTION_ID"
 .\.venv\Scripts\python.exe -m sec_connector --config $Config setup
 if ($LASTEXITCODE -ne 0) { throw "Setup failed; do not import" }
@@ -230,11 +234,11 @@ import workflow; existing maintenance/reprocess/rollback procedures are unchange
 An interrupted, not-yet-prepared exact import cannot fall back to ordinary
 resume discovery; it instructs you to repeat `import-exact`.
 
-After success, the customer should verify all three accession/document identities
+After success, the operator should verify all three accession/document identities
 in Microsoft 365 and wait for indexing before evaluating grounded answers.
 Local preparation and upload acknowledgments do not establish search visibility
 or Copilot/agent accuracy. Do not replace the existing agent or baseline connector
-until the customer separately approves that change.
+until the operator separately approves that change.
 
 Clear the secret when done:
 
