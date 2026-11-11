@@ -38,9 +38,11 @@ editable installation.
 
 ## Current verification
 
-Verified on **2026-11-11** against unchanged product source at tested commit
-`5871eaf0b1b7149561bb9245a421a63587c7ec46`, with this branch's sample-path,
-display-label, documentation and test-reference edits:
+Verified on **2026-11-11** at implementation commit
+`14bf5b1000bb28bc9729ae3ef7983bff6143629b`. Product source is unchanged from
+`5871eaf0b1b7149561bb9245a421a63587c7ec46`; the sample-path, display-label,
+documentation and test-reference edits were checked again after committing.
+This subsequent handoff-only receipt records that verification:
 
 - `tests\test_exact_import.py` and `tests\test_cli.py`: **52 passed** using
   checkout-selected source. Pydantic and pytest-asyncio deprecation warnings
