@@ -1,6 +1,6 @@
 # SEC Copilot Connector handoff
 
-Last verified: **2026-11-11 (engagement-narrative anonymization)**. This is the
+Last verified: **2026-11-11 (authorized anonymization publication/merge review)**. This is the
 portable continuation record for the standalone product. Historical results
 below are not fresh live acceptance or permanently current remote status.
 
@@ -13,8 +13,16 @@ editable installation.
 
 - Starting commit: `5871eaf0b1b7149561bb9245a421a63587c7ec46`.
   Working branch: `svarukala-anonymize-engagement-references`.
-  This change is local and unpublished; no PR was found for this branch at the
-  2026-11-11 check. No new PR, push or merge is authorized by this task.
+  The user subsequently requested **"push and merge"** on 2026-11-11,
+  authorizing publication, a scoped PR into `main` and its normal merge.
+  This supersedes the earlier local-only boundary. No force, bypass, history
+  rewrite, branch deletion or live tenant actions are authorized.
+- This record is prepared **before publication and merge** and does not claim
+  either completed. Input head was `fc7f15a9920dc2cdb11e0736140600c0c344a70f`;
+  fetched main remained the starting commit above. Main was unprotected with
+  no active branch rules; normal merge commits were enabled and automatic
+  branch deletion disabled. Recheck final-head reviews/checks and mergeability.
+  GitHub's PR state and merge SHA are the authoritative completion receipt.
 - Neutralized engagement-specific narrative and sample connection display
   labels. Renamed the exact-import templates/runbook/receipt to `sample-v9`
   and updated their dependent links, commands and shipped-config test.
@@ -116,9 +124,11 @@ rotated-text OCR, not general chart/image/PDF recognition.
 
 Recover into a **fresh clone**, not by resetting or overwriting a populated or
 shared checkout. Fetch remote refs, inspect the intended reviewed commit and
-PR state, and explicitly select that revision. This branch is not main and
-publication alone would not mean merged. Use `git log -1 -- HANDOFF.md` to
-identify this record's revision.
+PR state, and explicitly select that revision. Publication alone does not mean
+merged: confirm this branch's PR is MERGED and its merge commit is contained in
+remote main before recovering the change from main. Verify the merged tree
+contains the reviewed README, handoff and renamed sample files. Use
+`git log -1 -- HANDOFF.md` to identify this record's revision.
 
 Follow the sample runbook for a fresh virtual environment and approved package
 feed or complete wheelhouse. Use `PYTHONPATH` pointing to the checkout's `src`
@@ -143,9 +153,11 @@ rather than assuming it is identical to historical evidence.
 
 ## Remaining work and authorization
 
-1. Review and separately authorize publication/integration of this change.
-   After any future push, verify the remote tip and published handoff; do not
-   report a local commit as published or a published branch as merged.
+1. Complete the authorized scoped PR using normal merge gates and an exact-head
+   guard. After pushing, verify the remote tip and published handoff. After
+   merging, verify GitHub's merged state, reviewed-head ancestry and the merged
+   README/handoff/sample blobs on remote main. Do not report pre-merge checks
+   as completion or repeat an already completed merge.
 2. Produce and fully review a sanitized demo before adding a replacement link.
    This task does not remove existing external artifacts or historical copies.
 3. Keep licensing clarification and v10 decisions separate. No live SEC/Graph,
