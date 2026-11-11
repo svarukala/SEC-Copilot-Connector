@@ -1,448 +1,154 @@
 # SEC Copilot Connector handoff
 
-Last verified: **2026-11-11 (authorized README/demo pre-merge review)**. This is the portable continuation record for the
-standalone product. Update it with meaningful progress; do not treat dated
-remote status or historical results as permanently current.
+Last verified: **2026-11-11 (engagement-narrative anonymization)**. This is the
+portable continuation record for the standalone product. Historical results
+below are not fresh live acceptance or permanently current remote status.
 
-## Start here: published does not mean merged
+## Current change and publication boundary
 
 Repository: <https://github.com/svarukala/SEC-Copilot-Connector>.
-The legacy `SEC-Connector` folder in `svarukala/AgenticProjects` is **not** the
-current product source. Do not copy it over this repository or use its older
-editable Python installation.
+The legacy `SEC-Connector` folder in `svarukala/AgenticProjects` is not the
+current product source. Do not copy it over this repository or reuse its older
+editable installation.
 
-## Authorized README/demo merge (2026-11-11)
+- Starting commit: `5871eaf0b1b7149561bb9245a421a63587c7ec46`.
+  Working branch: `svarukala-anonymize-engagement-references`.
+  This change is local and unpublished; no PR was found for this branch at the
+  2026-11-11 check. No new PR, push or merge is authorized by this task.
+- Neutralized engagement-specific narrative and sample connection display
+  labels. Renamed the exact-import templates/runbook/receipt to `sample-v9`
+  and updated their dependent links, commands and shipped-config test.
+  Public issuer names, filing identities, financial facts and regression
+  evidence remain intact. These examples do not imply issuer relationships.
+- Removed current README/handoff demo links. A sanitized replacement is pending;
+  no redacted recording was produced or verified. The original recording was
+  not modified. No media-editing tools were available on PATH.
+- This is current-documentation cleanup, not complete erasure. Git history,
+  historical branches, original public attachments and comments remain
+  accessible and were not rewritten or deleted. Runtime destination literals
+  and protective allowlists in the existing default configuration/sample loader
+  remain unchanged; changing those safely is outside this narrative task.
+- No source processing changes: package **1.0.1**, processing **9**, default
+  destination-state format **3**. Maintenance can permanently upgrade a selected
+  database to format 4. Do not confuse state format with processing version.
+  V10 remains parked after a search regression; no v10 integration is authorized.
+- README disclaimer and licensing wording are unchanged. The full-license gap
+  remains: package metadata declares MIT, but no full `LICENSE` file is tracked.
+  Owner clarification remains necessary; no license terms were invented.
 
-- The user explicitly requested "plz merge to main" for the completed README/
-  demo change. This supersedes its earlier publication-only boundary and
-  authorizes the normal merge of
-  [PR #11](https://github.com/svarukala/SEC-Copilot-Connector/pull/11) only,
-  without admin bypass, force or source-branch deletion.
-- Reviewed documentation head before this handoff update:
-  `f9a804771291178259e6353b5b9a116e1a9c1459` on
-  `svarukala-sec-readme-and-demo`; fetched main:
-  `227f6961b3fc81b36f45f2d10eed356576c14d5b`. The complete change is limited
-  to README and handoff. Product source, tests, configuration and dependencies
-  remain identical to that main baseline: package 1.0.1 / processing 9.
-- PR #11 was opened into `main`. At the authorization check, main was
-  unprotected with no active branch rules; normal merge commits were enabled
-  and automatic branch deletion was disabled. Recheck the exact final head,
-  reviews, checks and mergeability before issuing the normal merge.
-- Earlier documentation/link/CLI and full public-demo integrity checks below
-  remain the evidence for the unchanged README. The coordinator additionally
-  verified public browser video decoding/rendering: readyState 4, no media error,
-  1920 x 1080, duration approximately 159.67 seconds, with a visible SEC Filings
-  Analyst frame. This does not verify financial-answer accuracy.
-- This record is prepared **before** the merge; it does not claim completion.
-  GitHub's PR #11 MERGED state and merge SHA are the authoritative receipt.
-  After merging, verify both merge parents, equality with the final reviewed
-  head tree, remote-main ancestry, README/handoff blobs, the immediately
-  post-introduction diagram and exactly one final demo player. The fresh-clone
-  procedure below now gates recovery on PR #11's confirmed merge.
-- This handoff-only update records authorization and recovery; identify its
-  revision with `git log -1 -- HANDOFF.md`. No product tests or live SEC/Graph
-  actions are required by this documentation merge. The unresolved full-license
-  gap, private-runtime recovery requirements and parked v10 decision remain.
-  PR #7, legacy sources and the shared main checkout remain out of scope.
+## Current verification
 
-## Historical README and demo publication (2026-11-11)
+Verified on **2026-11-11** against unchanged product source at tested commit
+`5871eaf0b1b7149561bb9245a421a63587c7ec46`, with this branch's sample-path,
+display-label, documentation and test-reference edits:
 
-The following describes the completed publication before the subsequent merge
-request above. Its no-merge boundary is superseded only for PR #11.
+- `tests\test_exact_import.py` and `tests\test_cli.py`: **52 passed** using
+  checkout-selected source. Pydantic and pytest-asyncio deprecation warnings
+  remain. `pip check` passed.
+- All 57 relative links/anchors in changed Markdown, Markdown fence balance,
+  all tracked JSON parsing, the three changed PowerShell blocks' syntax and
+  `git diff --check` passed. No documented live command was executed.
+- Git-normalized manifest and historical v9 receipt blobs are identical across
+  their renames. Sample configuration differs only in its two display fields.
+  The v8 result differs only by omission of destination identifiers.
+  Runtime source, default config/schema, dependency manifest, public evaluation
+  samples, fixtures, presentation and README disclaimer are unchanged.
+- Initial validation was blocked by missing Python dependencies and shared
+  temporary-directory permissions. A worktree-local `.venv` was provisioned
+  from the configured package source with the existing dev/OCR extras, then
+  tests passed with a dedicated temporary directory. No shared environment
+  was modified. The local virtual environment is not part of Git recovery.
+- No full-suite rerun, native-OCR acceptance, video sanitization, SEC download
+  or live Graph/tenant operation is claimed. Historical results remain below.
 
-- GitHub confirms [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10)
-  is **MERGED** at `227f6961b3fc81b36f45f2d10eed356576c14d5b`, containing reviewed
-  head `aa3165bb392110bac6c5b14e5131549d5b4395be`. This branch incorporates that
-  completed merge, not a competing edit to the disclaimer branch.
-- Branch `svarukala-sec-readme-and-demo` changes only README and this handoff:
-  clearer purpose, a Mermaid flow immediately after the opening paragraph,
-  demo access, a choice of setup/evaluation paths, seven setup-to-agent steps,
-  prompt examples and a documentation map. Detailed processing/OCR/maintenance
-  caveats remain in an expandable reference section. The AS-IS/adopter/
-  AI-generated disclaimer and unresolved full-license gap are preserved verbatim.
-- Tested product baseline: `227f6961b3fc81b36f45f2d10eed356576c14d5b`, package
-  **1.0.1**, processing **9**. Source-selected CLI help for the main command,
-  setup, ingest, resume, prepare-exact and import-exact passed using an existing
-  provisioned interpreter. The default shell Python lacked `aiohttp`; no
-  product dependencies or runtime state were changed. No product test suite,
-  live SEC/Graph operation or tenant/agent acceptance run was performed.
-- Current documentation checks: Mermaid parser accepted `flowchart-v2`;
-  Markdown parsing, relative file links and heading anchors, YAML and PowerShell
-  syntax, diagram placement and `git diff --check` passed. The diagram explicitly
-  separates ingestion/indexing from prompts; it does not promise live SEC queries.
-- The public demo is hosted at
-  <https://github.com/user-attachments/assets/d93f30f0-75f4-4083-bfc0-d751f5ceea1a>.
-  Anonymous full-download verification returned HTTP 200, `video/mp4`,
-  66,233,143 bytes and SHA256
-  `6770a3214cd728f619c9b5bd79eb13cf4d98245ebc6da11d3465cd7895a46aa7`,
-  equal to the original recording. The MP4 is not committed to Git. The first
-  raw-API upload remained private even after branch publication; the coordinator
-  replaced it using native GitHub attachment upload associated with a
-  [follow-up demo comment](https://github.com/svarukala/SEC-Copilot-Connector/pull/10#issuecomment-6803294359),
-  not a change to the merged disclaimer. Use only the final public URL above.
-  GitHub's rendered README expands both ordinary video links and bare URLs
-  into players, so the final README uses one standalone URL with a bold label.
-  GitHub Markdown rendering of the final README confirmed exactly one player.
-  Public retrieval was verified at publication; the coordinator's subsequent
-  browser decoding/rendering check is recorded in the authorization section above.
-- Publication verified for documentation commit
-  `e33c94a40db648a0209c16765fb0585f175d3852`: remote branch tip matches, and
-  GitHub's README/handoff blobs match local Git blobs. This subsequent
-  demo-URL correction and handoff receipt record that verification; identify their revision
-  with `git log -1 -- HANDOFF.md`.
-- This is a separate **published, unmerged** documentation branch, with no PR
-  opened at verification. Review and a separately authorized merge remain
-  pending. PR #10's merge permission does not apply to this change.
-- Remaining work: review and separately authorize merging this documentation;
-  licensing clarification remains with the repository owner. V10 stays parked.
-  No shared-main checkout, source, configuration or private runtime artifacts
-  were modified. Git recovery still excludes credentials, native OCR software,
-  caches, prepared bundles and destination-scoped state; preserve those separately
-  through approved storage and the recovery procedure below.
+## Historical validation, not current live acceptance
 
-## Historical authorized disclaimer merge review (2026-11-11)
+- The [2026-10-07 source-provenance receipt](docs/sample-v9-validation.json)
+  records fresh-wheel installation, actual SEC downloads, native OCR,
+  clean-online/cache/offline equality and payload equality with reviewed v9.
+  Its dates, hashes, source identities and results are preserved unchanged.
+- Full source validation of `d3099150556628778d0311b15a0d1ced8bcbaf81` on
+  2026-10-11 recorded **922 passed, 4 skipped, 14 subtests passed**, with one
+  Pydantic deprecation warning. Offline preparation reproduced all 2,198
+  payloads from retained verified inputs. This was not a fresh SEC download
+  or a live Graph run.
+- Historical exact-import validation did not establish live upload, indexing
+  or agent accuracy. The separate [maintenance report](docs/maintenance-live-validation.md)
+  describes its own bounded non-OCR live scope; it is not acceptance of these
+  exact-import or OCR procedures.
 
-The following is the pre-merge record. PR #10 has since merged as recorded above;
-do not repeat its merge or interpret its authorization as applying to new work.
+## Public sample and supported procedure
 
-- The user authorized review and merging to main, then confirmed repository
-  trust was resolved. This supersedes the earlier no-merge instruction for
-  [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10) only.
-  Complete a normal merge without bypass, force or branch deletion.
-- Reviewed input head: `3a9109fa5cfc8a283593a93bfd7e228952bef0eb` on
-  `svarukala-readme-usage-disclaimer`; live main:
-  `0f9a00f770315c76114d7807ed21fb5be13e6e66`. The complete diff is limited to
-  README and handoff documentation. This subsequent handoff-only update
-  records authorization and recovery; identify its commit with
-  `git log -1 -- HANDOFF.md`.
-- At review, PR #10 was OPEN, non-draft, CLEAN/MERGEABLE, with no reviews,
-  comments or status checks. Main was unprotected with no active branch rules;
-  normal merge commits are enabled and automatic branch deletion is disabled.
-  Recheck the exact head and normal merge gates after publishing this update.
-- Documentation checks cover the full diff, relative file-link targets and
-  Markdown fences. No product tests are rerun for prose-only changes; prior
-  product validation below remains historical, not current testing.
-- [PR #7](https://github.com/svarukala/SEC-Copilot-Connector/pull/7) remains OPEN,
-  but its head `20029ceb9d385b8bd569e2859c2ac8a9beaa6ec4` is already an ancestor
-  of fetched main. It is redundant for integration: do not merge it again or
-  close it without separate authorization.
-- This record is written **before** PR #10 merges; it does not claim success.
-  GitHub's PR #10 merged state and merge SHA are the authoritative receipt.
-  After merging, verify remote main contains that merge and the exact reviewed
-  head, the merge tree matches the reviewed tree, and README/handoff are
-  published. The fresh-clone recovery below now checks PR #10.
-- The full-license gap remains unresolved: MIT is declared only in package
-  metadata, with no full `LICENSE` file and no GitHub-detected license. No
-  license terms were invented or changed. Owner clarification and legal review
-  remain follow-ups; the disclaimer does not guarantee liability protection.
-  No runtime, Graph, v10, presentation or shared-main changes are authorized.
-  Private runtime state still requires separate recovery as described below.
+Use the [sample runbook](docs/sample-v9-setup.md),
+[configuration](config/sample-v9/config.yaml) and
+[exact manifest](config/sample-v9/documents.yaml). The sample selects three
+complete public PNC primary documents, CIK `0000713676`; it is not page-limited
+CLI test mode. No exhibits or amendments are included.
 
-## Historical documentation publication (2026-10-18)
-
-- GitHub `main` and this change's starting commit were verified as
-  `0f9a00f770315c76114d7807ed21fb5be13e6e66`. GitHub confirms
-  [PR #9](https://github.com/svarukala/SEC-Copilot-Connector/pull/9) is **MERGED**
-  at that commit (2026-10-16). Recover from verified main as described below.
-- Branch `svarukala-readme-usage-disclaimer` adds a prominent README notice:
-  as-is availability, no warranties or guaranteed support, predominantly
-  AI-generated code, adopter operational responsibility, qualified liability
-  disclaimer and voluntary community pull requests. No IP ownership transfer
-  or official Microsoft support is implied.
-- License gap: `pyproject.toml` declares MIT, but no tracked `LICENSE` or other
-  full license text exists; GitHub license metadata is null. The README links
-  to the actual package metadata and flags the gap. No license terms or
-  metadata were added or changed. The owner must clarify licensing separately;
-  legal counsel should assess enforceability and liability protection.
-- Publication verified for disclaimer commit
-  `c5fc4d252350e34b972e98cc65c208c5aa7d661c`: remote branch tip matched, and
-  GitHub's README/handoff blobs matched local Git blobs.
-  [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10) was
-  **OPEN, ready for review**, targeting `main`, not merged. This subsequent
-  handoff-only receipt records those checks; use `git log -1 -- HANDOFF.md` for
-  its revision. Review, licensing clarification and any separately authorized
-  merge remained pending then. That task did **not** authorize merging;
-  the 2026-11-11 authorization above supersedes this historical restriction.
-- Documentation verification on that commit: `git diff --check` passed;
-  all 17 README and 4 handoff relative file-link targets exist, fenced blocks
-  balance, and the reviewed diff changes only these two Markdown files.
-  No documentation-specific tests were found; no product tests were run.
-- Scope is `README.md` and this handoff only. No source/runtime changes, live
-  Graph operations, shared-main-checkout changes or v10 work. Product tests
-  below are historical; no fresh product test result is claimed for this
-  prose-only change. Local-only recovery risks below remain unchanged: Git
-  publication does not preserve private runtime state.
-
-## Historical pre-merge record (2026-10-16)
-
-The following table and merge-preparation checks describe the state before
-PR #9 merged; they are retained as historical evidence, not current PR status.
-
-| Reference | Verified identity/status before this documentation update |
-|---|---|
-| GitHub `main` before PR #9 merge | `b472a1b14bb8f86e679fb9f6ccc661ec9e778358`, reviewed v9 merge |
-| Customer setup branch | `svarukala-customer-v9-setup` |
-| Published customer setup tip before this handoff update | `de242a6b577385390f69760f41a68f7baaa970b2`; product code unchanged from `d3099150556628778d0311b15a0d1ced8bcbaf81` |
-| Setup implementation | `27ff921ce7c2b17d68e11079c8c84056957098ee` |
-| [PR #9](https://github.com/svarukala/SEC-Copilot-Connector/pull/9) at pre-merge check | OPEN/CLEAN/MERGEABLE, targeting `main`; user authorized normal merge on 2026-10-16 |
-| Reviewed v9 integration head | `048e6ccbee487e93856008877b6a73266c9161fa`, merged via [PR #8](https://github.com/svarukala/SEC-Copilot-Connector/pull/8) |
-| Parked combined v10 branch | `svarukala-review-combined-sec-upgrades`, published tip `7e1caffae4dbed88cff7d759e8042233a9f93e4c`; not the customer baseline |
-
-The user explicitly authorized merging PR #9 after final unchanged-head checks
-on 2026-10-16. This documentation is prepared **before** that operation and does
-not claim it has completed. The execution path is a normal merge of the exact
-verified head, without admin bypass, force or branch deletion. GitHub's PR
-record is the authoritative completed-state and merge-commit receipt.
-**After confirming PR #9 is MERGED and its merge commit is contained in remote
-main, recover from main**, not the former unmerged feature-branch workflow.
-The recovery commands below enforce that condition.
-Use `git log -1 -- HANDOFF.md` to identify this documentation revision; the table
-pins tested input commits rather than attempting to embed this file's own hash.
-
-## Historical final authorized merge checks (2026-10-16)
-
-- Live input refs matched `de242a6...` (PR head) and `b472a1b...` (main).
-  No reviews, required checks or active branch rules were listed; main was
-  unprotected. Normal GitHub merge checks still apply; never bypass a new rule.
-- Product source, tests, configuration and dependency manifest were unchanged
-  from the 2026-10-11 full validation of `d309915...`.
-- Current focused source tests: `tests\test_exact_import.py` and
-  `tests\test_cli.py`: **52 passed** in 7.65 seconds, with the existing Pydantic
-  deprecation warning. Installed 1.0.1 / processing 9 module/resource byte
-  equality, `pip check`, and main/prepare-exact/import-exact CLI help passed.
-- The only merge-preparation change is this handoff transition. Earlier full
-  tests/native-OCR evidence below remain historical, not fresh runs today.
-- After merging, verify the merge tree equals the checked head tree, both
-  expected parents are present, remote main contains the merge, v10 remains
-  excluded, and the handoff/runbook are published with the email file absent.
-  No Graph, tenant, customer, agent or shared-main-checkout actions are authorized
-  by this source merge.
-
-**Decision retained:** processing version **9**, package **1.0.1**, existing
-destination-state format **3**. V10 marker-table changes caused a real search
-regression; the user parked v10 troubleshooting. Do not switch to, merge, or
-restart v10 work without a new decision. Default v9 parsing/payload behavior,
-historical prepared replay/rollback and version guards remain intact.
-
-## Historical crash-recovery audit (2026-10-11)
-
-On 2026-10-11, after fetching GitHub refs:
-
-- Customer setup local and remote tips matched `d309915...`; its worktree was
-  clean before this handoff change. All 13 inspected standalone worktrees
-  (including the detached prewarm checkout) had no tracked modifications or
-  ordinary untracked files. Other owners' files were not modified.
-- Zero commits reachable from local product branches were absent from **all**
-  fetched remote branches. This does not mean every branch is merged into main.
-- Git object connectivity passed. The shared main checkout was explicitly
-  excluded from filesystem/status checks and was not changed. Ref metadata
-  indicates its local `main` is stale at
-  `6d34733b404631b2e6b25caa73a3ac910bf80aa7`, behind GitHub main; use fresh remote
-  refs, not that checkout, for recovery.
-- There were 154 app/checkpoint commits reachable only outside local product
-  and remote branch histories. These are not ordinary unpublished product
-  commits and are not guaranteed to transfer with a clone. They were not
-  published, deleted or used to overwrite source.
-- Installed package sanity passed: `pip check`, module/CLI help, and byte
-  equality of all 21 installed Python modules plus packaged config/schema
-  against the tested source. No dependency reinstall was needed.
-- That day's full-source pytest run against `d309915...`: **922 passed, 4 skipped,
-  14 subtests passed**, in 409.41 seconds. One existing Pydantic class-based
-  `Config` deprecation warning; no failures. Source was selected explicitly
-  through `PYTHONPATH`, not inferred from a clean Git status.
-- That day's **offline** full-document preparation used the approved real native
-  OCR bundle and existing verified cache. It reproduced all 2,198 payloads and
-  the entire previous online bundle byte-for-byte, SHA256
-  `366ca3555078936e64a6a34b00efa404df11a512fb59da9be77fcff7fbeb4993`.
-  This was not a fresh SEC download or a live Graph test.
-
-Historical validation on 2026-10-07 is preserved in
-[the source-provenance receipt](docs/customer-v9-validation.json): fresh wheel
-installation, actual SEC downloads, 922 tests passed / 4 skipped / 14 subtests,
-clean-online/cache/offline equality, exact payload equality with reviewed v9,
-native OCR and missing-engine/model/asset failure checks. Do not relabel that
-receipt as a new test run. No live M365 upload, indexing or agent-accuracy
-validation was performed in that run or in this crash-recovery follow-up.
-
-## Exact scope and supported procedure
-
-Use the [customer runbook](docs/customer-v9-setup.md),
-[configuration](config/customer-v9/config.yaml) and
-[exact manifest](config/customer-v9/documents.yaml). All documents are PNC,
-CIK `0000713676`, full primary documents, not exhibits, amendments or samples.
-
-| Document | Filing date | Accession | Filename | Local items |
+| Document | Filing date | Accession | Filename | Historical items |
 |---|---|---|---|---|
 | 2025 DEF 14A | 2025-03-12 | 0001193125-25-052937 | d889589ddef14a.htm | 681 |
 | FY2023 10-K | 2024-02-21 | 0000713676-24-000028 | pnc-20231231.htm | 754 |
 | FY2024 10-K | 2025-02-21 | 0000713676-25-000027 | pnc-20241231.htm | 763 |
 
-The proxy requires 13 distinct director-name images, recognized at 26
-occurrences; the v9 selector finds no rotated-text candidates in the annual
-reports. Largest serialized requests were 7,967 / 8,488 / 8,962 bytes.
-This is limited rotated-text OCR, not general chart/image/PDF recognition.
-Proxy-only or `--max-filings 3` is not an equivalent selection.
+The proxy uses 13 distinct rotated director-name images at 26 occurrences.
+Largest historical requests were 7,967 / 8,488 / 8,962 bytes. This is limited
+rotated-text OCR, not general chart/image/PDF recognition.
 
-- `prepare-exact`: validates all manifest identities against SEC metadata,
-  stages only bounded same-filing selected OCR assets, and prepares full
-  payloads without Graph credentials, Graph sessions or a database.
-- `prepare-exact --offline`: additionally opens no SEC network session; requires
-  the verified inventory, source/assets and matching input hashes.
-- `import-exact --upload`: **live Graph writes**, requiring the reviewed bundle
-  digest and exact manifest, current schema/settings and a new destination or
-  retry of the same generation. All three documents use one config/app/
-  connection/destination-scoped database. Repeat the same exact import to retry
-  pending uploads; do not silently replace its bundle or state.
-- The email Markdown file was intentionally deleted by user request in
-  `d309915...`. Do not recreate it. No email was sent.
+- `prepare-exact` validates manifest identities, stages bounded same-filing OCR
+  assets and prepares full payloads without Graph credentials, sessions or a
+  database. `--offline` additionally requires verified cached inputs and opens
+  no SEC session. Proxy-only or `--max-filings 3` is not equivalent selection.
+- `import-exact --upload` performs live Graph writes. It requires the reviewed
+  bundle/digest, exact manifest, matching settings/schema and a new destination
+  or retry of the same generation. All three documents use one config/app/
+  connection/database. Retry the same exact import after interruption.
+- Renamed repository paths are for new sample use. Do not move or rewrite an
+  existing installation's private configuration, original prepared bundle,
+  captured native paths or destination state to match them. New UI labels do
+  not rename any live connection. Preserve original inputs through recovery.
+- The previously deleted email Markdown file must remain absent. Do not
+  recreate it or treat historical email-related work as permission to send mail.
 
-## Fresh-machine recovery (PowerShell)
+## Recovery and local-only risks
 
-Use a new directory. Obtain GitHub CLI (`gh`) access to verify the merge and your organization's approved
-Python package feed or complete wheelhouse. Python 3.12 is the tested version;
-do not transfer an old virtual environment between machines.
+Recover into a **fresh clone**, not by resetting or overwriting a populated or
+shared checkout. Fetch remote refs, inspect the intended reviewed commit and
+PR state, and explicitly select that revision. This branch is not main and
+publication alone would not mean merged. Use `git log -1 -- HANDOFF.md` to
+identify this record's revision.
 
-```powershell
-git clone https://github.com/svarukala/SEC-Copilot-Connector.git SEC-Connector-v9-Recovery
-if ($LASTEXITCODE -ne 0) { throw "Clone failed" }
-Set-Location SEC-Connector-v9-Recovery
-git fetch origin
-if ($LASTEXITCODE -ne 0) { throw "Fetch failed" }
-$PR = gh pr view 11 --repo svarukala/SEC-Copilot-Connector --json state,mergeCommit | ConvertFrom-Json
-if ($LASTEXITCODE -ne 0 -or $PR.state -ne "MERGED" -or -not $PR.mergeCommit.oid) {
-    throw "PR #11 merge is not confirmed; stop and inspect GitHub"
-}
-git merge-base --is-ancestor $PR.mergeCommit.oid origin/main
-if ($LASTEXITCODE -ne 0) { throw "Remote main does not contain the recorded merge" }
-git switch main
-if ($LASTEXITCODE -ne 0) { throw "Cannot select main" }
-git merge --ff-only origin/main
-if ($LASTEXITCODE -ne 0) { throw "Cannot fast-forward this fresh checkout" }
-git status --short
-git rev-parse HEAD
-git log -1 -- HANDOFF.md
-```
+Follow the sample runbook for a fresh virtual environment and approved package
+feed or complete wheelhouse. Use `PYTHONPATH` pointing to the checkout's `src`
+when testing source; otherwise verify the installed package location to avoid
+an older editable installation. Re-provision approved native Tesseract,
+DLL/image-codec dependencies and `eng.traineddata` with license notices.
+Pip's OCR extra supplies Pillow, not the native engine/model.
 
-These commands verify the completed PR merge, then recover main in a **fresh
-clone**; they do not merge the PR or modify a shared checkout. They deliberately
-stop if the authorized merge has not completed. If main has subsequently moved,
-review its additional changes, or use `git checkout --detach $PR.mergeCommit.oid`
-in this fresh clone for the exact merged release. Do not reset a populated local
-checkout to make it match. For the historical tested pre-handoff code, the
-immutable commit is `d309915...`.
+Git does not preserve credentials, private reports/logs, caches, payload bundles,
+destination-scoped SQLite databases, native binaries/models, virtual environments
+or app-local checkpoint history. Retrieve credentials through approved storage
+and transfer needed runtime artifacts securely with integrity checks. Config
+expands environment variables but does not load `.env`.
 
-```powershell
-python -m venv .venv
-if ($LASTEXITCODE -ne 0) { throw "Virtual environment creation failed" }
-$ApprovedPythonFeed = Read-Host "Organization-approved Python simple-index HTTPS URL"
-.\.venv\Scripts\python.exe -m pip install --index-url $ApprovedPythonFeed ".[ocr,dev]"
-if ($LASTEXITCODE -ne 0) { throw "Approved installation failed" }
-.\.venv\Scripts\python.exe -m pip check
-if ($LASTEXITCODE -ne 0) { throw "Dependency check failed" }
-.\.venv\Scripts\python.exe -c "import sec_connector; from sec_connector.pipeline import PROCESSING_VERSION; print(sec_connector.__version__, PROCESSING_VERSION, sec_connector.__file__)"
-.\.venv\Scripts\python.exe -m sec_connector --help
-.\.venv\Scripts\python.exe -m sec_connector prepare-exact --help
-.\.venv\Scripts\python.exe -m sec_connector import-exact --help
-$PriorPythonPath = $env:PYTHONPATH
-try {
-    $env:PYTHONPATH = Join-Path (Get-Location) "src"
-    .\.venv\Scripts\python.exe -m pytest -q
-    if ($LASTEXITCODE -ne 0) { throw "Source tests failed" }
-} finally {
-    $env:PYTHONPATH = $PriorPythonPath
-}
-```
+Before moving an in-progress installation, stop all writers and retain a
+consistent database backup including journal/WAL state, the original exact
+bundle/digest, runtime provenance and recovery receipts. Preserve destination
+identity; never run two writers, copy state to another destination or delete
+state to suppress errors. A Git/database restore alone is not a Graph rollback.
+New native paths/dependencies can change bundle digests: review new preparation
+rather than assuming it is identical to historical evidence.
 
-Setting `PYTHONPATH` just for tests ensures tests exercise the checkout, not a
-stale installed wheel. Outside that block the CLI exercises the installed
-package. Inspect its printed path; do not reuse an older editable installation.
-For an offline installation, use an approved complete wheelhouse with build,
-runtime and dev dependencies; do not substitute unapproved mirrors or bypass
-TLS. Dependency ranges can resolve differently later; preserve the validated
-wheel/dependency receipts through approved storage for precise reproduction.
+## Remaining work and authorization
 
-### Native OCR and local preparation
-
-Provision a complete approved **Windows Tesseract** bundle separately: native
-executable, DLL/image-codec dependencies and `eng.traineddata`, with its license
-notices. Pip's `[ocr]` extra supplies Pillow, not the engine/model. Historical
-validation used Tesseract 5.4.0.20240606; the public validation receipt records
-engine/model hashes. A fresh native bundle must be approved and validated, not
-silently treated as the same runtime.
-
-```powershell
-$env:SEC_USER_AGENT = Read-Host "Identifying SEC User-Agent with real contact email"
-$env:SEC_TESSERACT_EXE = Read-Host "Approved absolute path to tesseract.exe"
-$env:SEC_TESSDATA_DIR = Read-Host "Approved absolute path to tessdata"
-.\.venv\Scripts\python.exe -m sec_connector --config config\customer-v9\config.yaml prepare-exact `
-    --manifest config\customer-v9\documents.yaml --cache data\exact-cache `
-    --out data\prepared-recovery.json
-if ($LASTEXITCODE -ne 0) { throw "Preparation failed; do not upload" }
-```
-
-This command downloads from SEC, not Graph. To use an already securely
-transferred intact cache without any network, add `--offline` and choose an
-unused output filename. A fresh empty cache cannot be used offline. Keep the
-repository root as cwd. Config expands environment variables but does not load
-`.env`; re-enter required variables in a new shell.
-
-Do not compare a new machine's whole-bundle digest blindly with the old one:
-captured native paths/runtime/dependencies can differ. Review and validate new
-preparation; hashes are integrity evidence, not a publisher signature or
-authorization to upload.
-
-## What Git recovery does NOT restore
-
-GitHub preserves tracked source, tests, configuration templates and docs on
-published branches. It does not preserve all runtime state or prove a cloud
-destination is healthy. Do not commit or indiscriminately stage:
-
-- Credentials, tenant secrets, customer reports/workbooks and private logs.
-  Retrieve secrets through an approved secret store; do not paste them in this
-  handoff. Customer artifacts need approved secure transfer and access controls.
-- Native OCR binaries/models and Python virtual environments. Re-provision
-  approved native software and recreate the venv; preserve approved wheelhouse,
-  licenses and dependency/runtime hashes separately when needed.
-- Download caches, exact prepared bundles/digests, payload copies, scoped SQLite
-  databases, recovery receipts and detailed private validation evidence. Transfer
-  them securely with integrity checks, or regenerate public SEC preparation.
-  Rebuilding source is not equivalent to recovering delivery acknowledgments.
-- App-local checkpoint history and legacy presentation edits. The coordinator's
-  separate AgenticProjects audit found a pre-existing uncommitted presentation,
-  preserved privately rather than published. That file and custom reports are
-  not guaranteed by this product repository's Git recovery.
-
-Before moving an in-progress/live installation, stop all writers and use a
-consistent approved database backup (including SQLite journal/WAL state as
-applicable), exact original bundle/digest and recovery receipts. Preserve the
-original destination identity and runtime/configuration provenance. Do not run
-two machines as writers. Do not copy a database to a different destination or
-delete it to suppress errors. If state is lost or paths/settings must change,
-investigate documented recovery constraints before any live operation.
-
-## Authorization boundaries and next actions
-
-1. The user authorized PR #11's normal README/demo merge on 2026-11-11.
-   Verify its completed GitHub merge record and remote main as above before
-   recovery. PR #9 and PR #10 are already merged. This authorization does not extend to
-   PR #7 closure, live Microsoft 365 operations or v10 integration.
-2. For machine migration, recover the reviewed source and securely transfer or
-   regenerate only the needed private artifacts. Rerun tests and Graph-free
-   preparation before trusting the new environment.
-3. Only after separate customer authorization, follow the runbook's **LIVE**
-   section for a separate new app/unused connection with
-   `ExternalConnection.ReadWrite.OwnedBy` and
-   `ExternalItem.ReadWrite.OwnedBy` application permissions plus admin consent.
-   Enter secrets securely; keep all three documents on the same destination.
-4. Do not touch the existing connector, tenant app, customer database/config or
-   agent. `setup`, `import-exact --upload`, ordinary `ingest` (including
-   `--test` or `--save-payloads`), reset and applicable maintenance actions can
-   perform live writes; they are not local previews.
-5. Search/indexing/agent accuracy remains a separate, unperformed live
-   acceptance step. Keep v10 parked and the deleted email file absent.
-
-When progress changes these facts, update this handoff in the same justified
-change: date, tested product commit, remote/PR state, decisions, validation and
-remaining risks. Keep historical evidence labeled historical. After publishing,
-verify the remote tip and that `HANDOFF.md` is accessible on GitHub. This is a
-contributor/agent maintenance obligation, not a background scheduled job.
+1. Review and separately authorize publication/integration of this change.
+   After any future push, verify the remote tip and published handoff; do not
+   report a local commit as published or a published branch as merged.
+2. Produce and fully review a sanitized demo before adding a replacement link.
+   This task does not remove existing external artifacts or historical copies.
+3. Keep licensing clarification and v10 decisions separate. No live SEC/Graph,
+   tenant, app, agent or destination-state actions are authorized here.
+4. For a separately approved live sample, follow the runbook's **LIVE** section.
+   `setup`, `import-exact --upload`, `ingest` (including `--test` and
+   `--save-payloads`), reset and applicable maintenance commands are not previews.
+   Upload acknowledgments do not establish indexing or Copilot accuracy.

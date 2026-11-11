@@ -244,7 +244,7 @@ and exhibit selection. It is not an offline command or a full-backfill preview.
 ## Content limitations and OCR
 
 For automatic bounded staging of the selected primary documents' rotated images,
-use [`prepare-exact` and the exact-import runbook](customer-v9-setup.md).
+use [`prepare-exact` and the exact-import sample runbook](sample-v9-setup.md).
 Preparation is Graph-free; `--offline` additionally disables SEC networking.
 `import-exact --upload` explicitly delivers the reviewed digest-bound bundle.
 Ordinary ingestion, captured replay and maintenance/rollback behavior remain unchanged.
@@ -286,9 +286,9 @@ Recognition is fixed to English/PSM 7, with a positive per-call timeout up to 30
 explicit environment. Nonzero exit, stderr diagnostics even with exit zero,
 missing model/engine, empty text and timeout fail rather than silently skipping.
 
-**Offline customer distribution:** deliver the connector and all Python
+**Offline operator distribution:** deliver the connector and all Python
 dependencies, including a compatible approved Pillow wheel, through the
-customer's approved wheelhouse/package feed. A private source-code Git repository
+operator's approved wheelhouse/package feed. A private source-code Git repository
 does not itself supply Python packages or native OCR dependencies. For example,
 with an already approved complete wheelhouse containing the connector wheel:
 
@@ -296,7 +296,7 @@ with an already approved complete wheelhouse containing the connector wheel:
 .\.venv\Scripts\python.exe -m pip install --no-index --find-links C:\ApprovedWheelhouse "sec-connector[ocr]"
 ```
 
-Provision and integrity-check the native bundle separately under the customer's
+Provision and integrity-check the native bundle separately under the operator's
 software policy; preserve its license notices and runtime/model hashes. Do not
 substitute mirrors or disable TLS controls when package hosts are blocked.
 No installation or model/image downloading happens at runtime. Frozen maintenance

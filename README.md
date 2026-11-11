@@ -53,12 +53,9 @@ the repository owner before relying on licensing permissions.
 
 ## Demo
 
-**Watch the SEC Connector demo**
-
-https://github.com/user-attachments/assets/d93f30f0-75f4-4083-bfc0-d751f5ceea1a
-
-The recording is an illustration, not a guarantee of current tenant UI,
-indexing latency, filing coverage, or answer accuracy.
+A sanitized demo replacement is pending. The previous recording is no longer
+linked here because its UI contains identifying labels and creator metadata.
+Removing these links does not remove the original public attachment or Git history.
 
 ## Choose your starting point
 
@@ -66,7 +63,7 @@ indexing latency, filing coverage, or answer accuracy.
 |---|---|
 | Ingest filings for your own companies | [Setup and first import](#1-prepare-your-environment) below; setup and ingestion perform live Microsoft 365 writes. |
 | Inspect one document without uploading | [Local content inspection](docs/operations.md#inspect-content-without-uploading); downloads from SEC but makes no Graph uploads. |
-| Prepare the exact three-document PNC v9 + OCR scope | [Exact-import runbook](docs/customer-v9-setup.md); Graph-free preparation, then a separately authorized live import. |
+| Prepare a reproducible three-document v9 + OCR sample | [Exact-import runbook](docs/sample-v9-setup.md); public PNC filings, Graph-free preparation, then a separately authorized live import. |
 | Ask questions about already indexed filings | [Configure an agent and ask questions](#7-configure-an-agent-and-ask-questions). |
 | Operate or recover an existing installation | [Operations and troubleshooting](docs/operations.md). |
 
@@ -273,7 +270,7 @@ needed for a question; instructions cannot repair missing or unindexed content.
 |---|---|
 | [Agent setup and prompts](docs/agent-setup.md) | Connection binding, copy-ready instructions, starter prompts, optional skills and financial-precision guidance. |
 | [Operations and troubleshooting](docs/operations.md) | Monitoring, recurring sync, history, resume/reprocess, OCR, schema upgrades and deletion. |
-| [Exact three-document v9 + OCR runbook](docs/customer-v9-setup.md) | Fresh installation, exact PNC manifest, native OCR, Graph-free preparation and digest-bound live import/retry. |
+| [Exact three-document v9 + OCR sample runbook](docs/sample-v9-setup.md) | Fresh installation, public-filing manifest, native OCR, Graph-free preparation and digest-bound live import/retry. |
 | [Read-only diagnostics](docs/diagnostics.md) | Baseline investigation and report comparison without repairs; standard-library offline mode and optional GET-only Graph checks. |
 | [Evidence evaluation](docs/evidence-evaluation.md) | Tested scope, format limitations and repeatable offline/source-grounded evaluation rubric. |
 | [Scoped maintenance](docs/maintenance.md) | Eligibility, reviewed plans, guarded apply/resume/rollback and recovery evidence. |
@@ -315,7 +312,7 @@ For an exact cached document in a completed sole-document filing, the
 writers, retains remote/local recovery evidence, and permanently upgrades that
 database to state format 4. This is separate from processing v9. A
 [single-scope live validation](docs/maintenance-live-validation.md) passed storage
-checks and bounded PNC agent acceptance. The procedure is validated for its
+checks and bounded public-filing agent acceptance. The procedure is validated for its
 supported single-document, non-OCR scope, not for all filings.
 Offline-tested extensions support explicitly opted-in, fully prepared
 single-document interrupted delivery, frozen local rotated-image OCR inputs,
@@ -324,7 +321,7 @@ OCR-disabled filings. Multi-document plans use format 3; state format 4 and
 plan formats 1/2/3 are unchanged by processing v9. Missing inventory/unprepared work,
 ambiguous ownership, multi-document subsets, mixed provenance and multi-document
 OCR remain unsupported; see the maintenance eligibility matrix. These
-extensions have no live customer acceptance. Real-engine offline parser/chunker
+extensions have no live operator acceptance. Real-engine offline parser/chunker
 validation passed for the bounded PNC 2025 director-header case, including the
 full retained document; this does not establish general OCR or Copilot accuracy.
 
