@@ -33,18 +33,29 @@ editable Python installation.
   Markdown parsing, relative file links and heading anchors, YAML and PowerShell
   syntax, diagram placement and `git diff --check` passed. The diagram explicitly
   separates ingestion/indexing from prompts; it does not promise live SEC queries.
-- The coordinator uploaded the original demo once to
-  <https://github.com/user-attachments/assets/f85f4d76-f458-4ba2-9da5-6bebdce0cd0b>.
-  Authenticated full-download verification reported 66,233,143 bytes and SHA256
+- The public demo is hosted at
+  <https://github.com/user-attachments/assets/d93f30f0-75f4-4083-bfc0-d751f5ceea1a>.
+  Anonymous full-download verification returned HTTP 200, `video/mp4`,
+  66,233,143 bytes and SHA256
   `6770a3214cd728f619c9b5bd79eb13cf4d98245ebc6da11d3465cd7895a46aa7`,
-  equal to the original. The MP4 is not committed to Git. Anonymous access
-  returned HTTP 404 before branch publication; public playback must be checked
-  after publication and is not yet claimed here.
-- This is a separate documentation change, not authorized for automatic merge.
-  At preparation there is no PR for this branch. Publish and verify the remote
-  tip plus README/handoff blobs, then record the publication/demo receipt.
-  PR #10's merge permission does not apply to this change.
-- Remaining work: public demo access check and review of this documentation;
+  equal to the original recording. The MP4 is not committed to Git. The first
+  raw-API upload remained private even after branch publication; the coordinator
+  replaced it using native GitHub attachment upload associated with a
+  [follow-up demo comment](https://github.com/svarukala/SEC-Copilot-Connector/pull/10#issuecomment-6803294359),
+  not a change to the merged disclaimer. Use only the final public URL above.
+  GitHub's rendered README expands both ordinary video links and bare URLs
+  into players, so the final README uses one standalone URL with a bold label.
+  GitHub Markdown rendering of the final README confirmed exactly one player.
+  Public retrieval is verified; browser playback has not been visually tested.
+- Publication verified for documentation commit
+  `e33c94a40db648a0209c16765fb0585f175d3852`: remote branch tip matches, and
+  GitHub's README/handoff blobs match local Git blobs. This subsequent
+  demo-URL correction and handoff receipt record that verification; identify their revision
+  with `git log -1 -- HANDOFF.md`.
+- This is a separate **published, unmerged** documentation branch, with no PR
+  opened at verification. Review and a separately authorized merge remain
+  pending. PR #10's merge permission does not apply to this change.
+- Remaining work: review and separately authorize merging this documentation;
   licensing clarification remains with the repository owner. V10 stays parked.
   No shared-main checkout, source, configuration or private runtime artifacts
   were modified. Git recovery still excludes credentials, native OCR software,

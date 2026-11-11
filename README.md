@@ -53,9 +53,9 @@ the repository owner before relying on licensing permissions.
 
 ## Demo
 
-[Watch the SEC Connector demo](https://github.com/user-attachments/assets/f85f4d76-f458-4ba2-9da5-6bebdce0cd0b)
+**Watch the SEC Connector demo**
 
-https://github.com/user-attachments/assets/f85f4d76-f458-4ba2-9da5-6bebdce0cd0b
+https://github.com/user-attachments/assets/d93f30f0-75f4-4083-bfc0-d751f5ceea1a
 
 The recording is an illustration, not a guarantee of current tenant UI,
 indexing latency, filing coverage, or answer accuracy.
