@@ -1,6 +1,6 @@
 # SEC Copilot Connector handoff
 
-Last verified: **2026-11-11 (authorized PR #10 pre-merge review)**. This is the portable continuation record for the
+Last verified: **2026-11-11 (README and demo documentation review)**. This is the portable continuation record for the
 standalone product. Update it with meaningful progress; do not treat dated
 remote status or historical results as permanently current.
 
@@ -11,7 +11,50 @@ The legacy `SEC-Connector` folder in `svarukala/AgenticProjects` is **not** the
 current product source. Do not copy it over this repository or use its older
 editable Python installation.
 
-## Authorized disclaimer merge review (2026-11-11)
+## README and demo update (2026-11-11)
+
+- GitHub confirms [PR #10](https://github.com/svarukala/SEC-Copilot-Connector/pull/10)
+  is **MERGED** at `227f6961b3fc81b36f45f2d10eed356576c14d5b`, containing reviewed
+  head `aa3165bb392110bac6c5b14e5131549d5b4395be`. This branch incorporates that
+  completed merge, not a competing edit to the disclaimer branch.
+- Branch `svarukala-sec-readme-and-demo` changes only README and this handoff:
+  clearer purpose, a Mermaid flow immediately after the opening paragraph,
+  demo access, a choice of setup/evaluation paths, seven setup-to-agent steps,
+  prompt examples and a documentation map. Detailed processing/OCR/maintenance
+  caveats remain in an expandable reference section. The AS-IS/adopter/
+  AI-generated disclaimer and unresolved full-license gap are preserved verbatim.
+- Tested product baseline: `227f6961b3fc81b36f45f2d10eed356576c14d5b`, package
+  **1.0.1**, processing **9**. Source-selected CLI help for the main command,
+  setup, ingest, resume, prepare-exact and import-exact passed using an existing
+  provisioned interpreter. The default shell Python lacked `aiohttp`; no
+  product dependencies or runtime state were changed. No product test suite,
+  live SEC/Graph operation or tenant/agent acceptance run was performed.
+- Current documentation checks: Mermaid parser accepted `flowchart-v2`;
+  Markdown parsing, relative file links and heading anchors, YAML and PowerShell
+  syntax, diagram placement and `git diff --check` passed. The diagram explicitly
+  separates ingestion/indexing from prompts; it does not promise live SEC queries.
+- The coordinator uploaded the original demo once to
+  <https://github.com/user-attachments/assets/f85f4d76-f458-4ba2-9da5-6bebdce0cd0b>.
+  Authenticated full-download verification reported 66,233,143 bytes and SHA256
+  `6770a3214cd728f619c9b5bd79eb13cf4d98245ebc6da11d3465cd7895a46aa7`,
+  equal to the original. The MP4 is not committed to Git. Anonymous access
+  returned HTTP 404 before branch publication; public playback must be checked
+  after publication and is not yet claimed here.
+- This is a separate documentation change, not authorized for automatic merge.
+  At preparation there is no PR for this branch. Publish and verify the remote
+  tip plus README/handoff blobs, then record the publication/demo receipt.
+  PR #10's merge permission does not apply to this change.
+- Remaining work: public demo access check and review of this documentation;
+  licensing clarification remains with the repository owner. V10 stays parked.
+  No shared-main checkout, source, configuration or private runtime artifacts
+  were modified. Git recovery still excludes credentials, native OCR software,
+  caches, prepared bundles and destination-scoped state; preserve those separately
+  through approved storage and the recovery procedure below.
+
+## Historical authorized disclaimer merge review (2026-11-11)
+
+The following is the pre-merge record. PR #10 has since merged as recorded above;
+do not repeat its merge or interpret its authorization as applying to new work.
 
 - The user authorized review and merging to main, then confirmed repository
   trust was resolved. This supersedes the earlier no-merge instruction for
